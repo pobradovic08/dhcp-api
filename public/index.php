@@ -51,6 +51,41 @@ $container['db'] = function($c){
 
 
 /*
+ * End Hosts
+ */
+
+$app->group('/endhosts', function () use ($app) {
+  /*
+   *  Get all types
+   */
+   $app->get('/type/[all]', function (Request $request, Response $response){
+     $this->logger->addInfo("End host type list");
+     $mapper = new EndHostTypeMapper($this->db);
+     $endhost_types = $mapper->getTypes(array());
+     $array = [];
+     foreach ($endhost_types as $type) {
+       $array[] = $type->serialize();
+     }
+     return $response->withStatus(200)->withJson($array);
+   });
+
+   /*
+    * Get type by ID
+    */
+   $app->get('/type/id/{end_host_type_id:[0-9]+}[/]', function (Request $request, Response $response, $args){
+     $this->logger->addInfo("End host type #" . $args['end_host_type_id']);
+     $mapper = new EndHostTypeMapper($this->db);
+     $filter = array('end_host_type_id' => $args['end_host_type_id']);
+     $types = $mapper->getTypes($filter);
+     if(sizeof($types) == 1){
+       return $response->withStatus(200)->withJson($types[0]->serialize());
+     }else{
+       return $response->withStatus(404)->withJson([]);
+     }
+   });
+});
+
+/*
  * Reservations
  */
 $app->group('/reservations', function () use ($app) {
