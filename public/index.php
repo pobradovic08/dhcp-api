@@ -56,6 +56,65 @@ $container['db'] = function($c){
 
 $app->group('/endhosts', function () use ($app) {
   /*
+   * Get all End Hosts
+   */
+   $app->get('/[all]', function(Request $request, Response $response){
+     $this->logger->addInfo("Full end host list");
+     $mapper = new EndHostMapper($this->db);
+     $endhosts = $mapper->getEndHosts(array());
+     $array = [];
+     foreach ($endhosts as $endhost) {
+       $array[] = $endhost->serialize();
+     }
+     return $response->withStatus(200)->withJson($array); 
+   });
+  /*
+   * Get end host by ID
+   */
+   $app->get('/id/{end_host_id:[0-9]+}[/]', function (Request $request, Response $response, $args){
+     $this->logger->addInfo("Rrequested end host #" . $args['end_host_id']);
+     $mapper = new EndHostMapper($this->db);
+     $filter = array('end_host_id' => $args['end_host_id']);
+     $endhost = $mapper->getEndHosts($filter);
+     if(sizeof($endhost) == 1) {
+       return $response->withStatus(200)->withJson($endhost[0]->serialize());
+     } else {
+       return $response->withStatus(404)->withJson([]);
+     }
+   });
+  /*
+   * Get end host by MAC address
+   */
+   $app->get('/mac/{mac:(?:(?:[0-9A-Fa-f]{4}\.){2}[0-9A-Fa-f]{4}|(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2})}[/]', function (Request $request, Response $response, $args){
+     $this->logger->addInfo("Rrequested end with MAC: " . $args['mac']);
+     $mapper = new EndHostMapper($this->db);
+     $filter = array('mac' => $args['mac']);
+     $endhost = $mapper->getEndHosts($filter);
+     if(sizeof($endhost) == 1) {
+       return $response->withStatus(200)->withJson($endhost[0]->serialize());
+     } else {
+       return $response->withStatus(404)->withJson([]);
+     }
+   });
+  /*
+   * Search host
+   */
+   $app->get('/search/{pattern}[/]', function (Request $request, Response $response, $args){
+     $this->logger->addInfo("Searching for host with pattern: " . $args['pattern']);
+     $mapper = new EndHostMapper($this->db);
+     $filter = array('search' => '%' . $args['pattern'] . '%');
+     $endhosts = $mapper->getEndHosts($filter);
+     if(sizeof($endhosts) >= 1) {
+       $array = [];
+       foreach ($endhosts as $endhost) {
+         $array[] = $endhost->serialize();
+       }
+       return $response->withStatus(200)->withJson($array);
+     } else {
+       return $response->withStatus(404)->withJson([]);
+     }
+   });
+  /*
    *  Get all types
    */
    $app->get('/type/[all]', function (Request $request, Response $response){

@@ -91,7 +91,7 @@ class ReservationEntry {
 
   public function serialize() {
     return [
-      'id' => $this->getId(),
+      'id' => (int) $this->getId(),
       'mac' => $this->getMac(),
       'ip' => $this->getIp(),
       'hostname' => $this->getHostname(),
@@ -100,7 +100,7 @@ class ReservationEntry {
       'update_time' => $this->getUpdateTime(),
       'group_name' => $this->getGroupName(),
       'group_description' => $this->getGroupDescription(),
-      'vlan' => $this->getVlan(),
+      'vlan_id' => (int) $this->getVlan(),
       'network' => $this->getNetwork(),
       'subnet_description' => $this->getSubnetDescription(),
     ];
