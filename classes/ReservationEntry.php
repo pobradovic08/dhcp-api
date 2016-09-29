@@ -4,12 +4,14 @@ class ReservationEntry {
 
   // Reservation data
   protected $id;
-  protected $mac;
   protected $ip;
-  protected $hostname;
   protected $comment;
   protected $insert_time;
   protected $update_time;
+  // End host data
+  protected $mac;
+  protected $hostname;
+  protected $end_host_description;
   // Group data
   protected $group_name;
   protected $group_description;
@@ -31,6 +33,8 @@ class ReservationEntry {
     $this->insert_time = $data['insert_time'];
     $this->update_time = $data['update_time'];
 
+    $this->end_host_description = $data['end_host_description'];
+
     $this->group_name = $data['group_name'];
     $this->group_description = $data['group_description'];
 
@@ -47,6 +51,10 @@ class ReservationEntry {
 
   public function getMac() {
     return $this->mac;
+  }
+  
+  public function getEndHostDescription() {
+    return $this->end_host_description;
   }
 
   public function getIp() {
@@ -96,6 +104,7 @@ class ReservationEntry {
       'ip' => $this->getIp(),
       'hostname' => $this->getHostname(),
       'comment' => $this->getComment(),
+      'end_host_description' => $this->getEndHostDescription(),
       'insert_time' => $this->getInsertTime(),
       'update_time' => $this->getUpdateTime(),
       'group_name' => $this->getGroupName(),

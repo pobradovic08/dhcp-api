@@ -33,12 +33,14 @@ class ReservationMapper {
       $where_sql = 'WHERE ' . join(' AND ', $where_arr);
     }
     
-    $sql = "SELECT `reservation_id`, hex(`mac`) as mac, INET_NTOA(`ip`) as ip, r.`group_id`,
-            `hostname`, `comment`, `active`, `insert_time`, `update_time`, `vlan`,
+    $sql = "SELECT `reservation_id`, r.end_host_id, hex(eh.`mac`) as mac, INET_NTOA(`ip`) as ip, r.`group_id`,
+            eh.`hostname`, `comment`, `active`, r.`insert_time`, r.`update_time`, `vlan`,
             INET_NTOA(`network`) as network, INET_NTOA(`network_mask`) as network_mask,
+            eh.`description` as end_host_description,
             g.`description` as group_description, s.`description` as subnet_description,
 	    g.`name` as group_name
 	    FROM reservations r
+            LEFT JOIN end_hosts eh ON r.end_host_id = eh.end_host_id
 	    LEFT JOIN groups g ON r.group_id = g.group_id
 	    LEFT JOIN subnets s ON g.subnet_id = s.subnet_id
 	    $where_sql";
