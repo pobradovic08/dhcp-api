@@ -115,6 +115,41 @@ $app->group('/endhosts', function () use ($app) {
      }
    });
   /*
+   *  Create new end host
+   */
+   $app->post('/add[/]', function (Request $request, Response $response, $args) {
+     $required_params = array(
+                          array ( 'name' => 'hostname', 'filter' => FILTER_SANITIZE_STRING, 'regexp' => '/[a-zA-Z0-9-]+/'),
+                          array ( 'name' => 'mac', 'filter' => FILTER_SANITIZE_STRING, 'regexp' => '/[a-fA-F0-9.:-]+/'),
+                          array ( 'name' => 'end_host_type_id', 'filter' => FILTER_SANITIZE_NUMBER_INT, 'regexp' => '/[0-9]+/')
+                        );
+     $optional_params = array(
+                          array ( 'name' => 'description', 'filter' => FILTER_SANITIZE_STRING, 'regexp' => '/.*/')
+                        );
+     $data = [];
+     foreach ($required_params as $param) {
+       if(! $request->getParam($param['name'])) {
+         return $response->withStatus(400)->withJson(array('error' => "Required parameter '" . $param['name'] . "' missing"));
+       } else {
+         $filtered_value = filter_var($request->getParam($param['name']), $param['filter']);
+         if (preg_match($param['regexp'], $filtered_value)) {
+           $data[$param['name']] = $filtered_value;
+         }
+       }
+     }
+     foreach ($optional_params as $param) {
+       $filtered_value = filter_var($request->getParam($param['name']), $param['filter']);
+       if (preg_match($param['regexp'], $filtered_value)) {
+         $data[$param['name']] = $filtered_value;
+       }
+     }
+     $endhost = new EndHostEntry($data);
+     $mapper = new EndHostMapper($this->db);
+     if($mapper->createEndHost($endhost)){
+       $this->logger->addInfo("Added new end host. Hostname: " . $data['hostname'] ."; MAC: " . $data['mac']);
+     }
+   });
+  /*
    *  Get all types
    */
    $app->get('/type/[all]', function (Request $request, Response $response){

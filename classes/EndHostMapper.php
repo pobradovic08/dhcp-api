@@ -39,4 +39,15 @@ class EndHostMapper {
     }
     return $results;
   }
+
+  public function createEndHost (EndHostEntry $eh) {
+    $sql = "INSERT INTO end_hosts (`hostname`, `description`, `mac`, `end_host_type_id`, `insert_time`)
+            VALUES( :hostname, :description, :mac, :end_host_type_id, UNIX_TIMESTAMP() )";
+    $stmt = $this->db->prepare($sql);
+    if($stmt->execute($eh->db_data())){
+      return true;
+    } else {
+      return false;
+    }
+  }
 }

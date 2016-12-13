@@ -68,4 +68,13 @@ class EndHostEntry {
       'update_time' => $this->getUpdateTime()
     ];
   }
+  
+  public function db_data () {
+    return [
+      'hostname' => $this->hostname,
+      'description' => $this->description,
+      'mac' => hexdec($this->mac),
+      'end_host_type_id' => $this->type_id
+    ];
+  }
 }
