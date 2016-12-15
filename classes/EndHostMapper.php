@@ -18,8 +18,13 @@ class EndHostMapper {
     if(array_key_exists('end_host_type_id', $data)){
       $where_arr[] = "`end_host_type_id` = :end_host_type_id";
     }
+    if(array_key_exists('mac', $data)){
+      $where_arr[] = "eh.`mac` = :mac";
+    }
     if(array_key_exists('search', $data)){
-      $where_arr[] = "eh.`description` LIKE :search OR HEX(eh.`mac`) LIKE :search OR eh.`hostname` LIKE :search";
+      // Create new search key for comparing MAC addresses. SQL returns hex number so strip everything else
+      $data['mac_search'] = preg_replace('/[^%0-9A-Fa-f]/i', '', $data['search']);
+      $where_arr[] = "eh.`description` LIKE :search OR HEX(eh.`mac`) LIKE :mac_search OR eh.`hostname` LIKE :search";
     }
 
     // Join all cases

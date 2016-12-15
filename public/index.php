@@ -88,7 +88,8 @@ $app->group('/endhosts', function () use ($app) {
    $app->get('/mac/{mac:(?:(?:[0-9A-Fa-f]{4}\.){2}[0-9A-Fa-f]{4}|(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2})}[/]', function (Request $request, Response $response, $args){
      $this->logger->addInfo("Rrequested end with MAC: " . $args['mac']);
      $mapper = new EndHostMapper($this->db);
-     $filter = array('mac' => $args['mac']);
+     $clean_mac = preg_replace('/[\.:-]/', '', $args['mac']);
+     $filter = array('mac' => intval($clean_mac, 16));
      $endhost = $mapper->getEndHosts($filter);
      if(sizeof($endhost) == 1) {
        return $response->withStatus(200)->withJson($endhost[0]->serialize());
@@ -164,6 +165,24 @@ $app->group('/endhosts', function () use ($app) {
    });
 
    /*
+    * Create new end host type
+    */
+   $app->post('/type[/]', function (Request $request, Response $response, $args) {
+     $this->logger->addInfo("Creating new end host type with description: \"" . $request->getParam('description') . '"');
+     $mapper = new EndHostTypeMapper($this->db);
+     if(! $request->getParam('description')){
+       return $response->withStatus(400)->withJson(array('error' => "Required parameter 'description' missing"));
+     }else{
+       $result = $mapper->addType(filter_var($request->getParam('description', FILTER_SANITIZE_STRING)));
+       if($result['success']){
+         return $response->withStatus(200)->withJson($result);
+       }else{
+         return $response->withStatus(403)->withJson($result);
+       }
+     }
+   });
+
+   /*
     * Get type by ID
     */
    $app->get('/type/id/{end_host_type_id:[0-9]+}[/]', function (Request $request, Response $response, $args){
@@ -176,6 +195,16 @@ $app->group('/endhosts', function () use ($app) {
      }else{
        return $response->withStatus(404)->withJson([]);
      }
+   });
+
+   /*
+    * Delete end host type by ID
+    */
+   $app->delete('/type/id/{end_host_type_id:[0-9]+}[/]', function (Request $request, Response $response, $args) {
+     $this->logger->addInfo("Delete end host type #" . $args['end_host_type_id']);
+     $mapper = new EndHostTypeMapper($this->db);
+     $result = $mapper->deleteType($args['end_host_type_id']);
+     return $response->withStatus(404)->withJson($result);
    });
 });
 

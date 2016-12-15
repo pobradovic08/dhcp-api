@@ -31,4 +31,25 @@ class EndHostTypeMapper {
     }
     return $results;
   }
+
+  public function addType ($description) {
+    $response = array("success" => false);
+    $sql = "INSERT INTO `end_host_types` (`description`) VALUES (:description)";
+    $stmt = $this->db->prepare($sql);
+    if($stmt->execute(array('description' => $description))){
+      $response['success'] = true;
+      $response['id'] = $this->db->lastInsertId();
+    }
+    return $response;
+  }
+
+  public function deleteType($id) {
+    $response = array("success" => false);
+    $sql = "DELETE FROM `end_host_types` WHERE `end_host_type_id` = :id";
+    $stmt = $this->db->prepare($sql);
+    if($stmt->execute(array('id' => $id))){
+      $response['success'] = true;
+    }
+    return $response;
+  }
 }
