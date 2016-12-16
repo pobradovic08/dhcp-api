@@ -8,6 +8,7 @@ class EndHostEntry {
   private $mac;
   private $type_id;
   private $type_description;
+  private $production;
   private $insert_time;
   private $update_time;
 
@@ -20,6 +21,7 @@ class EndHostEntry {
     $this->mac = $data['mac'];
     $this->type_id = $data['end_host_type_id'];
     $this->type_description = $data['end_host_type_description'];
+    $this->production = $data['production'] || 0;
     $this->insert_time = $data['insert_time'];
     $this->update_time = $data['update_time'];
   }
@@ -48,6 +50,10 @@ class EndHostEntry {
     return $this->type_description;
   }
 
+  public function isProduction() {
+    return $this->production;
+  }
+
   public function getInsertTime() {
     return (int) $this->insert_time;
   }
@@ -64,6 +70,7 @@ class EndHostEntry {
       'mac' => $this->getMac(),
       'type_id' => $this->getTypeId(),
       'type_description' => $this->getTypeDescription(),
+      'production' => $this->isProduction(),
       'insert_time' => $this->getInsertTime(),
       'update_time' => $this->getUpdateTime()
     ];
@@ -74,7 +81,8 @@ class EndHostEntry {
       'hostname' => $this->hostname,
       'description' => $this->description,
       'mac' => hexdec($this->mac),
-      'end_host_type_id' => $this->type_id
+      'end_host_type_id' => $this->type_id,
+      'production' => $this->production
     ];
   }
 }

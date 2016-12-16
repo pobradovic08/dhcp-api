@@ -22,8 +22,13 @@ class EndHostMapper {
       $where_arr[] = "eh.`mac` = :mac";
     }
     if(array_key_exists('search', $data)){
+      // If search keyword looks like a hex number (MAC address)
       // Create new search key for comparing MAC addresses. SQL returns hex number so strip everything else
-      $data['mac_search'] = preg_replace('/[^%0-9A-Fa-f]/i', '', $data['search']);
+      if(preg_match('/[A-Fa-f0-9\.\:\-\%]/i', $data['search'])){
+        $data['mac_search'] = preg_replace('/[^%0-9A-Fa-f]/i', '', $data['search']);
+      }else{
+        $data['mac_search'] = $data['search'];
+      }
       $where_arr[] = "eh.`description` LIKE :search OR HEX(eh.`mac`) LIKE :mac_search OR eh.`hostname` LIKE :search";
     }
 
@@ -32,7 +37,7 @@ class EndHostMapper {
       $where_sql = 'WHERE ' . join(' AND ', $where_arr);
     }
     $sql = "SELECT eh.`end_host_id`, eh.`hostname`, HEX(eh.`mac`) as mac, eh.`end_host_type_id`, eh.`description`,
-            eh.`insert_time`, `update_time`, eht.`description` as end_host_type_description
+            eh.`production`, eh.`insert_time`, `update_time`, eht.`description` as end_host_type_description
 	    FROM end_hosts eh
 	    LEFT JOIN end_host_types eht on eh.`end_host_type_id` = eht.`end_host_type_id`
 	    $where_sql";
@@ -46,13 +51,22 @@ class EndHostMapper {
   }
 
   public function createEndHost (EndHostEntry $eh) {
-    $sql = "INSERT INTO end_hosts (`hostname`, `description`, `mac`, `end_host_type_id`, `insert_time`)
-            VALUES( :hostname, :description, :mac, :end_host_type_id, UNIX_TIMESTAMP() )";
-    $stmt = $this->db->prepare($sql);
-    if($stmt->execute($eh->db_data())){
-      return true;
-    } else {
-      return false;
+    $result = array('success' => false);
+    $sql = "INSERT INTO end_hosts (`hostname`, `description`, `mac`, `end_host_type_id`, `production`, `insert_time`)
+            VALUES( :hostname, :description, :mac, :end_host_type_id, :production, UNIX_TIMESTAMP() )
+            ON DUPLICATE KEY UPDATE `hostname` = :hostname, `description` = :description,
+                                    `end_host_type_id` = :end_host_type_id, `production` = :production,
+                                    `update_time` = UNIX_TIMESTAMP()";
+    try {
+      $stmt = $this->db->prepare($sql);
+      if($stmt->execute($eh->db_data())){
+        $result['success'] = true;
+        $result['rows'] = $stmt->rowCount(); 
+        $result['data'] = $this->getEndHosts(array('end_host_id' => $this->db->lastInsertId()))[0]->serialize();
+      }
+    } catch (PDOException $e) {
+      $result['error'] = $e->getMessage();
     }
+    return $result;
   }
 }
