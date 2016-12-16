@@ -197,6 +197,25 @@ $app->group('/endhosts', function () use ($app) {
      }
    });
 
+   $app->put('/type/id/{end_host_type_id:[0-9]+}[/]', function (Request $request, Response $response, $args) {
+     $this->logger->addInfo("Updating End host type entry #" . $args['end_host_type_id']);
+     if(! $request->getParam('description') || ! $request->getParam('end_host_type_id')){
+       return $response->withStatus(400)->withJson(array('error' => "Required parameters missing"));
+     }else{
+       $mapper = new EndHostTypeMapper($this->db);
+       $data = array(
+                 'end_host_type_id' => $request->getParam('end_host_type_id'),
+                 'description' => $request->getParam('description')
+               );
+       $result = $mapper->editType($data);
+       if($result['success']){
+         return $response->withStatus(200)->withJson($result);
+       }else{
+         return $response->withStatus(400)->withJson($result);
+       }
+     }
+   });
+
    /*
     * Delete end host type by ID
     */
@@ -204,7 +223,15 @@ $app->group('/endhosts', function () use ($app) {
      $this->logger->addInfo("Delete end host type #" . $args['end_host_type_id']);
      $mapper = new EndHostTypeMapper($this->db);
      $result = $mapper->deleteType($args['end_host_type_id']);
-     return $response->withStatus(404)->withJson($result);
+     $http_code = 400;
+     if($result['success']){
+       if($result['deleted_count']){
+         $http_code = 200;
+       }else{
+         $http_code = 404;
+       }
+     }
+     return $response->withStatus($http_code)->withJson($result);
    });
 });
 
