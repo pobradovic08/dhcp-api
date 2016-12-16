@@ -175,9 +175,9 @@ $app->group('/endhosts', function () use ($app) {
      }else{
        $result = $mapper->addType(filter_var($request->getParam('description', FILTER_SANITIZE_STRING)));
        if($result['success']){
-         return $response->withStatus(200)->withJson($result);
+         return $response->withStatus(200)->withJson($result['object']);
        }else{
-         return $response->withStatus(403)->withJson($result);
+         return $response->withStatus(400)->withJson($result['object']);
        }
      }
    });
@@ -209,9 +209,9 @@ $app->group('/endhosts', function () use ($app) {
                );
        $result = $mapper->editType($data);
        if($result['success']){
-         return $response->withStatus(200)->withJson($result);
+         return $response->withStatus(200)->withJson($result['object']);
        }else{
-         return $response->withStatus(400)->withJson($result);
+         return $response->withStatus(400)->withJson($result['object']);
        }
      }
    });
