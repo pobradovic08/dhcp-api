@@ -2,6 +2,7 @@
 
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
+use \Interop\Container\ContainerInterface as ContainerInterface;
 
 require '../vendor/autoload.php';
 
@@ -115,6 +116,7 @@ $app->group('/endhosts', function () use ($app) {
        return $response->withStatus(404)->withJson([]);
      }
    });
+
   /*
    *  Create or update new end host
    *  If hostname or mac address exists end host will be updated
@@ -357,6 +359,7 @@ $app->group('/reservations', function () use ($app) {
   });
 });
 
+$app->get('/test', '\TestController:get_host');
 
 // Run application
 $app->run();
