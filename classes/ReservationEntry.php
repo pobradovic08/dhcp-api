@@ -30,8 +30,8 @@ class ReservationEntry {
     $this->ip = $data['ip'];
     $this->hostname = $data['hostname'];
     $this->comment = $data['comment'];
-    $this->insert_time = $data['insert_time'];
-    $this->update_time = $data['update_time'];
+    $this->insert_time = (int) $data['insert_time'];
+    $this->update_time = (int) $data['update_time'];
 
     $this->end_host_description = $data['end_host_description'];
 
@@ -50,7 +50,7 @@ class ReservationEntry {
   }
 
   public function getMac() {
-    return $this->mac;
+    return strtolower(rtrim(chunk_split($this->mac, 4, '.'), '.'));
   }
   
   public function getEndHostDescription() {
@@ -103,14 +103,14 @@ class ReservationEntry {
       'mac' => $this->getMac(),
       'ip' => $this->getIp(),
       'hostname' => $this->getHostname(),
-      'comment' => $this->getComment(),
+      'reservation_comment' => $this->getComment(),
       'end_host_description' => $this->getEndHostDescription(),
       'insert_time' => $this->getInsertTime(),
       'update_time' => $this->getUpdateTime(),
       'group_name' => $this->getGroupName(),
       'group_description' => $this->getGroupDescription(),
       'vlan_id' => (int) $this->getVlan(),
-      'network' => $this->getNetwork(),
+      'subnet' => $this->getNetwork(),
       'subnet_description' => $this->getSubnetDescription(),
     ];
   }

@@ -39,7 +39,7 @@ class EndHostEntry {
   }
 
   public function getMac() {
-    return join('.', str_split($this->mac, 4));
+    return strtolower(join('.', str_split($this->mac, 4)));
   }
 
   public function getTypeId() {
