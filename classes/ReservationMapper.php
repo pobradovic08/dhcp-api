@@ -1,5 +1,9 @@
 <?php
 
+require('GroupEntry.php');
+require('EndHostEntry.php');
+//require('SubnetEntry.php');
+
 class ReservationMapper {
 
   protected $db;
@@ -36,11 +40,14 @@ class ReservationMapper {
     $sql = "SELECT `reservation_id`, r.end_host_id, hex(eh.`mac`) as mac, INET_NTOA(`ip`) as ip, r.`group_id`,
             eh.`hostname`, `comment`, `active`, r.`insert_time`, r.`update_time`, `vlan`,
             INET_NTOA(`network`) as network, INET_NTOA(`network_mask`) as network_mask,
-            eh.`description` as end_host_description,
+            eh.`description` as end_host_description, eh.`production`,
+            eh.`insert_time` as end_host_insert_time, eh.`update_time` as end_host_update_time,
+            eht.`end_host_type_id`, eht.`description` as end_host_type_description,
             g.`description` as group_description, s.`description` as subnet_description,
-	    g.`name` as group_name
+	    g.`name` as group_name, g.`subnet_id` as group_subnet_id
 	    FROM reservations r
             LEFT JOIN end_hosts eh ON r.end_host_id = eh.end_host_id
+            LEFT JOIN end_host_types eht ON eh.end_host_type_id = eht.end_host_type_id
 	    LEFT JOIN groups g ON r.group_id = g.group_id
 	    LEFT JOIN subnets s ON g.subnet_id = s.subnet_id
 	    $where_sql";
@@ -49,6 +56,8 @@ class ReservationMapper {
     #var_dump($stmt);
     $results = [];
     while($row = $stmt->fetch()){
+      $row['end_host'] = new EndHostEntry($row);
+      $row['group'] = new GroupEntry($row);
       $results[] = new ReservationEntry($row);
     }
     return $results;

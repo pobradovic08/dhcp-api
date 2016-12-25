@@ -6,16 +6,19 @@ class ReservationEntry {
   protected $id;
   protected $ip;
   protected $comment;
+  protected $active;
   protected $insert_time;
   protected $update_time;
   // End host data
+  // TODO: Pass EndHostEntry object
+  protected $end_host;
   protected $mac;
   protected $hostname;
   protected $end_host_description;
-  // Group data
-  protected $group_name;
-  protected $group_description;
+  // GroupEntry object
+  protected $group;
   // Subnet data
+  // TODO: Pass SubnetEntry object
   protected $subnet_id;
   protected $vlan;
   protected $network;
@@ -24,19 +27,20 @@ class ReservationEntry {
 
   public function __construct(array $data){
     if(isset($data['reservation_id'])){
-      $this->id = $data['reservation_id'];
+      $this->id = (int) $data['reservation_id'];
     }
-    $this->mac = $data['mac'];
+    if($data['group'] instanceof GroupEntry){
+      $this->group = $data['group'];
+    }
+    if($data['end_host'] instanceof EndHostEntry){
+      $this->end_host = $data['end_host'];
+    }
     $this->ip = $data['ip'];
-    $this->hostname = $data['hostname'];
+    $this->active = (bool) $data['active'];
     $this->comment = $data['comment'];
     $this->insert_time = (int) $data['insert_time'];
     $this->update_time = (int) $data['update_time'];
 
-    $this->end_host_description = $data['end_host_description'];
-
-    $this->group_name = $data['group_name'];
-    $this->group_description = $data['group_description'];
 
     $this->subnet_id = $data['subnet_id'];
     $this->vlan = $data['vlan'];
@@ -44,7 +48,7 @@ class ReservationEntry {
     $this->network_mask = $data['network_mask'];
     $this->subnet_description = $data['subnet_description'];
   }
-
+  
   public function getId() {
     return $this->id;
   }
@@ -59,6 +63,10 @@ class ReservationEntry {
 
   public function getIp() {
     return $this->ip;
+  }
+  
+  public function isActive() {
+    return $this->active;
   }
 
   public function getHostname() {
@@ -77,14 +85,6 @@ class ReservationEntry {
     return $this->update_time;
   }
 
-  public function getGroupName() {
-    return $this->group_name;
-  }
-
-  public function getGroupDescription() {
-    return $this->group_description;
-  }
-
   public function getVlan() {
     return $this->vlan;
   }
@@ -99,16 +99,14 @@ class ReservationEntry {
 
   public function serialize() {
     return [
-      'id' => (int) $this->getId(),
-      'mac' => $this->getMac(),
+      'reservation_id' => $this->getId(),
       'ip' => $this->getIp(),
-      'hostname' => $this->getHostname(),
+      'active' => $this->isActive(),
       'reservation_comment' => $this->getComment(),
-      'end_host_description' => $this->getEndHostDescription(),
-      'insert_time' => $this->getInsertTime(),
-      'update_time' => $this->getUpdateTime(),
-      'group_name' => $this->getGroupName(),
-      'group_description' => $this->getGroupDescription(),
+      'reservation_insert_time' => $this->getInsertTime(),
+      'reservation_update_time' => $this->getUpdateTime(),
+      'end_host' => $this->end_host->serialize(),
+      'group' => $this->group->serialize(),
       'vlan_id' => (int) $this->getVlan(),
       'subnet' => $this->getNetwork(),
       'subnet_description' => $this->getSubnetDescription(),

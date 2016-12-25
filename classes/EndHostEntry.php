@@ -14,20 +14,20 @@ class EndHostEntry {
 
   public function __construct(array $data) {
     if(isset($data['end_host_id'])){
-      $this->id = $data['end_host_id'];
+      $this->id = (int) $data['end_host_id'];
     }
     $this->hostname = $data['hostname'];
-    $this->description  = $data['description'];
+    $this->description  = $data['end_host_description'];
     $this->mac = $data['mac'];
-    $this->type_id = $data['end_host_type_id'];
+    $this->type_id = (int) $data['end_host_type_id'];
     $this->type_description = $data['end_host_type_description'];
-    $this->production = $data['production'] || 0;
-    $this->insert_time = $data['insert_time'];
-    $this->update_time = $data['update_time'];
+    $this->production = (bool) $data['production'] || 0;
+    $this->insert_time = (int) $data['end_host_insert_time'];
+    $this->update_time = (int) $data['end_host_update_time'];
   }
 
   public function getId() {
-    return (int) $this->id;
+    return $this->id;
   }
 
   public function getHostname() {
@@ -43,7 +43,7 @@ class EndHostEntry {
   }
 
   public function getTypeId() {
-    return (int) $this->type_id;
+    return $this->type_id;
   }
 
   public function getTypeDescription() {
@@ -55,27 +55,27 @@ class EndHostEntry {
   }
 
   public function getInsertTime() {
-    return (int) $this->insert_time;
+    return $this->insert_time;
   }
 
   public function getUpdateTime() {
-    return (int) $this->update_time;
+    return $this->update_time;
   }
 
   public function serialize () {
     return [
       'end_host_id' => $this->getId(),
       'hostname' => $this->getHostname(),
-      'description' => $this->getDescription(),
+      'end_host_description' => $this->getDescription(),
       'mac' => $this->getMac(),
-      'type_id' => $this->getTypeId(),
-      'type_description' => $this->getTypeDescription(),
+      'end_host_type_id' => $this->getTypeId(),
+      'end_host_type_description' => $this->getTypeDescription(),
       'production' => $this->isProduction(),
-      'insert_time' => $this->getInsertTime(),
-      'update_time' => $this->getUpdateTime()
+      'end_host_insert_time' => $this->getInsertTime(),
+      'end_host_update_time' => $this->getUpdateTime()
     ];
   }
-  
+
   public function db_data () {
     return [
       'hostname' => $this->hostname,

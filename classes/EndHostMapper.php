@@ -36,8 +36,10 @@ class EndHostMapper {
     if(!empty($where_arr)){
       $where_sql = 'WHERE ' . join(' AND ', $where_arr);
     }
-    $sql = "SELECT eh.`end_host_id`, eh.`hostname`, HEX(eh.`mac`) as mac, eh.`end_host_type_id`, eh.`description`,
-            eh.`production`, eh.`insert_time`, `update_time`, eht.`description` as end_host_type_description
+    $sql = "SELECT eh.`end_host_id`, eh.`hostname`, HEX(eh.`mac`) as mac, eh.`end_host_type_id`,
+            eh.`description` as end_host_description, eh.`production`,
+            eh.`insert_time` as end_host_insert_time, `update_time` as end_host_update_time,
+            eht.`description` as end_host_type_description
 	    FROM end_hosts eh
 	    LEFT JOIN end_host_types eht on eh.`end_host_type_id` = eht.`end_host_type_id`
 	    $where_sql";
