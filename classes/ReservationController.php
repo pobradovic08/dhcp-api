@@ -11,70 +11,36 @@ class ReservationController {
 
   public function get_reservations ($request, $response, $args) {
     $this->ci->logger->addInfo("Reservation list");
-    $mapper = new ReservationMapper($this->ci->db);
-    $reservations = $mapper->getReservations(array());
-    $array = [];
-    foreach($reservations as $reservation){
-      $array[] = $reservation->serialize();
-    }
-    return $response->withStatus(200)->withJson($array);
+    return $this->get_filtered_reservations($response, array(), true);
   }
 
   public function get_reservations_for_subnet ($request, $response, $args){
     $this->ci->logger->addInfo("Reservation list for subnet #" . $args['subnet_id']);
-    $mapper = new ReservationMapper($this->ci->db);
     // Filter data
     $filter = array('subnet_id' => $args['subnet_id']);
     // Optional group_id argument
     if(array_key_exists('group_id', $args)){
       $filter['group_id'] = $args['group_id'];
     }
-    $reservations = $mapper->getReservations($filter);
-    $array = [];
-    foreach($reservations as $reservation){
-      $array[] = $reservation->serialize();
-    }
-    return $response->withStatus(200)->withJson($array);  
+    return $this->get_filtered_reservations($response, $filter, true);
   }
 
   public function get_reservations_for_group ($request, $response, $args){
     $this->ci->logger->addInfo("Reservation list for subnet #" . $args['subnet_id']);
-    $mapper = new ReservationMapper($this->ci->db);
-    // Filter data
     $filter = array('group_id' => $args['group_id']);
-
-    $reservations = $mapper->getReservations($filter);
-    $array = [];
-    foreach($reservations as $reservation){
-      $array[] = $reservation->serialize();
-    }
-    return $response->withStatus(200)->withJson($array);
+    return $this->get_filtered_reservations($response, $filter, true);
   }
 
   public function get_reservation_by_ip ($request, $response, $args){
     $this->ci->logger->addInfo('Request for reservation with IP: ' . $args['ip']);
     $filter = array('ip' => $args['ip']);
-
-    $mapper = new ReservationMapper($this->ci->db);
-    $reservation = $mapper->getReservations($filter);
-    if(sizeof($reservation) == 1){
-      return $response->withStatus(200)->withJson($reservation[0]->serialize());
-    }else{
-      return $response->withStatus(404)->withJson();
-    }
+    return $this->get_filtered_reservations($response, $filter);
   }
 
   public function get_reservation_by_id ($request, $response, $args){
     $this->ci->logger->addInfo('Request for reservation #' . $args['id']);
     $filter = array('id' => $args['id']);
-
-    $mapper = new ReservationMapper($this->ci->db);
-    $reservation = $mapper->getReservations($filter);
-    if(sizeof($reservation) == 1){
-      return $response->withStatus(200)->withJson($reservation[0]->serialize());
-    }else{
-      return $response->withStatus(404)->withJson();
-    }
+    return $this->get_filtered_reservations($response, $filter);
   }
 
   public function get_reservation_by_mac ($request, $response, $args){
@@ -82,14 +48,7 @@ class ReservationController {
 
     $clean_mac = preg_replace('/[\.:-]/', '', $args['mac']);
     $filter = array('mac' => intval($clean_mac, 16));
-
-    $mapper = new ReservationMapper($this->ci->db);
-    $reservations = $mapper->getReservations($filter);
-    $array = [];
-    foreach($reservations as $reservation){
-      $array[] = $reservation->serialize();
-    }
-    return $response->withStatus(200)->withJson($array);  
+    return $this->get_filtered_reservations($response, $filter, true);
   }
 
   public function post_reservation ($request, $response, $args){
@@ -99,5 +58,23 @@ class ReservationController {
   }
 
   public function delete_reservation ($request, $response, $args){
+  }
+
+  private function get_filtered_reservations($response, $filter, $multiple_results=false){
+    $mapper = new ReservationMapper($this->ci->db);
+    $reservations = $mapper->getReservations($filter);
+    if($multiple_results){
+      $array = [];
+      foreach($reservations as $reservation){
+        $array[] = $reservation->serialize();
+      }
+      return $response->withStatus(200)->withJson($array);
+    }else{
+      if(sizeof($reservations) == 1){
+        return $response->withStatus(200)->withJson($reservations[0]->serialize());
+      }else{
+        return $response->withStatus(404)->withJson();
+      }
+    }
   }
 }
