@@ -22,7 +22,7 @@ class EndHostTypeMapper {
     if(!empty($where_arr)){
       $where_sql = 'WHERE ' . join(' AND ', $where_arr);
     }
-    $sql = "SELECT `end_host_type_id`, `description`
+    $sql = "SELECT `end_host_type_id`, `description` as end_host_type_description
 	    FROM end_host_types eht
 	    $where_sql";
 

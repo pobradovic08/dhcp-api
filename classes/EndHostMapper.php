@@ -1,5 +1,7 @@
 <?php
 
+require('EndHostTypeEntry.php');
+
 class EndHostMapper {
 
   protected $db;
@@ -47,6 +49,7 @@ class EndHostMapper {
     $stmt->execute($data);
     $results = [];
     while($row = $stmt->fetch()){
+      $row['end_host_type'] = new EndHostTypeEntry($row);
       $results[] = new EndHostEntry($row);
     }
     return $results;

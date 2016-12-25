@@ -8,7 +8,7 @@ class EndHostTypeEntry {
   public function __construct(array $data) {
     if(isset($data['end_host_type_id'])){
       $this->id = $data['end_host_type_id'];
-      $this->description  = $data['description'];
+      $this->description  = $data['end_host_type_description'];
     }
   }
 
@@ -23,7 +23,7 @@ class EndHostTypeEntry {
   public function serialize () {
     return [
       'end_host_type_id' => $this->getId(),
-      'description' => $this->getDescription(),    
+      'end_host_type_description' => $this->getDescription(),    
     ];
   }
 }

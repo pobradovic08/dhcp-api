@@ -6,6 +6,8 @@ class EndHostEntry {
   private $description;
   private $hostname;
   private $mac;
+  // EndHostType object
+  private $end_host_type;
   private $type_id;
   private $type_description;
   private $production;
@@ -15,6 +17,9 @@ class EndHostEntry {
   public function __construct(array $data) {
     if(isset($data['end_host_id'])){
       $this->id = (int) $data['end_host_id'];
+    }
+    if($data['end_host_type'] instanceof EndHostTypeEntry){
+      $this->end_host_type = $data['end_host_type'];
     }
     $this->hostname = $data['hostname'];
     $this->description  = $data['end_host_description'];
@@ -68,6 +73,7 @@ class EndHostEntry {
       'hostname' => $this->getHostname(),
       'end_host_description' => $this->getDescription(),
       'mac' => $this->getMac(),
+      'end_host_type' => $this->end_host_type->serialize(),
       'end_host_type_id' => $this->getTypeId(),
       'end_host_type_description' => $this->getTypeDescription(),
       'production' => $this->isProduction(),

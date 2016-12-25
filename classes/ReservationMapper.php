@@ -1,8 +1,9 @@
 <?php
 
+require('EndHostTypeEntry.php');
 require('GroupEntry.php');
 require('EndHostEntry.php');
-//require('SubnetEntry.php');
+require('SubnetEntry.php');
 
 class ReservationMapper {
 
@@ -43,7 +44,8 @@ class ReservationMapper {
             eh.`description` as end_host_description, eh.`production`,
             eh.`insert_time` as end_host_insert_time, eh.`update_time` as end_host_update_time,
             eht.`end_host_type_id`, eht.`description` as end_host_type_description,
-            g.`description` as group_description, s.`description` as subnet_description,
+            g.`description` as group_description,
+            s.`subnet_id`, s.`description` as subnet_description,
 	    g.`name` as group_name, g.`subnet_id` as group_subnet_id
 	    FROM reservations r
             LEFT JOIN end_hosts eh ON r.end_host_id = eh.end_host_id
@@ -56,8 +58,10 @@ class ReservationMapper {
     #var_dump($stmt);
     $results = [];
     while($row = $stmt->fetch()){
+      $row['end_host_type'] = new EndHostTypeEntry($row);
       $row['end_host'] = new EndHostEntry($row);
       $row['group'] = new GroupEntry($row);
+      $row['subnet'] = new SubnetEntry($row);
       $results[] = new ReservationEntry($row);
     }
     return $results;
