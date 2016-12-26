@@ -81,6 +81,11 @@ class EndHostController {
                         );
      $optional_params = array(
                           array (
+                            'name' => 'end_host_id',
+                            'filter' => FILTER_SANITIZE_NUMBER_INT,
+                            'regexp' => '/[0-9]+/'
+                          ),
+                          array (
                             'name' => 'description',
                             'filter' => FILTER_SANITIZE_STRING,
                             'regexp' => '/.*/'
@@ -91,36 +96,55 @@ class EndHostController {
                             'regexp' => '/[01]/'
                           )
                         );
+     /*
+      * Data array used for building the EndHostEntry object.
+      * Parameters from Request are filtered and copied to this array.
+      */
      $data = [];
+     /*
+      * Loop trough required parameters and check if
+      * they exist and are matching the regexp defined above.
+      * Generates error message if the value is missing or doesn't
+      * match the regular expression defined for it 
+      */
      foreach ($required_params as $param) {
+       // No parameter defined, generate error message
        if(! $request->getParam($param['name'])) {
          return $response->withStatus(400)->withJson(array('message' => "Required parameter '" . $param['name'] . "' missing"));
        } else {
+         // Filter parameter and add it to data array if it matches the regexp
          $filtered_value = filter_var($request->getParam($param['name']), $param['filter']);
          if (preg_match($param['regexp'], $filtered_value)) {
            $data[$param['name']] = $filtered_value;
+         // Filtered parameter doesn't match regexp, generate error message
          }else{
            return $response->withStatus(400)->withJson(array('message' => "Required parameter '" . $param['name'] . "' invalid"));
          }
        }
      }
+
+     /*
+      * Loop through optional parameters and check if
+      * they exist and are matching the regexp defined above.
+      * No error message is generated if the parameter is missing.
+      * If the value is not matching the regexp, parameter is not
+      * added to data array.
+      */
      foreach ($optional_params as $param) {
+       // Filter parameter and add it to data array if it matches the regexp
        $filtered_value = filter_var($request->getParam($param['name']), $param['filter']);
        if (preg_match($param['regexp'], $filtered_value)) {
          $data[$param['name']] = $filtered_value;
        }
      }
+     /*
+      * Build EndHostEntry from data array and create new host
+      */
      $endhost = new EndHostEntry($data);
      $mapper = new EndHostMapper($this->ci->db);
-     $result = $mapper->createEndHost($endhost);
+     $result = $mapper->insertEndHost($endhost);
      if($result['success']){
-       if($result['rows'] == 1) {
-         $result['message'] = "Created new end host #" . $result['data']['end_host_id'];
-         $this->ci->logger->addInfo("Added new end host. Hostname: " . $data['hostname'] ."; MAC: " . $data['mac']);
-       }else if($result['rows'] == 2){
-         $result['message'] = "Updated existing end host #" . $result['data']['end_host_id'];
-         $this->ci->logger->addInfo("Updated existing end host. Hostname: " . $result['data']['hostname'] ."; MAC: " . $result['data']['mac']);
-       }
+       $this->ci->logger->addInfo($result['message']);
        return $response->withStatus(200)->withJson($result);
      }else{
        return $response->withStatus(400)->withJson($result);

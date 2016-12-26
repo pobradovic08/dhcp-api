@@ -10,6 +10,28 @@ class EndHostMapper {
     $this->db = $db;
   }
 
+  private function exists(int $id) {
+    $sql = "SELECT COUNT(`end_host_id`) as count FROM end_hosts WHERE `end_host_id` = :id";
+    $stmt = $this->db->prepare($sql);
+    if($stmt->execute(['id' => $id])){
+      $result = $stmt->fetchAll()[0];
+      return ((int) $result['count']) > 0;
+    }
+  }
+
+  private function getEndHostId (EndHostEntry $eh) {
+    $sql = "SELECT `end_host_id` FROM end_hosts WHERE
+              `mac` = :mac OR `end_host_id` = :end_host_id
+            LIMIT 0,1";
+    $stmt = $this->db->prepare($sql);
+    $data = [ 'end_host_id' => $eh->getId(),
+              'mac' => $eh->db_data()['mac']];
+    if($stmt->execute($data)){
+      $result = $stmt->fetchAll()[0];
+      return (int) $result['end_host_id'];
+    }
+  }
+
   public function getEndHosts (array $data) {
     // Array of where statements to be concatenated
     $where_arr = array();
@@ -47,31 +69,68 @@ class EndHostMapper {
 	    $where_sql";
     $stmt = $this->db->prepare($sql);
     $stmt->execute($data);
+    $tmp = $stmt->fetchAll();
     $results = [];
-    while($row = $stmt->fetch()){
+    foreach($tmp as $row){
       $row['end_host_type'] = new EndHostTypeEntry($row);
       $results[] = new EndHostEntry($row);
     }
     return $results;
   }
 
-  public function createEndHost (EndHostEntry $eh) {
+  public function insertEndHost (EndHostEntry $eh) {
+    $id_exists = $this->getEndHostId($eh);
+    return $id_exists ? $this->updateEndHost($eh) : $this->createEndHost($eh);
+  }
+
+  private function createEndHost (EndHostEntry $eh) {
     $result = array('success' => false);
-    $sql = "INSERT INTO end_hosts (`hostname`, `description`, `mac`, `end_host_type_id`, `production`, `insert_time`)
-            VALUES( :hostname, :description, :mac, :end_host_type_id, :production, UNIX_TIMESTAMP() )
-            ON DUPLICATE KEY UPDATE `hostname` = :hostname, `description` = :description,
-                                    `end_host_type_id` = :end_host_type_id, `production` = :production,
-                                    `update_time` = UNIX_TIMESTAMP()";
+    $sql = "INSERT INTO end_hosts (
+              `hostname`, `description`, `mac`,
+              `end_host_type_id`, `production`, `insert_time`
+            ) VALUES (
+              :hostname, :description, :mac,
+              :end_host_type_id, :production, UNIX_TIMESTAMP()
+            )";
     try {
       $stmt = $this->db->prepare($sql);
-      if($stmt->execute($eh->db_data())){
+      if($stmt->execute($eh->db_insert_data())){
+        $last_insert_id = $this->db->lastInsertId();
+        if($last_insert_id == "0"){
+          var_dump($stmt->errorInfo());
+        }
         $result['success'] = true;
         $result['rows'] = $stmt->rowCount(); 
-        $result['data'] = $this->getEndHosts(array('end_host_id' => $this->db->lastInsertId()))[0]->serialize();
+        $result['data'] = $this->getEndHosts(array('end_host_id' => $last_insert_id))[0]->serialize();
       }
     } catch (PDOException $e) {
       $result['error'] = $e->getMessage();
     }
     return $result;
+  }
+
+  private function updateEndHost (EndHostEntry $eh) {
+    $result = array('success' => false);
+    $sql = "UPDATE `end_hosts` SET
+              `hostname` = :hostname, `description` = :description,
+              `end_host_type_id` = :end_host_type_id, `production` = :production,
+              `update_time` = UNIX_TIMESTAMP()
+            WHERE `end_host_id` = :end_host_id AND `mac` = :mac";
+    try {
+      $stmt = $this->db->prepare($sql);
+      if($stmt->execute($eh->db_data())){
+        $end_host = $this->getEndHosts(array('end_host_id' => $eh->getId()));
+        if(sizeof($end_host) == 1 && $stmt->rowCount()){
+          $result['data'] = $end_host[0]->serialize();
+          $result['success'] = true;
+          $result['message'] = "Updated end host #" . $eh->getId();
+        }else{
+          $result['message'] = "Entry #" . $eh->getId() . " not updated. MAC and EndHost ID mismatch.";
+        }
+      }
+    } catch (PDOException $e) {
+      $result['error'] = $e->getMessage();
+    }
+    return $result;    
   }
 }

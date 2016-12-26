@@ -9,7 +9,6 @@ class EndHostEntry {
   // EndHostType object
   private $end_host_type;
   private $type_id;
-  private $type_description;
   private $production;
   private $insert_time;
   private $update_time;
@@ -18,17 +17,30 @@ class EndHostEntry {
     if(isset($data['end_host_id'])){
       $this->id = (int) $data['end_host_id'];
     }
-    if($data['end_host_type'] instanceof EndHostTypeEntry){
+    /*
+     * If reading from database we have EndHostTypeEntry object
+     * User POST/PUT request has just end host type ID
+     */
+    if(isset($data['end_host_type']) && $data['end_host_type'] instanceof EndHostTypeEntry){
       $this->end_host_type = $data['end_host_type'];
+      $this->end_host_type_id = $this->end_host_type->getId();
+    }else{
+      $this->end_host_type_id = (int) $data['end_host_type_id'];
     }
     $this->hostname = $data['hostname'];
-    $this->description  = $data['end_host_description'];
+    $this->description  = $this->parse_var($data, 'end_host_description', null);
     $this->mac = $data['mac'];
-    $this->type_id = (int) $data['end_host_type_id'];
-    $this->type_description = $data['end_host_type_description'];
-    $this->production = (bool) $data['production'] || 0;
-    $this->insert_time = (int) $data['end_host_insert_time'];
-    $this->update_time = (int) $data['end_host_update_time'];
+    $this->production = (bool) $this->parse_var($data, 'production', false);
+    $this->insert_time = (int) $this->parse_var($data, 'end_host_insert_time', 0);
+    $this->update_time = (int) $this->parse_var($data, 'end_host_update_time', 0);
+  }
+
+  private static function parse_var($array, $key, $default_value) {
+    if(isset($array[$key])){
+      return $array[$key];
+    }else{
+      return $default_value;
+    }
   }
 
   public function getId() {
@@ -49,6 +61,14 @@ class EndHostEntry {
 
   public function getType() {
     return $this->end_host_type;
+  }
+
+  public function getTypeId() {
+    if($this->end_host_type){
+      return $this->end_host_type->getId();
+    }else{
+      return $this->end_host_type_id;
+    }
   }
 
   public function isProduction() {
@@ -78,11 +98,23 @@ class EndHostEntry {
 
   public function db_data () {
     return [
+      'end_host_id' => $this->id,
       'hostname' => $this->hostname,
       'description' => $this->description,
       'mac' => hexdec($this->mac),
-      'end_host_type_id' => $this->type_id,
+      'end_host_type_id' => $this->end_host_type_id,
       'production' => $this->production
     ];
   }
+
+  public function db_insert_data () {
+    return [
+      'hostname' => $this->hostname,
+      'description' => $this->description,
+      'mac' => hexdec($this->mac),
+      'end_host_type_id' => $this->end_host_type_id,
+      'production' => $this->production
+    ];
+  }
+
 }
