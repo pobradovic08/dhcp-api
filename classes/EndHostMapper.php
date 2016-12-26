@@ -10,12 +10,22 @@ class EndHostMapper {
     $this->db = $db;
   }
 
-  private function exists(int $id) {
+  private function idExists(int $id) {
     $sql = "SELECT COUNT(`end_host_id`) as count FROM end_hosts WHERE `end_host_id` = :id";
     $stmt = $this->db->prepare($sql);
     if($stmt->execute(['id' => $id])){
       $result = $stmt->fetchAll()[0];
       return ((int) $result['count']) > 0;
+    }
+  }
+
+  private function isUnique(EndHostEntry $eh) {
+    $sql = "SELECT COUNT(`end_host_id`) as count FROM end_hosts
+            WHERE `end_host_id` = :end_host_id OR `hostname` = :hostname OR `mac` = :mac";
+    $stmt = $this->db->prepare($sql);
+    if($stmt->execute($eh->db_unique_data())){
+      $result = $stmt->fetchAll()[0];
+      return ((int) $result['count']) == 0;
     }
   }
 
@@ -85,26 +95,30 @@ class EndHostMapper {
 
   private function createEndHost (EndHostEntry $eh) {
     $result = array('success' => false);
-    $sql = "INSERT INTO end_hosts (
-              `hostname`, `description`, `mac`,
-              `end_host_type_id`, `production`, `insert_time`
-            ) VALUES (
-              :hostname, :description, :mac,
-              :end_host_type_id, :production, UNIX_TIMESTAMP()
-            )";
-    try {
-      $stmt = $this->db->prepare($sql);
-      if($stmt->execute($eh->db_insert_data())){
-        $last_insert_id = $this->db->lastInsertId();
-        if($last_insert_id == "0"){
-          var_dump($stmt->errorInfo());
+    if($this->isUnique($eh)){
+      $sql = "INSERT INTO end_hosts (
+                `hostname`, `description`, `mac`,
+                `end_host_type_id`, `production`, `insert_time`
+              ) VALUES (
+                :hostname, :description, :mac,
+                :end_host_type_id, :production, UNIX_TIMESTAMP()
+              )";
+      try {
+        $stmt = $this->db->prepare($sql);
+        if($stmt->execute($eh->db_insert_data())){
+          $last_insert_id = $this->db->lastInsertId();
+          if($last_insert_id == "0"){
+            var_dump($stmt->errorInfo());
+          }
+          $result['success'] = true;
+          $result['rows'] = $stmt->rowCount(); 
+          $result['data'] = $this->getEndHosts(array('end_host_id' => $last_insert_id))[0]->serialize();
         }
-        $result['success'] = true;
-        $result['rows'] = $stmt->rowCount(); 
-        $result['data'] = $this->getEndHosts(array('end_host_id' => $last_insert_id))[0]->serialize();
+      } catch (PDOException $e) {
+        $result['error'] = $e->getMessage();
       }
-    } catch (PDOException $e) {
-      $result['error'] = $e->getMessage();
+    }else{
+        $result['message'] = "EndHost ID, MAC or hostname already exists";
     }
     return $result;
   }

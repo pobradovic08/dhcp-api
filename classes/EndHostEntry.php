@@ -107,6 +107,15 @@ class EndHostEntry {
     ];
   }
 
+  public function db_unique_data () {
+    return [
+      'end_host_id' => $this->id,
+      'hostname' => $this->hostname,
+      'mac' => hexdec($this->mac),
+    ];
+  }
+
+
   public function db_insert_data () {
     return [
       'hostname' => $this->hostname,
