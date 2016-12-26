@@ -47,12 +47,8 @@ class EndHostEntry {
     return strtolower(join('.', str_split($this->mac, 4)));
   }
 
-  public function getTypeId() {
-    return $this->type_id;
-  }
-
-  public function getTypeDescription() {
-    return $this->type_description;
+  public function getType() {
+    return $this->end_host_type;
   }
 
   public function isProduction() {
@@ -74,8 +70,6 @@ class EndHostEntry {
       'end_host_description' => $this->getDescription(),
       'mac' => $this->getMac(),
       'end_host_type' => $this->end_host_type->serialize(),
-      'end_host_type_id' => $this->getTypeId(),
-      'end_host_type_description' => $this->getTypeDescription(),
       'production' => $this->isProduction(),
       'end_host_insert_time' => $this->getInsertTime(),
       'end_host_update_time' => $this->getUpdateTime()

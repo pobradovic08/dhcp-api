@@ -48,6 +48,18 @@ class ReservationEntry {
     return $this->active;
   }
 
+  public function getEndHost() {
+    return $this->end_host;
+  }
+
+  public function getGroup() {
+    return $this->group;
+  }
+
+  public function getSubnet() {
+    return $this->subnet;
+  }
+
   public function getComment() {
     return $this->comment;
   }
