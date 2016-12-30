@@ -8,8 +8,13 @@ class GroupEntry {
     protected $group_description;
 
     public function __construct (array $data) {
+        // If there's group_id defined it already exists in DB
         if (isset($data['group_id'])) {
             $this->group_id = (int)$data['group_id'];
+        }
+        // Check for required parameters and throw exception if needed
+        if(!isset($data['group_subnet_id'], $data['group_name'], $data['group_description'])){
+            throw new InvalidArgumentException("Missing arguments.");
         }
         $this->subnet_id = (int)$data['group_subnet_id'];
         $this->group_name = $data['group_name'];
