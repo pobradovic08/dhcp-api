@@ -1,3 +1,4 @@
 *.swp
 logs/**
 vendor/**
+.idea/**
