@@ -7,17 +7,17 @@ class EndHostTypeEntry {
 
     public function __construct (array $data) {
         if (isset($data['end_host_type_id'])) {
-            if((int) $data['end_host_type_id'] <= 0  or !is_int($data['end_host_type_id'])){
+            if (!is_int ($data['end_host_type_id']) or $data['end_host_type_id'] <= 0) {
                 throw new InvalidArgumentException("ID invalid");
             }
-            $this->id = (int) $data['end_host_type_id'];
+            $this->id = $data['end_host_type_id'];
         }
-        if(!isset($data['end_host_type_description'])){
+        if (!isset($data['end_host_type_description'])) {
             throw new InvalidArgumentException("Missing required data.");
         }
-        if(strlen($data['end_host_type_description']) <= 64) {
+        if (strlen ($data['end_host_type_description']) <= 64) {
             $this->description = (string)$data['end_host_type_description'];
-        }else{
+        } else {
             throw new InvalidArgumentException("Description too long");
         }
     }

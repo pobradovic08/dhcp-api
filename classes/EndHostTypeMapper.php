@@ -32,6 +32,7 @@ class EndHostTypeMapper {
     $stmt->execute($data);
     $results = [];
     while($row = $stmt->fetch()){
+      $row['end_host_type_id'] = (int)$row['end_host_type_id'];
       $results[] = new EndHostTypeEntry($row);
     }
     return $results;

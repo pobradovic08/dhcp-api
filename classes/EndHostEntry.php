@@ -21,12 +21,12 @@ class EndHostEntry {
          */
         //TODO: regexp check
         $this->hostname = $data['hostname'];
-        $regexp_mac = "/^(?:(?:[0-9A-Fa-f]{4}\.){2}[0-9A-Fa-f]{4}|(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2})$/";
+        $regexp_mac = "/^(?:(?:[0-9A-Fa-f]{4}\.){2}[0-9A-Fa-f]{4}|(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}|[0-9a-fA-f]{12})$/";
         if (preg_match ($regexp_mac, $data['mac'])) {
             $data['mac'] = preg_replace ('/[-:.]/', '', $data['mac']);
             $this->mac = $data['mac'];
         } else {
-            throw new InvalidArgumentException("MAC format invalid");
+            throw new InvalidArgumentException("MAC format invalid: " . $data['mac']);
         }
         /*
          * If reading from database we have EndHostTypeEntry object

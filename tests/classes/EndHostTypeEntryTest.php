@@ -44,6 +44,10 @@ class EndHostTypeEntryTest extends \PHPUnit_Framework_TestCase {
                 'end_host_type_id' => "asdasd",
                 'end_host_type_description' => "End host type description"
             )),
+            array (array (
+                'end_host_type_id' => "12",
+                'end_host_type_description' => "End host type description"
+            )),
             // ID is not greater then 0
             array (array (
                 'end_host_type_id' => 0,
