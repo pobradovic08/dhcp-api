@@ -58,10 +58,6 @@ class ReservationMapper {
         #var_dump($stmt);
         $results = [];
         while ($row = $stmt->fetch ()) {
-            $row['end_host_type_id'] = (int)$row['end_host_type_id'];
-            $row['group_id'] = (int)$row['group_id'];
-            $row['group_subnet_id'] = (int)$row['group_subnet_id'];
-
             $row['end_host_type'] = new EndHostTypeEntry($row);
             $row['end_host'] = new EndHostEntry($row);
             $row['group'] = new GroupEntry($row);

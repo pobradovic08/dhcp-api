@@ -82,7 +82,6 @@ class EndHostMapper {
     $tmp = $stmt->fetchAll();
     $results = [];
     foreach($tmp as $row){
-      $row['end_host_type_id'] = (int)$row['end_host_type_id'];
       $row['end_host_type'] = new EndHostTypeEntry($row);
       $results[] = new EndHostEntry($row);
     }
