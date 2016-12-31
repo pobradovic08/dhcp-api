@@ -116,23 +116,18 @@ class GroupEntryTest extends PHPUnit_Framework_TestCase {
     /**
      * @dataProvider validData
      */
-    public function testSerializedJsonKeys ($params) {
+    public function testSerializedJson ($params) {
         $this->group = new GroupEntry($params);
+        // Test if all keys are there
         $this->assertArrayHasKey ('group_id', $this->group->serialize ());
         $this->assertArrayHasKey ('group_subnet_id', $this->group->serialize ());
         $this->assertArrayHasKey ('group_name', $this->group->serialize ());
         $this->assertArrayHasKey ('group_description', $this->group->serialize ());
-
-    }
-
-    /**
-     * @dataProvider validData
-     */
-    public function testSerializedJsonValues ($params) {
-        $this->group = new GroupEntry($params);
+        // Test if values are expected
         $this->assertEquals ($this->group->getId (), $this->group->serialize ()['group_id']);
         $this->assertEquals ($this->group->getSubnetId (), $this->group->serialize ()['group_subnet_id']);
         $this->assertEquals ($this->group->getName (), $this->group->serialize ()['group_name']);
         $this->assertEquals ($this->group->getDescription (), $this->group->serialize ()['group_description']);
+
     }
 }

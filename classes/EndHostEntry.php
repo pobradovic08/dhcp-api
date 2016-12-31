@@ -17,18 +17,33 @@ class EndHostEntry {
             $this->id = (int)$data['end_host_id'];
         }
         /*
+         * Required arguments
+         */
+        //TODO: regexp check
+        $this->hostname = $data['hostname'];
+        $regexp_mac = "/^(?:(?:[0-9A-Fa-f]{4}\.){2}[0-9A-Fa-f]{4}|(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2})$/";
+        if (preg_match ($regexp_mac, $data['mac'])) {
+            $data['mac'] = preg_replace ('/[-:.]/', '', $data['mac']);
+            $this->mac = $data['mac'];
+        } else {
+            throw new InvalidArgumentException("MAC format invalid");
+        }
+        /*
          * If reading from database we have EndHostTypeEntry object
          * User POST/PUT request has just end host type ID
          */
         if (isset($data['end_host_type']) && $data['end_host_type'] instanceof EndHostTypeEntry) {
             $this->end_host_type = $data['end_host_type'];
             $this->end_host_type_id = $this->end_host_type->getId ();
-        } else {
+        } elseif (is_int ($data['end_host_type_id']) and $data['end_host_type_id'] > 0) {
             $this->end_host_type_id = (int)$data['end_host_type_id'];
+        } else {
+            throw new InvalidArgumentException("No EndHostType object or valid End Host Type ID passed");
         }
-        $this->hostname = $data['hostname'];
+        /*
+         * Optional arguments
+         */
         $this->description = $this->parse_var ($data, 'end_host_description', null);
-        $this->mac = $data['mac'];
         $this->production = (bool)$this->parse_var ($data, 'production', false);
         $this->insert_time = (int)$this->parse_var ($data, 'end_host_insert_time', 0);
         $this->update_time = (int)$this->parse_var ($data, 'end_host_update_time', 0);
@@ -52,6 +67,10 @@ class EndHostEntry {
 
     public function getDescription () {
         return $this->description;
+    }
+
+    public function getMacHex () {
+        return strtolower (join ('', str_split ($this->mac, 4)));
     }
 
     public function getMac () {
