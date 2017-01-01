@@ -18,6 +18,10 @@ class SubnetEntry {
     $this->subnet_description = $data['subnet_description'];
   }
 
+  private function validate() {
+    return false;
+  }
+
   public function getId() {
     return $this->subnet_id;
   }
@@ -32,6 +36,10 @@ class SubnetEntry {
 
   public function getNetworkMask() {
     return $this->network_mask;
+  }
+
+  public function getNetworkAddress() {
+
   }
 
   public function getDescription() {
