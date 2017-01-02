@@ -21,6 +21,20 @@ class Validator {
     }
 
     static function validateIpMask ($mask) {
+        $dec = ip2long($mask);
+        /*
+         * If mask is 0.0.0.0 ip2long will return 0 which is evaluated to false
+         * It's a false negative, so...
+         */
+        if($dec or $mask == '0.0.0.0'){
+            $bin = decbin($dec);
+            // For decbin(0) result is just "0" so /^0$/
+            return preg_match('/(^0$|^1+0*$)/', $bin);
+        }
         return false;
+    }
+
+    static function validateDescription ($description){
+        return strlen($description) <= 64;
     }
 }
