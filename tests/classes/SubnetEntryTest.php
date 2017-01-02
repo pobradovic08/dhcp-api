@@ -15,6 +15,11 @@ class SubnetEntryTest extends \PHPUnit_Framework_TestCase {
                 'subnet_description' => "Test subnet description"],
                 ['first' => '10.20.30.1', 'last' => '10.20.30.254', 'cidr' => 24,
                     'network' => '10.20.30.0', 'broadcast' => '10.20.30.255']],
+            [['vlan' => 2,
+                'network' => '10.20.30.0', 'network_mask' => '255.255.255.0',
+                'subnet_description' => "Test subnet description"],
+                ['first' => '10.20.30.1', 'last' => '10.20.30.254', 'cidr' => 24,
+                    'network' => '10.20.30.0', 'broadcast' => '10.20.30.255']],
             [['subnet_id' => 1, 'vlan' => 2,
                 'network' => '10.20.30.0', 'network_mask' => '255.255.255.255',
                 'subnet_description' => "Test subnet description"],
@@ -31,9 +36,6 @@ class SubnetEntryTest extends \PHPUnit_Framework_TestCase {
     public function invalidData () {
         return [
             // Missing fields
-            [['vlan' => 2,
-                'network' => '10.20.30.0', 'network_mask' => '255.255.255.0',
-                'subnet_description' => "Test subnet description"]],
             [['subnet_id' => 1,
                 'network' => '10.20.30.0', 'network_mask' => '255.255.255.0',
                 'subnet_description' => "Test subnet description"]],
@@ -97,6 +99,23 @@ class SubnetEntryTest extends \PHPUnit_Framework_TestCase {
         ];
     }
 
+    public function ipHostData () {
+        $subnet = ['vlan' => 2,
+            'network' => '10.20.30.0',
+            'network_mask' => '255.255.255.0',
+            'subnet_description' => "Test subnet description"];
+
+        return [
+            [$subnet,'10.20.30.1', true],
+            [$subnet,'10.20.30.255', false],
+            [$subnet,'10.20.30.0', false],
+            [$subnet,'10.20.30.254', true],
+            [$subnet,'10.20.30.2', true],
+            [$subnet,'10.20.31.1', false],
+            [$subnet,'10.20.29.1', false],
+        ];
+    }
+
     public function testHasAllAttributes () {
         $data = array (
             'subnet_id' => 1,
@@ -125,7 +144,9 @@ class SubnetEntryTest extends \PHPUnit_Framework_TestCase {
      */
     public function testValidSubnetIpAndMask ($data, $results) {
         $this->s = new SubnetEntry($data);
-        $this->assertEquals ($data['subnet_id'], $this->s->getId ());
+        if(isset($data['subnet_id'])) {
+            $this->assertEquals ($data['subnet_id'], $this->s->getId ());
+        }
         $this->assertEquals ($data['vlan'], $this->s->getVlan ());
         $this->assertEquals ($data['network'], $this->s->getNetwork ());
         $this->assertEquals ($data['network_mask'], $this->s->getNetworkMask ());
@@ -146,5 +167,13 @@ class SubnetEntryTest extends \PHPUnit_Framework_TestCase {
      */
     public function testInvalidSubnetIpAndMask ($data) {
         $this->s = new SubnetEntry($data);
+    }
+
+    /**
+     * @dataProvider ipHostData
+     */
+    public function testIfIpIsValidHostAddressInSubnet($subnet, $ip, $result){
+        $this->s = new SubnetEntry($subnet);
+        $this->assertEquals($result, $this->s->isValidHostAddress($ip));
     }
 }

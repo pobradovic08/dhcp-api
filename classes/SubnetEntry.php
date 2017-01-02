@@ -17,13 +17,14 @@ class SubnetEntry {
     protected $cidr;
 
     public function __construct (array $data) {
-        if (isset($data['subnet_id'], $data['vlan'], $data['network'],
+        if (isset($data['vlan'], $data['network'],
             $data['network_mask'], $data['subnet_description'])) {
-
-            if (Validator::validateId ($data['subnet_id'])) {
-                $this->subnet_id = (int)$data['subnet_id'];
-            } else {
-                throw new \InvalidArgumentException("Subnet ID is invalid");
+            if (isset($data['subnet_id'])) {
+                if (Validator::validateId ($data['subnet_id'])) {
+                    $this->subnet_id = (int)$data['subnet_id'];
+                } else {
+                    throw new \InvalidArgumentException("Subnet ID is invalid");
+                }
             }
             if (Validator::validateVlanId ($data['vlan'])) {
                 $this->vlan = (int)$data['vlan'];
@@ -31,12 +32,12 @@ class SubnetEntry {
                 throw new \InvalidArgumentException("Subnet ID is invalid");
             }
             if (Validator::validateIpAddress ($data['network'])) {
-                $this->network = ip2long($data['network']);
+                $this->network = ip2long ($data['network']);
             } else {
                 throw new \InvalidArgumentException("Network address not valid");
             }
             if (Validator::validateIpMask ($data['network_mask'])) {
-                $this->network_mask = ip2long($data['network_mask']);
+                $this->network_mask = ip2long ($data['network_mask']);
             } else {
                 throw new \InvalidArgumentException("Network mask is not valid");
             }
@@ -55,18 +56,18 @@ class SubnetEntry {
          * Calculate network before fist hop, calculate broadcast before last hop
          */
         $this->cidr = 32 - log ((ip2long ($data['network_mask']) ^ ip2long ('255.255.255.255')) + 1, 2);
-        $this->network_address = $this->calculateNetwork();
+        $this->network_address = $this->calculateNetwork ();
         $this->broadcast_address = $this->calculateBroadcast ();
         $this->first_host_address = $this->calculateFirstHop ();
-        $this->last_host_address = $this->calculateLastHop();
+        $this->last_host_address = $this->calculateLastHop ();
 
-        if($this->network != $this->network_address){
-            throw new InvalidArgumentException("Invalid subnet address. Try with: " . long2ip($this->network_address));
+        if ($this->network != $this->network_address) {
+            throw new InvalidArgumentException("Invalid subnet address. Try with: " . long2ip ($this->network_address));
         }
 
     }
 
-    private function calculateNetwork() {
+    private function calculateNetwork () {
         return $this->network & $this->network_mask;
     }
 
@@ -75,19 +76,30 @@ class SubnetEntry {
     }
 
     private function calculateFirstHop () {
-        if($this->cidr >= 31){
+        if ($this->cidr >= 31) {
             return $this->network_address;
-        }else{
-            return $this->network_address+1;
+        } else {
+            return $this->network_address + 1;
         }
     }
 
     private function calculateLastHop () {
-        if($this->cidr >= 31){
+        if ($this->cidr >= 31) {
             return $this->broadcast_address;
-        }else{
-            return $this->broadcast_address-1;
+        } else {
+            return $this->broadcast_address - 1;
         }
+    }
+
+    public function isValidHostAddress ($ip) {
+        if(Validator::validateIpAddress($ip)){
+            $dec_ip = ip2long($ip);
+            $in_subnet = (ip2long($ip) & $this->network_mask) == $this->network_address;
+            return $in_subnet and
+                   (long2ip($dec_ip) != $this->getBroadcastAddress())and
+                   (long2ip($dec_ip) != $this->getNetworkAddress());
+        }
+        return false;
     }
 
     public function getId () {
@@ -99,11 +111,11 @@ class SubnetEntry {
     }
 
     public function getNetwork () {
-        return long2ip($this->network);
+        return long2ip ($this->network);
     }
 
     public function getNetworkMask () {
-        return long2ip($this->network_mask);
+        return long2ip ($this->network_mask);
     }
 
     public function getCidr () {
@@ -111,19 +123,19 @@ class SubnetEntry {
     }
 
     public function getNetworkAddress () {
-        return long2ip($this->network_address);
+        return long2ip ($this->network_address);
     }
 
     public function getBroadcastAddress () {
-        return long2ip($this->broadcast_address);
+        return long2ip ($this->broadcast_address);
     }
 
     public function getFirstHostAddress () {
-        return long2ip($this->first_host_address);
+        return long2ip ($this->first_host_address);
     }
 
     public function getLastHostAddress () {
-        return long2ip($this->last_host_address);
+        return long2ip ($this->last_host_address);
     }
 
     public function getDescription () {
