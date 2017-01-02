@@ -6,7 +6,7 @@
  * Date: 12/30/2016
  * Time: 7:37 PM
  */
-class GroupEntryTest extends PHPUnit_Framework_TestCase {
+class GroupEntryTest extends \PHPUnit_Framework_TestCase {
 
     public function validData () {
         return array (
