@@ -36,6 +36,7 @@ class DhcpResponse {
 
     public function success () {
         $this->success = true;
+        $this->setCode(200);
     }
 
     public function isSuccessful () {
@@ -44,18 +45,25 @@ class DhcpResponse {
 
     public function fail () {
         $this->success = false;
+        $this->setCode(500);
     }
 
     public function setCode ($code) {
-        if (is_int ($code) and $code >= 100 and $code < 600) {
+        if (Validator::validateHttpCode($code)) {
             $this->code = (int)$code;
         } else {
             throw new InvalidArgumentException("Invalid status code");
         }
     }
 
-    public function getCode () {
-        return $this->code;
+    public function getCode ($default_code = 200) {
+        if($this->code){
+            return $this->code;
+        }elseif(Validator::validateHttpCode($default_code)){
+            return $default_code;
+        }else{
+            return 500;
+        }
     }
 
     public function setData($data) {
@@ -64,5 +72,9 @@ class DhcpResponse {
 
     public function getData() {
         return $this->data;
+    }
+
+    public function getJson() {
+
     }
 }

@@ -50,4 +50,8 @@ class Validator {
     static function validateDescription ($description){
         return strlen($description) <= 64 and strlen($description) > 0;
     }
+
+    static function validateHttpCode($code){
+        return is_int ($code) and ($code >= 100) and ($code < 600);
+    }
 }

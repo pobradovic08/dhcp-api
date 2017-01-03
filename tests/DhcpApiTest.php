@@ -12,13 +12,7 @@ class DhcpApiTest extends PHPUnit_Framework_TestCase {
     public static $base = 'http://test-srv-pavle.vektor.net/';
 
     public function setUp () {
-        $this->c = new \GuzzleHttp\Client(
-            [
-                'request.options' => array (
-                    'exceptions' => false,
-                )
-            ]
-        );
+        $this->c = new \GuzzleHttp\Client();
     }
 
     public function validUrls () {
@@ -44,11 +38,18 @@ class DhcpApiTest extends PHPUnit_Framework_TestCase {
             $body = $response->getBody ()->getContents ();
             $this->assertEquals (200, $response->getStatusCode ());
             $this->assertJson ($body);
+            $json = json_decode($body);
+            $this->assertObjectHasAttribute('success', $json);
+            $this->assertTrue($json->success);
         } catch (\GuzzleHttp\Exception\ClientException $e) {
             $response = $e->getResponse ();
+            $body = $response->getBody ()->getContents ();
             $this->assertEquals (404, $response->getStatusCode ());
-            $this->assertJson($response->getBody()->getContents());
+            $this->assertJson($body);
             $this->assertTrue ($can_fail);
+            $json = json_decode($body);
+            $this->assertObjectHasAttribute('success', $json);
+            $this->assertFalse($json->success);
         }
     }
 }
