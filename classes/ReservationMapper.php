@@ -13,7 +13,7 @@ class ReservationMapper {
         $this->db = $db;
     }
 
-    public function getReservations (array $data) {
+    public function getReservations (array $data, $terse = false) {
         // Array of where statements to be concatenated
         $where_arr = array ();
         $where_sql = "";
@@ -58,10 +58,12 @@ class ReservationMapper {
         #var_dump($stmt);
         $results = [];
         while ($row = $stmt->fetch ()) {
-            $row['end_host_type'] = new EndHostTypeEntry($row);
-            $row['end_host'] = new EndHostEntry($row);
-            $row['group'] = new GroupEntry($row);
-            $row['subnet'] = new SubnetEntry($row);
+            if(!$terse) {
+                $row['end_host_type'] = new EndHostTypeEntry($row);
+                $row['end_host'] = new EndHostEntry($row);
+                $row['group'] = new GroupEntry($row);
+                $row['subnet'] = new SubnetEntry($row);
+            }
             $results[] = new ReservationEntry($row);
         }
         return $results;

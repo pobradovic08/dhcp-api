@@ -40,7 +40,7 @@ class ReservationController {
   public function get_reservation_by_id ($request, $response, $args){
     $this->ci->logger->addInfo('Request for reservation #' . $args['id']);
     $filter = array('id' => $args['id']);
-    return $this->get_filtered_reservations($response, $filter);
+    return $this->get_filtered_reservations($response, $filter, false, $args['mode']=='terse');
   }
 
   public function get_reservation_by_mac ($request, $response, $args){
@@ -60,9 +60,9 @@ class ReservationController {
   public function delete_reservation ($request, $response, $args){
   }
 
-  private function get_filtered_reservations($response, $filter, $multiple_results=false){
+  private function get_filtered_reservations($response, $filter, $multiple_results=false, $terse = false){
     $mapper = new ReservationMapper($this->ci->db);
-    $reservations = $mapper->getReservations($filter);
+    $reservations = $mapper->getReservations($filter, $terse);
     if($multiple_results){
       $array = [];
       foreach($reservations as $reservation){
