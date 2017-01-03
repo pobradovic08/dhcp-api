@@ -27,6 +27,8 @@ class DhcpApiTest extends PHPUnit_Framework_TestCase {
             [DhcpApiTest::$base . 'endhosts/types/id/9999', true],
             [DhcpApiTest::$base . 'reservations', false],
             [DhcpApiTest::$base . 'subnets', false],
+            [DhcpApiTest::$base . 'subnets/id/1', true],
+            [DhcpApiTest::$base . 'subnets/id/9999', true],
         ];
     }
 
