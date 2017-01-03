@@ -19,9 +19,12 @@ class DhcpApiTest extends PHPUnit_Framework_TestCase {
         // [0] -> url, [1] -> can it fail with 404?
         return [
             [DhcpApiTest::$base . 'endhosts', false],
-            [DhcpApiTest::$base . 'endhosts/id/' . rand (1, 100), true],
+            [DhcpApiTest::$base . 'endhosts/id/1', true],
+            [DhcpApiTest::$base . 'endhosts/id/9999', true],
             [DhcpApiTest::$base . 'endhosts/mac/2D-06-CA-C8-65-2C', true],
             [DhcpApiTest::$base . 'endhosts/types', false],
+            [DhcpApiTest::$base . 'endhosts/types/id/1', true],
+            [DhcpApiTest::$base . 'endhosts/types/id/9999', true],
             [DhcpApiTest::$base . 'reservations', false],
             [DhcpApiTest::$base . 'subnets', false],
         ];
