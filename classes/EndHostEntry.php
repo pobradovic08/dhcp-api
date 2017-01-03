@@ -2,12 +2,18 @@
 
 class EndHostEntry {
 
+    /*
+     * Required parameters
+     */
     private $id;
-    private $description;
     private $hostname;
     private $mac;
     private $end_host_type;    // EndHostType object
     private $end_host_type_id;
+    /*
+     * Optional parameters
+     */
+    private $description;
     private $production;
     private $insert_time;
     private $update_time;
@@ -107,7 +113,7 @@ class EndHostEntry {
             'hostname' => $this->getHostname (),
             'end_host_description' => $this->getDescription (),
             'mac' => $this->getMac (),
-            'end_host_type' => $this->end_host_type->serialize (),
+            'end_host_type' => $this->getType() ? $this->getType()->serialize () : null,
             'production' => $this->isProduction (),
             'end_host_insert_time' => $this->getInsertTime (),
             'end_host_update_time' => $this->getUpdateTime ()

@@ -2,6 +2,9 @@
 
 class SubnetEntry {
 
+    /*
+     * Required parameters
+     */
     protected $subnet_id;
     protected $vlan;
     protected $network;

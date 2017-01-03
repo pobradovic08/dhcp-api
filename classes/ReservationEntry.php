@@ -19,6 +19,14 @@ class ReservationEntry {
     protected $subnet;
     protected $subnet_id;
 
+    /**
+     * @param array $data
+     * Required attributes:
+     *  - ip
+     *  - end_host or end_host_id
+     *  - group or group_id
+     *  - subnet or subnet_id
+     */
     public function __construct (array $data) {
         if (isset($data['reservation_id'])) {
             $this->reservation_id = (int)$data['reservation_id'];
@@ -29,6 +37,8 @@ class ReservationEntry {
             $this->group_id = $this->group->getId ();
         } elseif (isset($data['group_id']) and Validator::validateId ($data['group_id'])) {
             $this->group_id = $data['group_id'];
+        } else {
+            throw new InvalidArgumentException("Missing group argument");
         }
 
         if (isset($data['end_host']) and $data['end_host'] instanceof EndHostEntry) {
@@ -36,6 +46,8 @@ class ReservationEntry {
             $this->end_host_id = $this->end_host->getId ();
         } elseif (isset($data['end_host_id']) and Validator::validateId ($data['end_host_id'])) {
             $this->end_host_id = $data['end_host_id'];
+        } else {
+            throw new InvalidArgumentException("Missing end host argument");
         }
 
         if (isset($data['subnet']) and $data['subnet'] instanceof SubnetEntry) {
@@ -43,10 +55,14 @@ class ReservationEntry {
             $this->subnet_id = $this->subnet->getId ();
         } elseif (isset($data['subnet_id']) and Validator::validateId ($data['subnet_id'])) {
             $this->subnet_id = $data['subnet_id'];
+        } else {
+            throw new InvalidArgumentException("Missing subnet argument");
         }
 
         if (isset($data['ip']) and Validator::validateIpAddress ($data['ip'])) {
             $this->ip = ip2long ($data['ip']);
+        }else{
+            throw new InvalidArgumentException("Missing IP address");
         }
         $this->active = (bool)$this->parse_var ($data, 'active', false);
         $this->comment = (string)$this->parse_var ($data, 'comment');
@@ -118,9 +134,12 @@ class ReservationEntry {
             'reservation_comment' => $this->getComment (),
             'reservation_insert_time' => $this->getInsertTime (),
             'reservation_update_time' => $this->getUpdateTime (),
-            'end_host' => $this->end_host->serialize (),
-            'group' => $this->group->serialize (),
-            'subnet' => $this->subnet->serialize (),
+            'end_host' => $this->getEndHost() ? $this->getEndHost()->serialize () : null,
+            'end_host_id' => $this->getEndHostId(),
+            'group' => $this->getGroup() ? $this->getGroup()->serialize () : null,
+            'group_id' => $this->getGroupId(),
+            'subnet' => $this->getSubnet() ? $this->getSubnet()->serialize () : null,
+            'subnet_id' => $this->getSubnetId()
         ];
     }
 }
