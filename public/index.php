@@ -92,9 +92,9 @@ $app->group ('/endhosts', function () use ($app) {
  */
 $app->group ('/reservations', function () use ($app) {
     /* Get all reservations */
-    $app->get ('/[all]', '\ReservationController:get_reservations');
+    $app->get ('/[{mode:terse}]', '\ReservationController:get_reservations');
     /* Get all reservations from specific subnet */
-    $app->get ('/subnet/{subnet_id:[0-9]+}[/{group_id:[0-9]+}]', '\ReservationController:get_reservations_for_subnet');
+    $app->get ('/subnet/{subnet_id:[0-9]+}', '\ReservationController:get_reservations_for_subnet');
     /* Get all reservations from specific group */
     $app->get ('/group/{group_id:[0-9]+}', '\ReservationController:get_reservations_for_group');
     /* Get specific reservation by ID */
