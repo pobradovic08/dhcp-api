@@ -4,13 +4,9 @@
  * Created by PhpStorm.
  * User: pajaja
  * Date: 1/3/2017
- * Time: 7:15 PM
+ * Time: 11:20 PM
  */
-
-use \Interop\Container\ContainerInterface as ContainerInterface;
-
-
-class SubnetController {
+class GroupController {
     protected $ci;
 
     //Constructor
@@ -18,31 +14,31 @@ class SubnetController {
         $this->ci = $ci;
     }
 
-    public function get_subnets ($request, $response, $args) {
+    public function get_groups ($request, $response, $args) {
         $r = new DhcpResponse();
-        $this->ci->logger->addInfo("Full subnet list");
+        $this->ci->logger->addInfo("Full group list");
         $r->success();
         $r->setData("haha");
         return $response->withStatus($r->getCode())->withJson($r);
     }
 
-    public function get_subnet_by_id ($request, $response, $args) {
+    public function get_group_by_id ($request, $response, $args) {
         $r = new DhcpResponse();
-        $this->ci->logger->addInfo("Full subnet list");
+        $this->ci->logger->addInfo("Group with ID: {$args['id']}");
         $r->success();
         $r->setData("haha");
         return $response->withStatus($r->getCode())->withJson($r);
     }
 
-    public function post_subnet ($request, $response, $args) {
+    public function post_group ($request, $response, $args) {
 
     }
 
-    public function put_subnet ($request, $response, $args) {
+    public function put_group ($request, $response, $args) {
 
     }
 
-    public function delete_subnet ($request, $response, $args) {
+    public function delete_group ($request, $response, $args) {
 
     }
 }

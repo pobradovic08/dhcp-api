@@ -21,11 +21,22 @@ class DhcpApiTest extends PHPUnit_Framework_TestCase {
             [DhcpApiTest::$base . 'endhosts', false],
             [DhcpApiTest::$base . 'endhosts/id/1', true],
             [DhcpApiTest::$base . 'endhosts/id/9999', true],
+            [DhcpApiTest::$base . 'endhosts/mac/1234.5678.abcd', true],
             [DhcpApiTest::$base . 'endhosts/mac/2D-06-CA-C8-65-2C', true],
             [DhcpApiTest::$base . 'endhosts/types', false],
             [DhcpApiTest::$base . 'endhosts/types/id/1', true],
             [DhcpApiTest::$base . 'endhosts/types/id/9999', true],
             [DhcpApiTest::$base . 'reservations', false],
+            [DhcpApiTest::$base . 'reservations/id/1', true],
+            [DhcpApiTest::$base . 'reservations/id/9999', true],
+            [DhcpApiTest::$base . 'reservations/ip/1.1.1.1', true],
+            [DhcpApiTest::$base . 'reservations/ip/10.20.30.1', true],
+            [DhcpApiTest::$base . 'reservations/subnet/1', false],
+            [DhcpApiTest::$base . 'reservations/subnet/9999', false],
+            [DhcpApiTest::$base . 'reservations/group/1', false],
+            [DhcpApiTest::$base . 'reservations/group/9999', false],
+            [DhcpApiTest::$base . 'reservations/mac/1234.5678.abcd', false],
+            [DhcpApiTest::$base . 'reservations/mac/2D-06-CA-C8-65-2C', false],
             [DhcpApiTest::$base . 'subnets', false],
             [DhcpApiTest::$base . 'subnets/id/1', true],
             [DhcpApiTest::$base . 'subnets/id/9999', true],
@@ -37,21 +48,24 @@ class DhcpApiTest extends PHPUnit_Framework_TestCase {
      * @param $url
      * @param $can_fail
      */
-    public function testEndHostsResponseCodes ($url, $can_fail) {
+    public function testEndHostsGetResponseCodes ($url, $can_fail) {
         try {
-            $response = $this->c->request ('GET', $url);
-            $body = $response->getBody ()->getContents ();
-            $this->assertEquals (200, $response->getStatusCode ());
-            $this->assertJson ($body);
+            // Main stuff
+            $response = $this->c->request('GET', $url);
+            // Code is 2XX so no exception
+            $body = $response->getBody()->getContents();
+            $this->assertEquals(200, $response->getStatusCode());
+            $this->assertJson($body);
             $json = json_decode($body);
             $this->assertObjectHasAttribute('success', $json);
             $this->assertTrue($json->success);
-        } catch (\GuzzleHttp\Exception\ClientException $e) {
-            $response = $e->getResponse ();
-            $body = $response->getBody ()->getContents ();
-            $this->assertEquals (404, $response->getStatusCode ());
+        } catch ( \GuzzleHttp\Exception\ClientException $e ) {
+            // Exception because we didn't get 2XX
+            $response = $e->getResponse();
+            $body = $response->getBody()->getContents();
+            $this->assertEquals(404, $response->getStatusCode());
             $this->assertJson($body);
-            $this->assertTrue ($can_fail);
+            $this->assertTrue($can_fail);
             $json = json_decode($body);
             $this->assertObjectHasAttribute('success', $json);
             $this->assertFalse($json->success);
