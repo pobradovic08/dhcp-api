@@ -8,12 +8,13 @@
     ],
     "require": {
         "slim/slim": "^3.0",
-        "monolog/monolog": "^1.19"
+        "monolog/monolog": "^1.19",
+        "guzzlehttp/guzzle": "~6.0"
     },
     "require-dev": {
         "phpunit/phpunit": "5.5.*"
     },
     "autoload": {
-        "psr-0": { "": "classes/" }
+        "psr-0": { "": "classes/"}
     }
 }
