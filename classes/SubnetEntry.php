@@ -74,6 +74,13 @@ class SubnetEntry {
         }
     }
 
+    public function isValidAddress ($ip) {
+        if (Validator::validateIpAddress($ip)) {
+            return (ip2long($ip) & $this->network_mask) == $this->network_address;
+        }
+        return false;
+    }
+
     public function isValidHostAddress ($ip) {
         if (Validator::validateIpAddress($ip)) {
             $dec_ip = ip2long($ip);

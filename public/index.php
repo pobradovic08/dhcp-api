@@ -115,9 +115,11 @@ $app->group ('/subnets', function () use ($app) {
     /* Get all subnets */
     $app->get('[/]', '\SubnetController:get_subnets');
     /* Get subnet by ID */
-    $app->get('/id/{id:[0-9]+}', '\SubnetController:get_subnet_by_id');
+    $app->get('/id/{subnet_id:[0-9]+}', '\SubnetController:get_subnet_by_id');
     /* Get free addresses from subnet */
-    $app->get('/id/{id:[0-9]+}/free', '\SubnetController:get_subnet_free_addresses');
+    $app->get('/id/{subnet_id:[0-9]+}/free', '\SubnetController:get_subnet_free_addresses');
+    /* Get subnet for specific IP */
+    $app->get('/ip/{ip:[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}}', '\SubnetController:get_subnet_by_address');
     /* Add new subnet */
     /* Edit existing subnet */
     /* Delete subnet */
