@@ -120,9 +120,19 @@ $app->group ('/subnets', function () use ($app) {
     $app->get('/id/{subnet_id:[0-9]+}/free', '\SubnetController:get_subnet_free_addresses');
     /* Get subnet for specific IP */
     $app->get('/ip/{ip:[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}}', '\SubnetController:get_subnet_by_address');
+    /* Get subnet by VLAN ID */
+    $app->get('/vlan/{vlan_id:[0-9]+}', '\SubnetController:get_subnet_by_vlan');
     /* Add new subnet */
     /* Edit existing subnet */
     /* Delete subnet */
+
+    /*
+     * Subnet groups
+     */
+    $app->group('/id/{subnet_id:[0-9]+}/groups', function () use ($app){
+        $app->get('[/]', '\GroupController:get_groups');
+        $app->get('/id/{group_id:[0-9]+}', '\GroupController:get_group_by_id');
+    });
 });
 
 

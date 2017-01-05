@@ -21,6 +21,9 @@ class SubnetMapper {
         if (array_key_exists('subnet_id', $data)) {
             $where_arr[] = "`subnet_id` = :subnet_id";
         }
+        if (array_key_exists('vlan_id', $data)){
+            $where_arr[] = "`vlan` = :vlan_id";
+        }
         if (array_key_exists('ip', $data)) {
             // Fix for PDO not allowing the same named parameter to be used multiple times
             $data['ip2'] = $data['ip'];

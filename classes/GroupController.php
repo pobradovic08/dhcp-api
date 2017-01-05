@@ -6,6 +6,9 @@
  * Date: 1/3/2017
  * Time: 11:20 PM
  */
+
+use \Interop\Container\ContainerInterface as ContainerInterface;
+
 class GroupController {
     protected $ci;
 
@@ -18,7 +21,7 @@ class GroupController {
         $r = new DhcpResponse();
         $this->ci->logger->addInfo("Full group list");
         $r->success();
-        $r->setData("haha");
+        $r->setData($args);
         return $response->withStatus($r->getCode())->withJson($r);
     }
 

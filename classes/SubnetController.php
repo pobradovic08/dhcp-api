@@ -68,6 +68,34 @@ class SubnetController {
         return $response->withStatus($r->getCode())->withJson($r);
     }
 
+    public function get_subnet_by_vlan ($request, $response, $args) {
+        $r = new DhcpResponse();
+        $id = intval($args['vlan_id']);
+        if (!Validator::validateVlanId($id)) {
+            $r->fail();
+        } else {
+            $this->ci->logger->addInfo("Get subnet with VLAN ID #{$id}");
+            try {
+                $mapper = new SubnetMapper($this->ci->db);
+                $results = $mapper->getSubnets(['vlan_id' => $id]);
+                // Build an array of end hosts
+                if (sizeof($results) == 1) {
+                    $r->success();
+                    $r->setData($results[0]->serialize());
+                } else {
+                    $r->fail();
+                    $r->setCode(404);
+                    $r->addMessage("Subnet with VLAN ID #{$id} not found.");
+                }
+            } catch (InvalidArgumentException $e) {
+                $r->fail();
+                $r->addMessage($e->getMessage());
+            }
+        }
+        // Return response as JSON body
+        return $response->withStatus($r->getCode())->withJson($r);
+    }
+
     public function get_subnet_by_address ($request, $response, $args) {
         $r = new DhcpResponse();
         $ip = $args['ip'];

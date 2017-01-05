@@ -44,6 +44,9 @@ class DhcpApiTest extends PHPUnit_Framework_TestCase {
             [DhcpApiTest::$base . 'subnets/id/9999/free', true],
             [DhcpApiTest::$base . 'subnets/ip/1.12.123.1', true],
             [DhcpApiTest::$base . 'subnets/ip/10.20.30.1', true],
+            [DhcpApiTest::$base . 'subnets/vlan/29', true],
+            [DhcpApiTest::$base . 'subnets/id/2/groups', true],
+            [DhcpApiTest::$base . 'subnets/id/2/groups/id/1', true],
         ];
     }
 
