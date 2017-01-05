@@ -1,9 +1,9 @@
 <?php
 
-require ('EndHostTypeEntry.php');
-require ('GroupEntry.php');
-require ('EndHostEntry.php');
-require ('SubnetEntry.php');
+require('EndHostTypeEntry.php');
+require('GroupEntry.php');
+require('EndHostEntry.php');
+require('SubnetEntry.php');
 
 class ReservationMapper {
 
@@ -15,27 +15,27 @@ class ReservationMapper {
 
     public function getReservations (array $data, $terse = false) {
         // Array of where statements to be concatenated
-        $where_arr = array ();
+        $where_arr = [];
         $where_sql = "";
-        if (array_key_exists ('subnet_id', $data)) {
+        if (array_key_exists('subnet_id', $data)) {
             $where_arr[] = 's.`subnet_id` = :subnet_id';
         }
-        if (array_key_exists ('group_id', $data)) {
+        if (array_key_exists('group_id', $data)) {
             $where_arr[] = 'g.`group_id` = :group_id';
         }
-        if (array_key_exists ('id', $data)) {
+        if (array_key_exists('id', $data)) {
             $where_arr[] = 'r.`reservation_id` = :id';
         }
-        if (array_key_exists ('ip', $data)) {
+        if (array_key_exists('ip', $data)) {
             $where_arr[] = "`ip` = INET_ATON(:ip)";
         }
-        if (array_key_exists ('mac', $data)) {
+        if (array_key_exists('mac', $data)) {
             $where_arr[] = "`mac` = :mac";
         }
 
         // Join all cases
         if (!empty($where_arr)) {
-            $where_sql = 'WHERE ' . join (' AND ', $where_arr);
+            $where_sql = 'WHERE ' . join(' AND ', $where_arr);
         }
 
         $sql = "SELECT `reservation_id`, r.end_host_id, hex(eh.`mac`) as mac, INET_NTOA(`ip`) as ip, r.`group_id`,
@@ -53,18 +53,31 @@ class ReservationMapper {
 	    LEFT JOIN groups g ON r.group_id = g.group_id
 	    LEFT JOIN subnets s ON g.subnet_id = s.subnet_id
 	    $where_sql";
-        $stmt = $this->db->prepare ($sql);
-        $stmt->execute ($data);
-        #var_dump($stmt);
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($data);
         $results = [];
-        while ($row = $stmt->fetch ()) {
-            if(!$terse) {
+        while ($row = $stmt->fetch()) {
+            if (!$terse) {
                 $row['end_host_type'] = new EndHostTypeEntry($row);
                 $row['end_host'] = new EndHostEntry($row);
                 $row['group'] = new GroupEntry($row);
                 $row['subnet'] = new SubnetEntry($row);
             }
             $results[] = new ReservationEntry($row);
+        }
+        return $results;
+    }
+
+    public function getReservationListForSubnet ($id) {
+        $sql = "SELECT ip FROM dhcp.reservations r
+                LEFT JOIN groups g ON r.group_id = g.group_id
+                LEFT JOIN subnets s ON g.subnet_id = s.subnet_id
+                WHERE s.subnet_id = :subnet_id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(array('subnet_id' => $id));
+        $results = [];
+        while($tmp  = $stmt->fetch()){
+            $results[] = $tmp['ip'];
         }
         return $results;
     }

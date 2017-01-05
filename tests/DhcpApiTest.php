@@ -38,8 +38,12 @@ class DhcpApiTest extends PHPUnit_Framework_TestCase {
             [DhcpApiTest::$base . 'reservations/mac/1234.5678.abcd', false],
             [DhcpApiTest::$base . 'reservations/mac/2D-06-CA-C8-65-2C', false],
             [DhcpApiTest::$base . 'subnets', false],
-            [DhcpApiTest::$base . 'subnets/id/1', true],
+            [DhcpApiTest::$base . 'subnets/id/2', true],
             [DhcpApiTest::$base . 'subnets/id/9999', true],
+            [DhcpApiTest::$base . 'subnets/id/2/free', true],
+            [DhcpApiTest::$base . 'subnets/id/9999/free', true],
+            [DhcpApiTest::$base . 'subnets/ip/1.12.123.1', true],
+            [DhcpApiTest::$base . 'subnets/ip/10.20.30.1', true],
         ];
     }
 
@@ -69,6 +73,8 @@ class DhcpApiTest extends PHPUnit_Framework_TestCase {
             $json = json_decode($body);
             $this->assertObjectHasAttribute('success', $json);
             $this->assertFalse($json->success);
+        } catch (\GuzzleHttp\Exception\ServerException $e){
+            $this->fail("Got 5XX HTTP code");
         }
     }
 }

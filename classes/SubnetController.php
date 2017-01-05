@@ -21,17 +21,22 @@ class SubnetController {
     public function get_subnets ($request, $response, $args) {
         $r = new DhcpResponse();
         $this->ci->logger->addInfo("Full subnet list");
-        $mapper = new SubnetMapper($this->ci->db);
-        $results = $mapper->getSubnets(array ());
-        // Build an array of end hosts
-        $array = [];
-        foreach ($results as $result) {
-            $array[] = $result->serialize();
+        try {
+            $mapper = new SubnetMapper($this->ci->db);
+            $results = $mapper->getSubnets([]);
+            // Build an array of end hosts
+            $array = [];
+            foreach ( $results as $result ) {
+                $array[] = $result->serialize();
+            }
+            // Prepare API response
+            $r->setData($array);
+            $r->success();
+            // Return response as JSON body
+        }catch (InvalidArgumentException $e){
+            $r->fail();
+            $r->addMessage($e->getMessage());
         }
-        // Prepare API response
-        $r->setData($array);
-        $r->success();
-        // Return response as JSON body
         return $response->withStatus($r->getCode())->withJson($r);
     }
 
@@ -42,16 +47,21 @@ class SubnetController {
             $r->fail();
         } else {
             $this->ci->logger->addInfo("Get subnet with ID #{$id}");
-            $mapper = new SubnetMapper($this->ci->db);
-            $results = $mapper->getSubnets(array ('subnet_id' => $id));
-            // Build an array of end hosts
-            if (sizeof($results) == 1) {
-                $r->success();
-                $r->setData($results[0]->serialize());
-            } else {
+            try {
+                $mapper = new SubnetMapper($this->ci->db);
+                $results = $mapper->getSubnets(['subnet_id' => $id]);
+                // Build an array of end hosts
+                if (sizeof($results) == 1) {
+                    $r->success();
+                    $r->setData($results[0]->serialize());
+                } else {
+                    $r->fail();
+                    $r->setCode(404);
+                    $r->addMessage("Subnet with ID #{$id} not found.");
+                }
+            }catch (InvalidArgumentException $e){
                 $r->fail();
-                $r->setCode(404);
-                $r->addMessage("Subnet with ID #{$id} not found.");
+                $r->addMessage($e->getMessage());
             }
         }
         // Return response as JSON body
@@ -65,19 +75,50 @@ class SubnetController {
             $r->fail();
         } else {
             $this->ci->logger->addInfo("Get subnet which contains {$ip}");
-            $mapper = new SubnetMapper($this->ci->db);
-            $results = $mapper->getSubnets(array ('ip' => $ip));
-            // Build an array of end hosts
-            if (sizeof($results) == 1 and $results[0]->isValidAddress($ip)) {
-                $r->success();
-                $r->setData($results[0]->serialize());
-            } else {
+            try {
+                $mapper = new SubnetMapper($this->ci->db);
+                $results = $mapper->getSubnets(['ip' => $ip]);
+                // Build an array of end hosts
+                if (sizeof($results) == 1 and $results[0]->isValidAddress($ip)) {
+                    $r->success();
+                    $r->setData($results[0]->serialize());
+                } else {
+                    $r->fail();
+                    $r->setCode(404);
+                    $r->addMessage("Subnet for address {$ip} not found.");
+                }
+            }catch (InvalidArgumentException $e){
                 $r->fail();
-                $r->setCode(404);
-                $r->addMessage("Subnet for address {$ip} not found.");
+                $r->addMessage($e->getMessage());
             }
         }
         // Return response as JSON body
+        return $response->withStatus($r->getCode())->withJson($r);
+    }
+
+    public function get_subnet_free_addresses ($request, $response, $args){
+        $r = new DhcpResponse();
+        $id = intval($args['subnet_id']);
+        if (!Validator::validateId($id)) {
+            $r->fail();
+        } else {
+            $this->ci->logger->addInfo("Get free addresses in subnet with ID #{$id}");
+            try{
+                $mapper = new SubnetMapper($this->ci->db);
+                try {
+                    $results = $mapper->getFreeAddresses($id);
+                    $r->success();
+                    $r->setData($results);
+                }catch (InvalidArgumentException $e){
+                    $r->fail();
+                    $r->addMessage($e->getMessage());
+                    $r->setCode(404);
+                }
+            }catch (InvalidArgumentException $e){
+                $r->fail();
+                $r->addMessage($e->getMessage());
+            }
+        }
         return $response->withStatus($r->getCode())->withJson($r);
     }
 
