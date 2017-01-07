@@ -15,6 +15,9 @@ class EndHostControllerTest extends \PHPUnit_Framework_TestCase {
     public $db;
     public static $base = 'http://test-srv-pavle.vektor.net/endhosts';
 
+    public function setUp () {
+        $this->c = new \GuzzleHttp\Client();
+    }
 
     public function testGetAllEndHosts () {
         $this->confirmJsonAndCode(self::$base, true, 200);
