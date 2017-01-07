@@ -6,7 +6,7 @@
  * Time: 9:54 PM
  */
 
-namespace classes;
+namespace Dhcp\EndHost;
 
 
 class EndHostEntryTest extends \PHPUnit_Framework_TestCase {
@@ -57,8 +57,8 @@ class EndHostEntryTest extends \PHPUnit_Framework_TestCase {
      */
 
     public function testValidCreationWithoutIdAndTypeObject ($data) {
-        $this->eh = new \EndHostEntry($data);
-        $this->assertInstanceOf (\EndHostEntry::class, $this->eh);
+        $this->eh = new EndHostEntry($data);
+        $this->assertInstanceOf(EndHostEntry::class, $this->eh);
 
     }
 
@@ -66,7 +66,7 @@ class EndHostEntryTest extends \PHPUnit_Framework_TestCase {
      * @dataProvider validMinimalData
      */
     public function testGetterReturnTypes($data){
-        $this->eh = new \EndHostEntry($data);
+        $this->eh = new EndHostEntry($data);
         //$this->assertInternalType ('int', $this->eh->getId ());
         $this->assertInternalType ('string', $this->eh->getMac ());
         $this->assertInternalType ('string', $this->eh->getMacHex ());

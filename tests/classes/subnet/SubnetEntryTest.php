@@ -1,5 +1,7 @@
 <?php
 
+namespace Dhcp\Subnet;
+
 /**
  * Created by PhpStorm.
  * User: pajaja

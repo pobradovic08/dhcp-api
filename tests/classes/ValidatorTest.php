@@ -1,12 +1,14 @@
 <?php
 
+namespace Dhcp;
+
 /**
  * Created by PhpStorm.
  * User: pajaja
  * Date: 1/2/2017
  * Time: 5:33 PM
  */
-class ValidatorTest extends PHPUnit_Framework_TestCase {
+class ValidatorTest extends \PHPUnit_Framework_TestCase {
 
     public function validIds () {
         return [
@@ -22,13 +24,13 @@ class ValidatorTest extends PHPUnit_Framework_TestCase {
 
     public function invalidIds () {
         return [
-            [-1], [0], ["asd"], [true], [false], [[]], [new ArrayObject()]
+            [-1], [0], ["asd"], [true], [false], [[]], [new \ArrayObject()],
         ];
     }
 
     public function invalidVlanIds () {
         return [
-            [-1], [0], [4095], [9999], ["asd"], [true], [false], [[]], [new ArrayObject()]
+            [-1], [0], [4095], [9999], ["asd"], [true], [false], [[]], [new \ArrayObject()],
         ];
     }
 

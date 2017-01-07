@@ -6,7 +6,7 @@
  * Time: 1:09 AM
  */
 
-namespace classes;
+namespace Dhcp;
 
 class DhcpResponseTest extends \PHPUnit_Framework_TestCase {
 
@@ -42,7 +42,7 @@ class DhcpResponseTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function setUp () {
-        $this->r = new \DhcpResponse();
+        $this->r = new DhcpResponse();
     }
 
     public function testNewInstance () {

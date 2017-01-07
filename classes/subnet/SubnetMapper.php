@@ -57,7 +57,7 @@ class SubnetMapper {
         $stmt->execute(['id' => $id]);
         $result = $stmt->fetch();
         if ($result) {
-            $reservationMapper = new ReservationMapper($this->db);
+            $reservationMapper = new \Dhcp\Reservation\ReservationMapper($this->db);
             $reserved_addresses = $reservationMapper->getReservationListForSubnet($id);
             for ( $i = $result['from_address']; $i <= $result['to_address']; $i++ ) {
                 if (!in_array($i, $reserved_addresses)) {

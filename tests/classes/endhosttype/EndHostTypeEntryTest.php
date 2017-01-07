@@ -6,7 +6,7 @@
  * Time: 9:14 PM
  */
 
-namespace classes;
+namespace Dhcp\EndHostType;
 
 
 class EndHostTypeEntryTest extends \PHPUnit_Framework_TestCase {
@@ -75,8 +75,8 @@ class EndHostTypeEntryTest extends \PHPUnit_Framework_TestCase {
      * @dataProvider validDataWithoutId
      */
     public function testValidTypeCreationWithoutId ($data) {
-        $this->type = new \EndHostTypeEntry($data);
-        $this->assertInstanceOf(\EndHostTypeEntry::class, $this->type);
+        $this->type = new EndHostTypeEntry($data);
+        $this->assertInstanceOf(EndHostTypeEntry::class, $this->type);
         $this->assertEquals(null, $this->type->getId());
         $this->assertEquals($data['end_host_type_description'], $this->type->getDescription());
     }
@@ -85,8 +85,8 @@ class EndHostTypeEntryTest extends \PHPUnit_Framework_TestCase {
      * @dataProvider validData
      */
     public function testValidTypeCreation ($data) {
-        $this->type = new \EndHostTypeEntry($data);
-        $this->assertInstanceOf(\EndHostTypeEntry::class, $this->type);
+        $this->type = new EndHostTypeEntry($data);
+        $this->assertInstanceOf(EndHostTypeEntry::class, $this->type);
         $this->assertEquals($data['end_host_type_id'], $this->type->getId());
         $this->assertEquals($data['end_host_type_description'], $this->type->getDescription());
     }
@@ -96,14 +96,14 @@ class EndHostTypeEntryTest extends \PHPUnit_Framework_TestCase {
      * @expectedException \InvalidArgumentException
      */
     public function testCreationWithoutRequiredData ($data){
-        $this->type = new \EndHostTypeEntry($data);
+        $this->type = new EndHostTypeEntry($data);
     }
 
     /**
      * @dataProvider validData
      */
     public function testSerializedJsonKeys($data){
-        $this->type = new \EndHostTypeEntry($data);
+        $this->type = new EndHostTypeEntry($data);
         $this->assertArrayHasKey('end_host_type_id', $this->type->serialize());
         $this->assertArrayHasKey('end_host_type_description', $this->type->serialize());
     }
@@ -112,7 +112,7 @@ class EndHostTypeEntryTest extends \PHPUnit_Framework_TestCase {
      * @dataProvider validData
      */
     public function testSerializedJsonValues($data){
-        $this->type = new \EndHostTypeEntry($data);
+        $this->type = new EndHostTypeEntry($data);
         $this->assertEquals($this->type->getId(), $this->type->serialize()['end_host_type_id']);
         $this->assertEquals($this->type->getDescription(), $this->type->serialize()['end_host_type_description']);
     }

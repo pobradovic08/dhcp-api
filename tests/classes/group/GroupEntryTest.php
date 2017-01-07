@@ -1,5 +1,7 @@
 <?php
 
+namespace Dhcp\Group;
+
 /**
  * Created by PhpStorm.
  * User: pajaja
@@ -111,7 +113,7 @@ class GroupEntryTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @dataProvider invalidData
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      */
     public function testInvalidGroupCreationWithoutRequiredArguments ($params) {
         $this->group = new GroupEntry($params);

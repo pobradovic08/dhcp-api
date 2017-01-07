@@ -55,7 +55,21 @@ $container['SubnetController'] = function ($c) {
     return new \Dhcp\Subnet\SubnetController($c);
 };
 
+$container['GroupController'] = function ($c) {
+    return new \Dhcp\Group\GroupController($c);
+};
 
+$container['EndHostController'] = function ($c) {
+    return new \Dhcp\EndHost\EndHostController($c);
+};
+
+$container['EndHostTypeController'] = function ($c) {
+    return new \Dhcp\EndHostType\EndHostTypeController($c);
+};
+
+$container['ReservationController'] = function ($c) {
+    return new \Dhcp\Reservation\ReservationController($c);
+};
 
 
 require __DIR__ . '/../routes.php';
