@@ -6,10 +6,6 @@ use \Interop\Container\ContainerInterface as ContainerInterface;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-//spl_autoload_register(function ($classname) {
-//    require("../classes/" . $classname . ".php");
-//});
-
 $config = [
     'settings' => [
         'displayErrorDetails' => true,
