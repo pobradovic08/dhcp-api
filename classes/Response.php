@@ -14,7 +14,7 @@ class Response {
      */
     public function __construct () {
         $this->success = false;
-        $this->code = 500;
+        $this->code = 400;
         $this->messages = array ();
         $this->data = array ();
     }
@@ -35,18 +35,24 @@ class Response {
         return $this->messages;
     }
 
-    public function success () {
+    public function success ($message = null) {
         $this->success = true;
         $this->setCode(200);
+        if ($message) {
+            $this->addMessage($message);
+        }
     }
 
     public function isSuccessful () {
         return $this->success;
     }
 
-    public function fail () {
+    public function fail ($code = 400, $message = null) {
         $this->success = false;
-        $this->setCode(500);
+        $this->setCode($code);
+        if ($message) {
+            $this->addMessage($message);
+        }
     }
 
     public function setCode ($code) {

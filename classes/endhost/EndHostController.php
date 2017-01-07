@@ -2,6 +2,8 @@
 
 namespace Dhcp\EndHost;
 
+use Dhcp\Response;
+use Dhcp\Validator;
 use \Interop\Container\ContainerInterface as ContainerInterface;
 
 class EndHostController {
@@ -14,12 +16,12 @@ class EndHostController {
 
     public function get_host ($request, $response, $args) {
         // API response
-        $r = new \Dhcp\Response();
+        $r = new Response();
         // Log request info
         $this->ci->logger->addInfo("Full end host list");
         // Instance mapper and request all end hosts (empty filter)
         $mapper = new EndHostMapper($this->ci->db);
-        $endhosts = $mapper->getEndHosts(array ());
+        $endhosts = $mapper->getEndHosts([]);
         // Build an array of end hosts
         $array = [];
         foreach ( $endhosts as $endhost ) {
@@ -34,12 +36,17 @@ class EndHostController {
 
     public function get_host_by_id ($request, $response, $args) {
         // API response
-        $r = new \Dhcp\Response();
+        $r = new Response();
+        if (!Validator::validateArgument($args, 'end_host_id', Validator::REGEXP_ID)) {
+            $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
+            $r->fail(400, "Invalid host ID");
+            return $response->withStatus($r->getCode())->withJson($r);
+        }
         // Log request info
         $this->ci->logger->addInfo("Rrequested end host #" . $args['end_host_id']);
         // Instance mapper and request end host with specific ID
         $mapper = new EndHostMapper($this->ci->db);
-        $filter = array ('end_host_id' => $args['end_host_id']);
+        $filter = ['end_host_id' => $args['end_host_id']];
         $endhost = $mapper->getEndHosts($filter);
         // Prepare API response
         // If there's one endhost everything is good
@@ -47,22 +54,26 @@ class EndHostController {
             $r->setData($endhost[0]->serialize());
             $r->success();
         } else {
-            $r->fail();
-            $r->setCode(404);
+            $r->fail(404, "End host with ID#{$args['end_host_id']} not found.");
         }
         return $response->withStatus($r->getCode())->withJson($r);
     }
 
     public function get_host_by_mac ($request, $response, $args) {
         // API response
-        $r = new \Dhcp\Response();
+        $r = new Response();
+        if (!Validator::validateArgument($args, 'mac', Validator::REGEXP_MAC)) {
+            $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid MAC");
+            $r->fail(400, "Invalid MAC address");
+            return $response->withStatus($r->getCode())->withJson($r);
+        }
         // Log request info
         $this->ci->logger->addInfo("Rrequested end with MAC: " . $args['mac']);
         // Instance mapper, replace all funny characters in mac address
         // and request end host with specific MAC
         $mapper = new EndHostMapper($this->ci->db);
         $clean_mac = preg_replace('/[\.:-]/', '', $args['mac']);
-        $filter = array ('mac' => intval($clean_mac, 16));
+        $filter = ['mac' => intval($clean_mac, 16)];
         $endhost = $mapper->getEndHosts($filter);
         // Prepare API response
         // If there's one endhost everything is good
@@ -70,20 +81,19 @@ class EndHostController {
             $r->setData($endhost[0]->serialize());
             $r->success();
         } else {
-            $r->fail();
-            $r->setCode(404);
+            $r->fail(404, "End host with MAC {$args['mac']} not found.");
         }
         return $response->withStatus($r->getCode())->withJson($r);
     }
 
     public function get_search_host ($request, $response, $args) {
         // API response
-        $r = new \Dhcp\Response();
+        $r = new Response();
         // Log request info
         $this->ci->logger->addInfo("Searching for host with pattern: " . $args['pattern']);
         // Instance mapper and search for end host matching specific pattern
         $mapper = new EndHostMapper($this->ci->db);
-        $filter = array ('search' => '%' . $args['pattern'] . '%');
+        $filter = ['search' => '%' . $args['pattern'] . '%'];
         $endhosts = $mapper->getEndHosts($filter);
         // If there's more than one, it's good
         if (sizeof($endhosts) >= 1) {
@@ -95,47 +105,26 @@ class EndHostController {
             $r->success();
             $r->setData($array);
         } else {
-            $r->fail();
-            $r->setCode(404);
+            $r->fail(404, "No matches found");
         }
         return $response->withStatus($r->getCode())->withJson($r);
     }
 
     public function post_host ($request, $response, $args) {
-        $required_params = array (
-            array (
-                'name' => 'hostname',
-                'filter' => FILTER_SANITIZE_STRING,
-                'regexp' => '/[a-zA-Z0-9-]+/'
-            ),
-            array (
-                'name' => 'mac',
-                'filter' => FILTER_SANITIZE_STRING,
-                'regexp' => '/^(?:(?:[0-9A-Fa-f]{4}\.){2}[0-9A-Fa-f]{4}|(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2})$/'
-            ),
-            array (
-                'name' => 'end_host_type_id',
-                'filter' => FILTER_SANITIZE_NUMBER_INT,
-                'regexp' => '/[0-9]+/'
-            )
-        );
-        $optional_params = array (
-            array (
-                'name' => 'end_host_id',
-                'filter' => FILTER_SANITIZE_NUMBER_INT,
-                'regexp' => '/[0-9]+/'
-            ),
-            array (
-                'name' => 'description',
-                'filter' => FILTER_SANITIZE_STRING,
-                'regexp' => '/.*/'
-            ),
-            array (
-                'name' => 'production',
-                'filter' => FILTER_SANITIZE_NUMBER_INT,
-                'regexp' => '/[01]/'
-            )
-        );
+        // API response
+        $r = new Response();
+        $this->ci->logger->addInfo("Adding new host with parameters: " . join(', ', $request->getParams()));
+
+        $required_params = [
+            ['hostname', Validator::REGEXP_HOSTNAME],
+            ['mac', Validator::REGEXP_MAC],
+            ['end_host_type_id', Validator::REGEXP_ID],
+        ];
+        $optional_params = [
+            ['end_host_id', Validator::REGEXP_ID],
+            ['description', null],
+            ['production', Validator::REGEXP_ID],
+        ];
         /*
          * Data array used for building the EndHostEntry object.
          * Parameters from Request are filtered and copied to this array.
@@ -148,18 +137,10 @@ class EndHostController {
          * match the regular expression defined for it
          */
         foreach ( $required_params as $param ) {
-            // No parameter defined, generate error message
-            if (!$request->getParam($param['name'])) {
-                return $response->withStatus(400)->withJson(array ('message' => "Required parameter '" . $param['name'] . "' missing"));
+            if (Validator::validateArgument($request->getParams(), $param[0], $param[1])) {
+                $data[$param[0]] = $request->getParam($param[0]);
             } else {
-                // Filter parameter and add it to data array if it matches the regexp
-                $filtered_value = filter_var($request->getParam($param['name']), $param['filter']);
-                if (preg_match($param['regexp'], $filtered_value)) {
-                    $data[$param['name']] = $filtered_value;
-                    // Filtered parameter doesn't match regexp, generate error message
-                } else {
-                    return $response->withStatus(400)->withJson(array ('message' => "Required parameter '" . $param['name'] . "' invalid"));
-                }
+                $r->fail(400, "Required parameter {$param[0]} missing or invalid.");
             }
         }
 
@@ -171,10 +152,8 @@ class EndHostController {
          * added to data array.
          */
         foreach ( $optional_params as $param ) {
-            // Filter parameter and add it to data array if it matches the regexp
-            $filtered_value = filter_var($request->getParam($param['name']), $param['filter']);
-            if (preg_match($param['regexp'], $filtered_value)) {
-                $data[$param['name']] = $filtered_value;
+            if (Validator::validateArgument($request->getParams(), $param[0], $param[1])) {
+                $data[$param[0]] = $request->getParam($param[0]);
             }
         }
         /*
@@ -182,20 +161,20 @@ class EndHostController {
          */
         $endhost = new EndHostEntry($data);
         $mapper = new EndHostMapper($this->ci->db);
-        $result = $mapper->insertEndHost($endhost);
-        if ($result['success']) {
-            $this->ci->logger->addInfo($result['message']);
-            return $response->withStatus(200)->withJson($result);
+        if ($mapper->insertEndHost($endhost, $r)) {
+            $this->ci->logger->addInfo("Created new end host with ID#" . $r->getData()['end_host_id']);
         } else {
-            return $response->withStatus(400)->withJson($result);
+            $this->ci->logger->addError("Failed adding new. Reason: " . join(', ', $r->getMessages()));
         }
+        return $response->withStatus($r->getCode())->withJson($r);
     }
 
+    //TODO: \Dhcp\Response object
     public function delete_host ($request, $response, $args) {
-        $this->ci->logger->addInfo("Delete end host type #" . $args['end_host_type_id']);
-        $mapper = new \Dhcp\EndHostType\EndHostTypeMapper($this->ci->db);
-        $result = $mapper->deleteType($args['end_host_type_id']);
-        $http_code = 400;
+        $r = new Response();
+        $this->ci->logger->addInfo("Delete end host #" . $args['end_host_id']);
+        $mapper = new EndHostMapper($this->ci->db, $r);
+        $result = $mapper->deleteHost($args['end_host_type_id']);
         if ($result['success']) {
             if ($result['deleted_count']) {
                 $http_code = 200;

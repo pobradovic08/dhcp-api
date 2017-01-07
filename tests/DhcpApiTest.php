@@ -55,7 +55,7 @@ class DhcpApiTest extends PHPUnit_Framework_TestCase {
      * @param $url
      * @param $can_fail
      */
-    public function testEndHostsGetResponseCodes ($url, $can_fail) {
+    public function testApiEndpointsGetResponseCodes ($url, $can_fail) {
         try {
             // Main stuff
             $response = $this->c->request('GET', $url);
@@ -76,7 +76,45 @@ class DhcpApiTest extends PHPUnit_Framework_TestCase {
             $json = json_decode($body);
             $this->assertObjectHasAttribute('success', $json);
             $this->assertFalse($json->success);
-        } catch (\GuzzleHttp\Exception\ServerException $e){
+        } catch ( \GuzzleHttp\Exception\ServerException $e ) {
+            $this->fail("Got 5XX HTTP code");
+        }
+    }
+
+    public function invalidUrls () {
+        return [
+            [DhcpApiTest::$base . 'endhosts/id/0'],
+            [DhcpApiTest::$base . 'endhosts/types/id/0'],
+            [DhcpApiTest::$base . 'reservations/id/0'],
+            [DhcpApiTest::$base . 'reservations/subnet/0'],
+            [DhcpApiTest::$base . 'reservations/group/0',],
+            [DhcpApiTest::$base . 'subnets/id/0'],
+            [DhcpApiTest::$base . 'subnets/id/0/free'],
+            [DhcpApiTest::$base . 'subnets/ip/256.12.123.1'],
+            [DhcpApiTest::$base . 'subnets/vlan/0'],
+            [DhcpApiTest::$base . 'subnets/vlan/4095'],
+            [DhcpApiTest::$base . 'subnets/vlan/4096'],
+            [DhcpApiTest::$base . 'subnets/id/0/groups'],
+            [DhcpApiTest::$base . 'subnets/id/1/groups/id/0', true],
+        ];
+    }
+
+    /**
+     * @dataProvider invalidUrls
+     * @param $url
+     */
+    public function testApiEndpointsWithInvalidArguments ($url) {
+        try {
+            $this->c->request('GET', $url);
+        } catch ( \GuzzleHttp\Exception\ClientException $e ) {
+            $response = $e->getResponse();
+            $body = $response->getBody()->getContents();
+            $this->assertEquals(400, $response->getStatusCode());
+            $this->assertJson($body);
+            $json = json_decode($body);
+            $this->assertObjectHasAttribute('success', $json);
+            $this->assertFalse($json->success);
+        } catch ( \GuzzleHttp\Exception\ServerException $e ) {
             $this->fail("Got 5XX HTTP code");
         }
     }

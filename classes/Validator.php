@@ -10,11 +10,18 @@ namespace Dhcp;
  */
 class Validator {
 
+    const REGEXP_ID = '/^[1-9][0-9]*$/';
+    const REGEXP_MAC = '/^(?:(?:[0-9A-Fa-f]{4}\.){2}[0-9A-Fa-f]{4}|(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2})$/';
+    const REGEXP_HOSTNAME = '/^[a-zA-Z0-9-]+$/';
+    const REGEXP_BOOL = '/^([01]$/';
+
+    const IP = 1;
+
     /*
      * ID must be integer between 1 and infinity
      */
     static function validateId ($id) {
-        return is_int ($id) and $id > 0;
+        return is_int($id) and $id > 0;
     }
 
     /*
@@ -22,7 +29,7 @@ class Validator {
      * 0 and 4095 are reserved
      */
     static function validateVlanId ($vlan_id) {
-        return is_int ($vlan_id) and $vlan_id > 0 and $vlan_id < 4095;
+        return is_int($vlan_id) and $vlan_id > 0 and $vlan_id < 4095;
     }
 
     static function validateIpAddress ($ip) {
@@ -30,7 +37,7 @@ class Validator {
     }
 
     static function validateIpMask ($mask) {
-        if(!self::validateIpAddress($mask)){
+        if (!self::validateIpAddress($mask)) {
             return false;
         }
         $dec = ip2long($mask);
@@ -38,7 +45,7 @@ class Validator {
          * If mask is 0.0.0.0 ip2long will return 0 which is evaluated to false
          * It's a false negative, so...
          */
-        if($dec or $mask == '0.0.0.0'){
+        if ($dec or $mask == '0.0.0.0') {
             $bin = decbin($dec);
             // For decbin(0) result is just "0" so /^0$/
             return boolval(preg_match('/(^0$|^1+0*$)/', $bin));
@@ -49,11 +56,26 @@ class Validator {
     /*
      * String must be 64 or less characters
      */
-    static function validateDescription ($description){
+    static function validateDescription ($description) {
         return strlen($description) <= 64 and strlen($description) > 0;
     }
 
-    static function validateHttpCode($code){
-        return is_int ($code) and ($code >= 100) and ($code < 600);
+    static function validateHttpCode ($code) {
+        return is_int($code) and ($code >= 100) and ($code < 600);
+    }
+
+    static function validateArgument ($arguments, $argument_name, $regexp = null) {
+        // Check if argument exists
+        if (isset($arguments[$argument_name])) {
+            // Match the regexp if defined or return true if filter succeeded
+            if ($regexp) {
+                if ($regexp == self::IP) {
+                    return self::validateIpAddress($arguments[$argument_name]);
+                } else {
+                    return preg_match($regexp, $arguments[$argument_name]);
+                }
+            }
+        }
+        return false;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Dhcp\EndHostType;
 
+use Dhcp\Validator;
 use \Interop\Container\ContainerInterface as ContainerInterface;
 
 class EndHostTypeController {
@@ -12,6 +13,7 @@ class EndHostTypeController {
         $this->ci = $ci;
     }
 
+    //TODO: Validate arguments
     public function get_type ($request, $response, $args) {
         // API Response
         $r = new \Dhcp\Response();
@@ -31,9 +33,15 @@ class EndHostTypeController {
         return $response->withStatus($r->getCode())->withJson($r);
     }
 
+    //TODO: Validate arguments
     public function get_type_by_id ($request, $response, $args) {
         // API Response
         $r = new \Dhcp\Response();
+        if (!Validator::validateArgument($args, 'end_host_type_id', Validator::REGEXP_ID)) {
+            $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
+            $r->fail(400, "Invalid host type ID");
+            return $response->withStatus($r->getCode())->withJson($r);
+        }
         // Log request info
         $this->ci->logger->addInfo("End host type #" . $args['end_host_type_id']);
         // Instance mapper and get end host type with specific ID
@@ -46,8 +54,7 @@ class EndHostTypeController {
             $r->success();
             $r->setData($types[0]->serialize());
         } else {
-            $r->fail();
-            $r->setCode(404);
+            $r->fail(404);
         }
         return $response->withStatus($r->getCode())->withJson($r);
     }

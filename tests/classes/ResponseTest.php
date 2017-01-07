@@ -8,7 +8,7 @@
 
 namespace Dhcp;
 
-class DhcpResponseTest extends \PHPUnit_Framework_TestCase {
+class ResponseTest extends \PHPUnit_Framework_TestCase {
 
     public function goodCodes () {
         return array ([
@@ -62,6 +62,17 @@ class DhcpResponseTest extends \PHPUnit_Framework_TestCase {
         $this->r->success ();
         $this->r->fail ();
         $this->assertFalse ($this->r->isSuccessful ());
+        $this->assertEquals(400, $this->r->getCode());
+        $this->r->success();
+        $this->r->fail(404);
+        $this->assertFalse($this->r->isSuccessful());
+        $this->assertEquals(404, $this->r->getCode());
+        $this->r->success();
+        $this->r->clearMessages();
+        $this->r->fail(403, "Forbidden");
+        $this->assertFalse($this->r->isSuccessful());
+        $this->assertEquals(403, $this->r->getCode());
+        $this->assertEquals("Forbidden", $this->r->getMessages()[0]);
     }
 
     /**

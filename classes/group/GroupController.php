@@ -9,6 +9,7 @@ namespace Dhcp\Group;
  * Time: 11:20 PM
  */
 
+use Dhcp\Response;
 use Dhcp\Validator;
 use \Interop\Container\ContainerInterface as ContainerInterface;
 
@@ -18,64 +19,64 @@ class GroupController {
     //Constructor
     public function __construct (ContainerInterface $ci) {
         $this->ci = $ci;
+        $this->r = new Response();
     }
 
     /*
      * Get list of groups for specific subnet ID
      */
     public function get_groups ($request, $response, $args) {
-        $r = new \Dhcp\Response();
-        $subnet_id = isset($args['subnet_id']) ? intval($args['subnet_id']) : null;
-        if(!Validator::validateId($subnet_id)){
-            $r->fail();
-            $r->addMessage("Invalid subnet ID");
-        }else {
-            $this->ci->logger->addInfo("Full group list for subnet ID #{$subnet_id}");
-            try {
-                $mapper = new GroupMapper($this->ci->db);
-                $groups = $mapper->getGroups(['subnet_id' => $subnet_id]);
-                $array = [];
-                foreach ($groups as $group) {
-                    $array[] = $group->serialize();
-                }
-                $r->success();
-                $r->setData($array);
-            } catch (\InvalidArgumentException $e) {
-                $r->fail();
-                $r->addMessage($e->getMessage());
-            }
+        if (!Validator::validateArgument($args, 'subnet_id', Validator::REGEXP_ID)) {
+            $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
+            $this->r->fail(400, "Invalid subnet ID");
+            return $response->withStatus($this->r->getCode())->withJson($this->r);
         }
-        return $response->withStatus($r->getCode())->withJson($r);
+        $subnet_id = intval($args['subnet_id']);
+        $this->ci->logger->addInfo("Full group list for subnet ID #{$subnet_id}");
+        try {
+            $mapper = new GroupMapper($this->ci->db);
+            $groups = $mapper->getGroups(['subnet_id' => $subnet_id]);
+            $array = [];
+            foreach ( $groups as $group ) {
+                $array[] = $group->serialize();
+            }
+            $this->r->success();
+            $this->r->setData($array);
+        } catch ( \InvalidArgumentException $e ) {
+            $this->r->fail(500, $e->getMessage());
+        }
+        return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 
     /*
      * Get group with specific ID
      */
     public function get_group_by_id ($request, $response, $args) {
-        $r = new \Dhcp\Response();
-        $group_id = isset($args['group_id']) ? intval($args['group_id']) : null;
-        $subnet_id = isset($args['subnet_id']) ? intval($args['subnet_id']) : null;
-        if(!Validator::validateId($group_id) or !Validator::validateId($subnet_id)){
-            $r->fail();
-            $r->addMessage("Invalid subnet or group ID");
-        }else {
-            $this->ci->logger->addInfo("Get group with ID #{$group_id}");
-            try {
-                $mapper = new GroupMapper($this->ci->db);
-                $groups = $mapper->getGroups(['group_id' => $group_id, 'subnet_id' => $subnet_id]);
-                if(sizeof($groups) == 1) {
-                    $r->success();
-                    $r->setData($groups[0]->serialize());
-                }else{
-                    $r->fail();
-                    $r->setCode(404);
-                }
-            } catch (\InvalidArgumentException $e) {
-                $r->fail();
-                $r->addMessage($e->getMessage());
-            }
+        if (!Validator::validateArgument($args, 'subnet_id', Validator::REGEXP_ID)) {
+            $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
+            $this->r->fail(400, "Invalid subnet ID");
+            return $response->withStatus($this->r->getCode())->withJson($this->r);
         }
-        return $response->withStatus($r->getCode())->withJson($r);
+        if (!Validator::validateArgument($args, 'group_id', Validator::REGEXP_ID)) {
+            $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
+            $this->r->fail(400, "Invalid group ID");
+            return $response->withStatus($this->r->getCode())->withJson($this->r);
+        }
+        $this->ci->logger->addInfo("Get group with ID #{$args['group_id']}");
+        try {
+            $mapper = new GroupMapper($this->ci->db);
+            $groups = $mapper->getGroups(['group_id'  => $args['group_id'],
+                                          'subnet_id' => $args['subnet_id']]);
+            if (sizeof($groups) == 1) {
+                $this->r->success();
+                $this->r->setData($groups[0]->serialize());
+            } else {
+                $this->r->fail(404, "No group with ID#{$args['group_id']}");
+            }
+        } catch ( \InvalidArgumentException $e ) {
+            $this->r->fail(500, $e->getMessage());
+        }
+        return $response->withJson($this->r, $this->r->getCode());
     }
 
     //TODO: POST group
