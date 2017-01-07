@@ -1,5 +1,8 @@
 <?php
 
+namespace Dhcp\Subnet;
+use Dhcp\Validator;
+
 class SubnetEntry {
 
     /*
@@ -45,7 +48,7 @@ class SubnetEntry {
         $this->last_host_address = $this->calculateLastHop();
 
         if ($this->network != $this->network_address) {
-            throw new InvalidArgumentException("Invalid subnet address. Try with: " . long2ip($this->network_address));
+            throw new \InvalidArgumentException("Invalid subnet address. Try with: " . long2ip($this->network_address));
         }
 
     }

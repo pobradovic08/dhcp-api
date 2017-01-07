@@ -1,5 +1,7 @@
 <?php
 
+namespace Dhcp\Subnet;
+
 /**
  * Created by PhpStorm.
  * User: pajaja
@@ -63,7 +65,7 @@ class SubnetMapper {
                 }
             }
         } else {
-            throw new InvalidArgumentException("No subnet with ID #$id");
+            throw new \InvalidArgumentException("No subnet with ID #$id");
         }
         return $addresses;
     }

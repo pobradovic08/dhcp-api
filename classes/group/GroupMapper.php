@@ -1,5 +1,7 @@
 <?php
 
+namespace Dhcp\Group;
+
 /**
  * Created by PhpStorm.
  * User: pajaja

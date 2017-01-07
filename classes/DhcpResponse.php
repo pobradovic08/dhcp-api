@@ -1,4 +1,5 @@
 <?php
+namespace Dhcp;
 
 /**
  * Created by PhpStorm.
@@ -25,8 +26,8 @@ class DhcpResponse {
     public function addMessage ($message) {
         try {
             $this->messages[] = strval ($message);
-        }catch (Exception $e){
-            throw new InvalidArgumentException("Message must be a string");
+        }catch (\Exception $e){
+            throw new \InvalidArgumentException("Message must be a string");
         }
     }
 
@@ -52,7 +53,7 @@ class DhcpResponse {
         if (Validator::validateHttpCode($code)) {
             $this->code = (int)$code;
         } else {
-            throw new InvalidArgumentException("Invalid status code");
+            throw new \InvalidArgumentException("Invalid status code");
         }
     }
 

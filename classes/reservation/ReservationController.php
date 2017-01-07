@@ -1,5 +1,7 @@
 <?php
 
+namespace Dhcp\Reservation;
+
 use \Interop\Container\ContainerInterface as ContainerInterface;
 
 class ReservationController {

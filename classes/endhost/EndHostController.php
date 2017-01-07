@@ -1,5 +1,7 @@
 <?php
 
+namespace Dhcp\EndHost;
+
 use \Interop\Container\ContainerInterface as ContainerInterface;
 
 class EndHostController {
@@ -12,7 +14,7 @@ class EndHostController {
 
     public function get_host ($request, $response, $args) {
         // API response
-        $r = new DhcpResponse();
+        $r = new \Dhcp\DhcpResponse();
         // Log request info
         $this->ci->logger->addInfo("Full end host list");
         // Instance mapper and request all end hosts (empty filter)
@@ -32,7 +34,7 @@ class EndHostController {
 
     public function get_host_by_id ($request, $response, $args) {
         // API response
-        $r = new DhcpResponse();
+        $r = new \Dhcp\DhcpResponse();
         // Log request info
         $this->ci->logger->addInfo("Rrequested end host #" . $args['end_host_id']);
         // Instance mapper and request end host with specific ID
@@ -53,7 +55,7 @@ class EndHostController {
 
     public function get_host_by_mac ($request, $response, $args) {
         // API response
-        $r = new DhcpResponse();
+        $r = new \Dhcp\DhcpResponse();
         // Log request info
         $this->ci->logger->addInfo("Rrequested end with MAC: " . $args['mac']);
         // Instance mapper, replace all funny characters in mac address
@@ -76,7 +78,7 @@ class EndHostController {
 
     public function get_search_host ($request, $response, $args) {
         // API response
-        $r = new DhcpResponse();
+        $r = new \Dhcp\DhcpResponse();
         // Log request info
         $this->ci->logger->addInfo("Searching for host with pattern: " . $args['pattern']);
         // Instance mapper and search for end host matching specific pattern
@@ -191,7 +193,7 @@ class EndHostController {
 
     public function delete_host ($request, $response, $args) {
         $this->ci->logger->addInfo("Delete end host type #" . $args['end_host_type_id']);
-        $mapper = new EndHostTypeMapper($this->ci->db);
+        $mapper = new \Dhcp\EndHostType\EndHostTypeMapper($this->ci->db);
         $result = $mapper->deleteType($args['end_host_type_id']);
         $http_code = 400;
         if ($result['success']) {

@@ -1,5 +1,7 @@
 <?php
 
+namespace Dhcp\EndHost;
+
 class EndHostEntry {
 
     /*
@@ -32,19 +34,19 @@ class EndHostEntry {
             $data['mac'] = preg_replace ('/[-:.]/', '', $data['mac']);
             $this->mac = $data['mac'];
         } else {
-            throw new InvalidArgumentException("MAC format invalid: " . $data['mac']);
+            throw new \InvalidArgumentException("MAC format invalid: " . $data['mac']);
         }
         /*
          * If reading from database we have EndHostTypeEntry object
          * User POST/PUT request has just end host type ID
          */
-        if (isset($data['end_host_type']) && $data['end_host_type'] instanceof EndHostTypeEntry) {
+        if (isset($data['end_host_type']) && $data['end_host_type'] instanceof \Dhcp\EndHostType\EndHostTypeEntry) {
             $this->end_host_type = $data['end_host_type'];
             $this->end_host_type_id = $this->end_host_type->getId ();
         } elseif (is_int ($data['end_host_type_id']) and $data['end_host_type_id'] > 0) {
             $this->end_host_type_id = (int)$data['end_host_type_id'];
         } else {
-            throw new InvalidArgumentException("No EndHostType object or valid End Host Type ID passed");
+            throw new \InvalidArgumentException("No EndHostType object or valid End Host Type ID passed");
         }
         /*
          * Optional arguments

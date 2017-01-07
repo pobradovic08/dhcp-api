@@ -1,5 +1,7 @@
 <?php
 
+namespace Dhcp\Subnet;
+
 /**
  * Created by PhpStorm.
  * User: pajaja
@@ -7,6 +9,7 @@
  * Time: 7:15 PM
  */
 
+use Dhcp\Validator;
 use \Interop\Container\ContainerInterface as ContainerInterface;
 
 
@@ -19,7 +22,7 @@ class SubnetController {
     }
 
     public function get_subnets ($request, $response, $args) {
-        $r = new DhcpResponse();
+        $r = new \Dhcp\DhcpResponse();
         $this->ci->logger->addInfo("Full subnet list");
         try {
             $mapper = new SubnetMapper($this->ci->db);
@@ -33,7 +36,7 @@ class SubnetController {
             $r->setData($array);
             $r->success();
             // Return response as JSON body
-        }catch (InvalidArgumentException $e){
+        }catch (\InvalidArgumentException $e){
             $r->fail();
             $r->addMessage($e->getMessage());
         }
@@ -41,7 +44,7 @@ class SubnetController {
     }
 
     public function get_subnet_by_id ($request, $response, $args) {
-        $r = new DhcpResponse();
+        $r = new \Dhcp\DhcpResponse();
         $id = intval($args['subnet_id']);
         if (!Validator::validateId($id)) {
             $r->fail();
@@ -59,7 +62,7 @@ class SubnetController {
                     $r->setCode(404);
                     $r->addMessage("Subnet with ID #{$id} not found.");
                 }
-            }catch (InvalidArgumentException $e){
+            }catch (\InvalidArgumentException $e){
                 $r->fail();
                 $r->addMessage($e->getMessage());
             }
@@ -69,7 +72,7 @@ class SubnetController {
     }
 
     public function get_subnet_by_vlan ($request, $response, $args) {
-        $r = new DhcpResponse();
+        $r = new \Dhcp\DhcpResponse();
         $id = intval($args['vlan_id']);
         if (!Validator::validateVlanId($id)) {
             $r->fail();
@@ -87,7 +90,7 @@ class SubnetController {
                     $r->setCode(404);
                     $r->addMessage("Subnet with VLAN ID #{$id} not found.");
                 }
-            } catch (InvalidArgumentException $e) {
+            } catch (\InvalidArgumentException $e) {
                 $r->fail();
                 $r->addMessage($e->getMessage());
             }
@@ -97,7 +100,7 @@ class SubnetController {
     }
 
     public function get_subnet_by_address ($request, $response, $args) {
-        $r = new DhcpResponse();
+        $r = new \Dhcp\DhcpResponse();
         $ip = $args['ip'];
         if (!Validator::validateIpAddress($ip)) {
             $r->fail();
@@ -115,7 +118,7 @@ class SubnetController {
                     $r->setCode(404);
                     $r->addMessage("Subnet for address {$ip} not found.");
                 }
-            }catch (InvalidArgumentException $e){
+            }catch (\InvalidArgumentException $e){
                 $r->fail();
                 $r->addMessage($e->getMessage());
             }
@@ -125,7 +128,7 @@ class SubnetController {
     }
 
     public function get_subnet_free_addresses ($request, $response, $args){
-        $r = new DhcpResponse();
+        $r = new \Dhcp\DhcpResponse();
         $id = intval($args['subnet_id']);
         if (!Validator::validateId($id)) {
             $r->fail();
@@ -137,12 +140,12 @@ class SubnetController {
                     $results = $mapper->getFreeAddresses($id);
                     $r->success();
                     $r->setData($results);
-                }catch (InvalidArgumentException $e){
+                }catch (\InvalidArgumentException $e){
                     $r->fail();
                     $r->addMessage($e->getMessage());
                     $r->setCode(404);
                 }
-            }catch (InvalidArgumentException $e){
+            }catch (\InvalidArgumentException $e){
                 $r->fail();
                 $r->addMessage($e->getMessage());
             }

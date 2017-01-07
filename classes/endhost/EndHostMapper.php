@@ -1,6 +1,6 @@
 <?php
 
-require('EndHostTypeEntry.php');
+namespace Dhcp\EndHost;
 
 class EndHostMapper {
 
@@ -82,7 +82,7 @@ class EndHostMapper {
     $tmp = $stmt->fetchAll();
     $results = [];
     foreach($tmp as $row){
-      $row['end_host_type'] = new EndHostTypeEntry($row);
+      $row['end_host_type'] = new \Dhcp\EndHostType\EndHostTypeEntry($row);
       $results[] = new EndHostEntry($row);
     }
     return $results;
@@ -114,7 +114,7 @@ class EndHostMapper {
           $result['rows'] = $stmt->rowCount(); 
           $result['data'] = $this->getEndHosts(array('end_host_id' => $last_insert_id))[0]->serialize();
         }
-      } catch (PDOException $e) {
+      } catch (\PDOException $e) {
         $result['error'] = $e->getMessage();
       }
     }else{
@@ -142,7 +142,7 @@ class EndHostMapper {
           $result['message'] = "Entry #" . $eh->getId() . " not updated. MAC and EndHost ID mismatch.";
         }
       }
-    } catch (PDOException $e) {
+    } catch (\PDOException $e) {
       $result['error'] = $e->getMessage();
     }
     return $result;    

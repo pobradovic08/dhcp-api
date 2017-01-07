@@ -1,5 +1,7 @@
 <?php
 
+namespace Dhcp\Group;
+
 /**
  * Created by PhpStorm.
  * User: pajaja
@@ -7,6 +9,7 @@
  * Time: 11:20 PM
  */
 
+use Dhcp\Validator;
 use \Interop\Container\ContainerInterface as ContainerInterface;
 
 class GroupController {
@@ -21,7 +24,7 @@ class GroupController {
      * Get list of groups for specific subnet ID
      */
     public function get_groups ($request, $response, $args) {
-        $r = new DhcpResponse();
+        $r = new \Dhcp\DhcpResponse();
         $subnet_id = isset($args['subnet_id']) ? intval($args['subnet_id']) : null;
         if(!Validator::validateId($subnet_id)){
             $r->fail();
@@ -37,7 +40,7 @@ class GroupController {
                 }
                 $r->success();
                 $r->setData($array);
-            } catch (InvalidArgumentException $e) {
+            } catch (\InvalidArgumentException $e) {
                 $r->fail();
                 $r->addMessage($e->getMessage());
             }
@@ -49,7 +52,7 @@ class GroupController {
      * Get group with specific ID
      */
     public function get_group_by_id ($request, $response, $args) {
-        $r = new DhcpResponse();
+        $r = new \Dhcp\DhcpResponse();
         $group_id = isset($args['group_id']) ? intval($args['group_id']) : null;
         $subnet_id = isset($args['subnet_id']) ? intval($args['subnet_id']) : null;
         if(!Validator::validateId($group_id) or !Validator::validateId($subnet_id)){
@@ -67,7 +70,7 @@ class GroupController {
                     $r->fail();
                     $r->setCode(404);
                 }
-            } catch (InvalidArgumentException $e) {
+            } catch (\InvalidArgumentException $e) {
                 $r->fail();
                 $r->addMessage($e->getMessage());
             }

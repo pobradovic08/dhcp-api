@@ -1,4 +1,5 @@
 <?php
+namespace Dhcp\EndHostType;
 
 class EndHostTypeEntry {
 
@@ -8,17 +9,17 @@ class EndHostTypeEntry {
     public function __construct (array $data) {
         if (isset($data['end_host_type_id'])) {
             if (!is_int ($data['end_host_type_id']) or $data['end_host_type_id'] <= 0) {
-                throw new InvalidArgumentException("ID invalid");
+                throw new \InvalidArgumentException("ID invalid");
             }
             $this->id = $data['end_host_type_id'];
         }
         if (!isset($data['end_host_type_description'])) {
-            throw new InvalidArgumentException("Missing required data.");
+            throw new \InvalidArgumentException("Missing required data.");
         }
         if (strlen ($data['end_host_type_description']) <= 64) {
             $this->description = (string)$data['end_host_type_description'];
         } else {
-            throw new InvalidArgumentException("Description too long");
+            throw new \InvalidArgumentException("Description too long");
         }
     }
 

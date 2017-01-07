@@ -1,9 +1,6 @@
 <?php
 
-require('EndHostTypeEntry.php');
-require('GroupEntry.php');
-require('EndHostEntry.php');
-require('SubnetEntry.php');
+namespace Dhcp\Reservation;
 
 class ReservationMapper {
 
@@ -58,10 +55,10 @@ class ReservationMapper {
         $results = [];
         while ($row = $stmt->fetch()) {
             if (!$terse) {
-                $row['end_host_type'] = new EndHostTypeEntry($row);
-                $row['end_host'] = new EndHostEntry($row);
-                $row['group'] = new GroupEntry($row);
-                $row['subnet'] = new SubnetEntry($row);
+                $row['end_host_type'] = new \Dhcp\EndHostType\EndHostTypeEntry($row);
+                $row['end_host'] = new \Dhcp\EndHost\EndHostEntry($row);
+                $row['group'] = new \Dhcp\Group\GroupEntry($row);
+                $row['subnet'] = new \Dhcp\Subnet\SubnetEntry($row);
             }
             $results[] = new ReservationEntry($row);
         }

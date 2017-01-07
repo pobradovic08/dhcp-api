@@ -1,5 +1,7 @@
 <?php
 
+namespace Dhcp\EndHostType;
+
 class EndHostTypeMapper {
 
   protected $db;

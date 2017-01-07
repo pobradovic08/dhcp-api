@@ -15,6 +15,6 @@
         "phpunit/phpunit": "5.5.*"
     },
     "autoload": {
-        "psr-0": { "": "classes/"}
+        "psr-4": { "Dhcp\\": "classes/"}
     }
 }
