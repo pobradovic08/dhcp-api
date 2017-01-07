@@ -7,7 +7,7 @@ namespace Dhcp;
  * Date: 12/31/2016
  * Time: 1:08 AM
  */
-class DhcpResponse {
+class Response {
 
     /**
      * DhcpResponse constructor.

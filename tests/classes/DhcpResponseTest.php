@@ -42,7 +42,7 @@ class DhcpResponseTest extends \PHPUnit_Framework_TestCase {
     }
 
     public function setUp () {
-        $this->r = new DhcpResponse();
+        $this->r = new Response();
     }
 
     public function testNewInstance () {

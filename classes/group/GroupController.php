@@ -24,7 +24,7 @@ class GroupController {
      * Get list of groups for specific subnet ID
      */
     public function get_groups ($request, $response, $args) {
-        $r = new \Dhcp\DhcpResponse();
+        $r = new \Dhcp\Response();
         $subnet_id = isset($args['subnet_id']) ? intval($args['subnet_id']) : null;
         if(!Validator::validateId($subnet_id)){
             $r->fail();
@@ -52,7 +52,7 @@ class GroupController {
      * Get group with specific ID
      */
     public function get_group_by_id ($request, $response, $args) {
-        $r = new \Dhcp\DhcpResponse();
+        $r = new \Dhcp\Response();
         $group_id = isset($args['group_id']) ? intval($args['group_id']) : null;
         $subnet_id = isset($args['subnet_id']) ? intval($args['subnet_id']) : null;
         if(!Validator::validateId($group_id) or !Validator::validateId($subnet_id)){

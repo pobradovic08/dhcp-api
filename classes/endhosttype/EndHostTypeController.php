@@ -14,7 +14,7 @@ class EndHostTypeController {
 
     public function get_type ($request, $response, $args) {
         // API Response
-        $r = new \Dhcp\DhcpResponse();
+        $r = new \Dhcp\Response();
         // Log request info
         $this->ci->logger->addInfo("End host type list");
         // Instance mapper and get all end host types (empty filter)
@@ -33,7 +33,7 @@ class EndHostTypeController {
 
     public function get_type_by_id ($request, $response, $args) {
         // API Response
-        $r = new \Dhcp\DhcpResponse();
+        $r = new \Dhcp\Response();
         // Log request info
         $this->ci->logger->addInfo("End host type #" . $args['end_host_type_id']);
         // Instance mapper and get end host type with specific ID

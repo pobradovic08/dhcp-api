@@ -14,7 +14,7 @@ class EndHostController {
 
     public function get_host ($request, $response, $args) {
         // API response
-        $r = new \Dhcp\DhcpResponse();
+        $r = new \Dhcp\Response();
         // Log request info
         $this->ci->logger->addInfo("Full end host list");
         // Instance mapper and request all end hosts (empty filter)
@@ -34,7 +34,7 @@ class EndHostController {
 
     public function get_host_by_id ($request, $response, $args) {
         // API response
-        $r = new \Dhcp\DhcpResponse();
+        $r = new \Dhcp\Response();
         // Log request info
         $this->ci->logger->addInfo("Rrequested end host #" . $args['end_host_id']);
         // Instance mapper and request end host with specific ID
@@ -55,7 +55,7 @@ class EndHostController {
 
     public function get_host_by_mac ($request, $response, $args) {
         // API response
-        $r = new \Dhcp\DhcpResponse();
+        $r = new \Dhcp\Response();
         // Log request info
         $this->ci->logger->addInfo("Rrequested end with MAC: " . $args['mac']);
         // Instance mapper, replace all funny characters in mac address
@@ -78,7 +78,7 @@ class EndHostController {
 
     public function get_search_host ($request, $response, $args) {
         // API response
-        $r = new \Dhcp\DhcpResponse();
+        $r = new \Dhcp\Response();
         // Log request info
         $this->ci->logger->addInfo("Searching for host with pattern: " . $args['pattern']);
         // Instance mapper and search for end host matching specific pattern

@@ -22,7 +22,7 @@ class SubnetController {
     }
 
     public function get_subnets ($request, $response, $args) {
-        $r = new \Dhcp\DhcpResponse();
+        $r = new \Dhcp\Response();
         $this->ci->logger->addInfo("Full subnet list");
         try {
             $mapper = new SubnetMapper($this->ci->db);
@@ -44,7 +44,7 @@ class SubnetController {
     }
 
     public function get_subnet_by_id ($request, $response, $args) {
-        $r = new \Dhcp\DhcpResponse();
+        $r = new \Dhcp\Response();
         $id = intval($args['subnet_id']);
         if (!Validator::validateId($id)) {
             $r->fail();
@@ -72,7 +72,7 @@ class SubnetController {
     }
 
     public function get_subnet_by_vlan ($request, $response, $args) {
-        $r = new \Dhcp\DhcpResponse();
+        $r = new \Dhcp\Response();
         $id = intval($args['vlan_id']);
         if (!Validator::validateVlanId($id)) {
             $r->fail();
@@ -100,7 +100,7 @@ class SubnetController {
     }
 
     public function get_subnet_by_address ($request, $response, $args) {
-        $r = new \Dhcp\DhcpResponse();
+        $r = new \Dhcp\Response();
         $ip = $args['ip'];
         if (!Validator::validateIpAddress($ip)) {
             $r->fail();
@@ -128,7 +128,7 @@ class SubnetController {
     }
 
     public function get_subnet_free_addresses ($request, $response, $args){
-        $r = new \Dhcp\DhcpResponse();
+        $r = new \Dhcp\Response();
         $id = intval($args['subnet_id']);
         if (!Validator::validateId($id)) {
             $r->fail();

@@ -60,7 +60,7 @@ class ReservationController {
     }
 
     private function get_filtered_reservations ($response, $filter, $multiple_results = false, $terse = false) {
-        $r = new \Dhcp\DhcpResponse();
+        $r = new \Dhcp\Response();
         $mapper = new ReservationMapper($this->ci->db);
         $reservations = $mapper->getReservations($filter, $terse);
         /*
