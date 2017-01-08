@@ -11,11 +11,14 @@ namespace Dhcp;
 class Validator {
 
     const REGEXP_ID = '/^[1-9][0-9]*$/';
-    const REGEXP_MAC = '/^(?:(?:[0-9A-Fa-f]{4}\.){2}[0-9A-Fa-f]{4}|(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2})$/';
+    const REGEXP_MAC = '/^(?:(?:[0-9A-Fa-f]{4}\.){2}[0-9A-Fa-f]{4}|(?:[0-9A-Fa-f]{2}-){5}[0-9A-Fa-f]{2}|(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2})$/';
     const REGEXP_HOSTNAME = '/^[a-zA-Z0-9-]+$/';
     const REGEXP_BOOL = '/^([01]$/';
 
     const IP = 1;
+    const ID = 2;
+    const MAC = 3;
+    const HOSTNAME = 4;
 
     /*
      * ID must be integer between 1 and infinity
@@ -30,6 +33,10 @@ class Validator {
      */
     static function validateVlanId ($vlan_id) {
         return is_int($vlan_id) and $vlan_id > 0 and $vlan_id < 4095;
+    }
+
+    static function validateMacAddress ($mac) {
+        return boolval(preg_match(self::REGEXP_MAC, $mac));
     }
 
     static function validateIpAddress ($ip) {
@@ -71,8 +78,10 @@ class Validator {
             if ($regexp) {
                 if ($regexp == self::IP) {
                     return self::validateIpAddress($arguments[$argument_name]);
+                } elseif ($regexp == self::MAC) {
+                    return self::validateMacAddress($arguments[$argument_name]);
                 } else {
-                    return preg_match($regexp, $arguments[$argument_name]);
+                    return boolval(preg_match($regexp, $arguments[$argument_name]));
                 }
             }
         }

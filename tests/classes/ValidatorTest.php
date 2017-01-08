@@ -8,6 +8,7 @@ namespace Dhcp;
  * Date: 1/2/2017
  * Time: 5:33 PM
  */
+
 class ValidatorTest extends \PHPUnit_Framework_TestCase {
 
     public function validIds () {
@@ -65,13 +66,29 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase {
     public function validDescription () {
         return [
             ['Test description'], ['TestdescriptionTestdescriptionTestdescriptionTestdescriptionTest'],
-            ['Test deskrip�n'], ['???? ?????????']
+            ['Test deskripšn'], ['тест дескрипшн'],
         ];
     }
 
     public function invalidDescription () {
         return [
             [''], ['TestdescriptionTestdescriptionTestdescriptionTestdescriptionTestd']
+        ];
+    }
+
+    public function validMacAddresses () {
+        return [
+            ['1234.5678.abcd'], ['12-34-56-78-ab-cd'], ['12-34-56-78-AB-CD'], ['12:34:56:78:ab:cd'],
+            ['12:34:56:78:AB:CD'], ['1234.5678.ABCD'], ['ffff.ffff.ffff'], ['0000.0000.0000'],
+            ['0000.ffff.0000'],
+        ];
+    }
+
+    public function invalidMacAddresses () {
+        return [
+            ['1234.5678abcd'], ['12:34-56-78-ab-cd'], ['1234-56-78-AB-CD'], ['12:34:56:78:ab:c'],
+            ['G2:34:56:78:AB:CD'], ['1234.5678.ABCG'], ['ffffffffffff'], ['000000000000'],
+            ['0000ffff0000'],
         ];
     }
 
@@ -152,5 +169,22 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase {
      */
     public function testInvalidDescriptions ($d) {
         $this->assertFalse (Validator::validateDescription ($d));
+    }
+
+    /**
+     * @dataProvider validMacAddresses
+     * @param $mac
+     */
+    public function testValidMacAddresses ($mac) {
+        $this->assertTrue(Validator::validateMacAddress($mac));
+    }
+
+
+    /**
+     * @dataProvider invalidMacAddresses
+     * @param $mac
+     */
+    public function testInvalidMacAddresses ($mac) {
+        $this->assertFalse(Validator::validateMacAddress($mac));
     }
 }
