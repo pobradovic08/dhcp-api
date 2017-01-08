@@ -18,36 +18,36 @@ class DhcpApiTest extends PHPUnit_Framework_TestCase {
     public function validUrls () {
         // [0] -> url, [1] -> can it fail with 404?
         return [
-            [self::$base . 'endhosts', false],
-            [self::$base . 'endhosts/id/1', true],
-            [self::$base . 'endhosts/id/9999', true],
-            [self::$base . 'endhosts/search/pav', true],
-            [self::$base . 'endhosts/mac/1234.5678.abcd', true],
-            [self::$base . 'endhosts/mac/2D-06-CA-C8-65-2C', true],
-            [self::$base . 'endhosts/types', false],
-            [self::$base . 'endhosts/types/id/1', true],
-            [self::$base . 'endhosts/types/id/9999', true],
-            [self::$base . 'reservations', false],
-            [self::$base . 'reservations/id/1', true],
-            [self::$base . 'reservations/id/9999', true],
-            [self::$base . 'reservations/ip/1.1.1.1', true],
-            [self::$base . 'reservations/ip/10.20.30.1', true],
-            [self::$base . 'reservations/subnet/1', false],
-            [self::$base . 'reservations/subnet/9999', false],
-            [self::$base . 'reservations/group/1', false],
-            [self::$base . 'reservations/group/9999', false],
-            [self::$base . 'reservations/mac/1234.5678.abcd', false],
-            [self::$base . 'reservations/mac/2D-06-CA-C8-65-2C', false],
-            [self::$base . 'subnets', false],
-            [self::$base . 'subnets/id/2', true],
-            [self::$base . 'subnets/id/9999', true],
-            [self::$base . 'subnets/id/2/free', true],
-            [self::$base . 'subnets/id/9999/free', true],
-            [self::$base . 'subnets/ip/1.12.123.1', true],
-            [self::$base . 'subnets/ip/10.20.30.1', true],
-            [self::$base . 'subnets/vlan/29', true],
-            [self::$base . 'subnets/id/2/groups', true],
-            [self::$base . 'subnets/id/2/groups/id/1', true],
+            ['endhosts', false],
+            ['endhosts/id/1', true],
+            ['endhosts/id/9999', true],
+            ['endhosts/search/pav', true],
+            ['endhosts/mac/1234.5678.abcd', true],
+            ['endhosts/mac/2D-06-CA-C8-65-2C', true],
+            ['endhosts/types', false],
+            ['endhosts/types/id/1', true],
+            ['endhosts/types/id/9999', true],
+            ['reservations', false],
+            ['reservations/id/1', true],
+            ['reservations/id/9999', true],
+            ['reservations/ip/1.1.1.1', true],
+            ['reservations/ip/10.20.30.1', true],
+            ['reservations/subnet/1', false],
+            ['reservations/subnet/9999', false],
+            ['reservations/group/1', false],
+            ['reservations/group/9999', false],
+            ['reservations/mac/1234.5678.abcd', false],
+            ['reservations/mac/2D-06-CA-C8-65-2C', false],
+            ['subnets', false],
+            ['subnets/id/2', true],
+            ['subnets/id/9999', true],
+            ['subnets/id/2/free', true],
+            ['subnets/id/9999/free', true],
+            ['subnets/ip/1.12.123.1', true],
+            ['subnets/ip/10.20.30.1', true],
+            ['subnets/vlan/29', true],
+            ['subnets/id/2/groups', true],
+            ['subnets/id/2/groups/id/1', true],
         ];
     }
 
@@ -59,7 +59,7 @@ class DhcpApiTest extends PHPUnit_Framework_TestCase {
     public function testApiEndpointsGetResponseCodes ($url, $can_fail) {
         try {
             // Main stuff
-            $response = $this->c->request('GET', $url);
+            $response = $this->c->request('GET', self::$base . $url);
             // Code is 2XX so no exception
             $body = $response->getBody()->getContents();
             $this->assertEquals(200, $response->getStatusCode());
@@ -84,19 +84,19 @@ class DhcpApiTest extends PHPUnit_Framework_TestCase {
 
     public function invalidUrls () {
         return [
-            [self::$base . 'endhosts/id/0'],
-            [self::$base . 'endhosts/types/id/0'],
-            [self::$base . 'reservations/id/0'],
-            [self::$base . 'reservations/subnet/0'],
-            [self::$base . 'reservations/group/0',],
-            [self::$base . 'subnets/id/0'],
-            [self::$base . 'subnets/id/0/free'],
-            [self::$base . 'subnets/ip/256.12.123.1'],
-            [self::$base . 'subnets/vlan/0'],
-            [self::$base . 'subnets/vlan/4095'],
-            [self::$base . 'subnets/vlan/4096'],
-            [self::$base . 'subnets/id/0/groups'],
-            [self::$base . 'subnets/id/1/groups/id/0', true],
+            ['endhosts/id/0'],
+            ['endhosts/types/id/0'],
+            ['reservations/id/0'],
+            ['reservations/subnet/0'],
+            ['reservations/group/0',],
+            ['subnets/id/0'],
+            ['subnets/id/0/free'],
+            ['subnets/ip/256.12.123.1'],
+            ['subnets/vlan/0'],
+            ['subnets/vlan/4095'],
+            ['subnets/vlan/4096'],
+            ['subnets/id/0/groups'],
+            ['subnets/id/1/groups/id/0', true],
         ];
     }
 
@@ -106,7 +106,7 @@ class DhcpApiTest extends PHPUnit_Framework_TestCase {
      */
     public function testApiEndpointsWithInvalidArguments ($url) {
         try {
-            $this->c->request('GET', $url);
+            $this->c->request('GET', self::$base . $url);
         } catch ( \GuzzleHttp\Exception\ClientException $e ) {
             $response = $e->getResponse();
             $body = $response->getBody()->getContents();

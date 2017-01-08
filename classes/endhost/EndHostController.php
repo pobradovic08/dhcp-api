@@ -37,7 +37,7 @@ class EndHostController {
     public function get_host_by_id ($request, $response, $args) {
         // API response
         $r = new Response();
-        if (!Validator::validateArgument($args, 'end_host_id', Validator::REGEXP_ID)) {
+        if (!Validator::validateArgument($args, 'end_host_id', Validator::ID)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
             $r->fail(400, "Invalid host ID");
             return $response->withStatus($r->getCode())->withJson($r);
@@ -62,7 +62,7 @@ class EndHostController {
     public function get_host_by_mac ($request, $response, $args) {
         // API response
         $r = new Response();
-        if (!Validator::validateArgument($args, 'mac', Validator::REGEXP_MAC)) {
+        if (!Validator::validateArgument($args, 'mac', Validator::MAC)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid MAC");
             $r->fail(400, "Invalid MAC address");
             return $response->withStatus($r->getCode())->withJson($r);

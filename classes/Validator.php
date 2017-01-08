@@ -80,6 +80,8 @@ class Validator {
                     return self::validateIpAddress($arguments[$argument_name]);
                 } elseif ($regexp == self::MAC) {
                     return self::validateMacAddress($arguments[$argument_name]);
+                } elseif ($regexp == self::ID) {
+                    return self::validateId(intval($arguments[$argument_name]));
                 } else {
                     return boolval(preg_match($regexp, $arguments[$argument_name]));
                 }
