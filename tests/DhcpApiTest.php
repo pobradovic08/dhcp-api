@@ -21,6 +21,7 @@ class DhcpApiTest extends PHPUnit_Framework_TestCase {
             [self::$base . 'endhosts', false],
             [self::$base . 'endhosts/id/1', true],
             [self::$base . 'endhosts/id/9999', true],
+            [self::$base . 'endhosts/search/pav', true],
             [self::$base . 'endhosts/mac/1234.5678.abcd', true],
             [self::$base . 'endhosts/mac/2D-06-CA-C8-65-2C', true],
             [self::$base . 'endhosts/types', false],
