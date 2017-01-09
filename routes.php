@@ -7,9 +7,11 @@
  */
 
 
-$app->get('/test[/]', function ($request, $response, $args) {
-    $m = \Dhcp\EndHost\EndHostModel::with('type')->find(1);
-    return $response->withJson($m->toJson());
+$app->get('/test[/]', function ($request, $response, $args) use ($app) {
+    $app->getContainer()->capsule;
+    $m = \Dhcp\EndHost\EndHostModel::with('type')->get();
+    return $response->withJson($m);
+
     //exec('sudo -S /usr/local/sbin/test');
     //return $response->withStatus(200)->withJson("ASD");
 });
