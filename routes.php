@@ -7,7 +7,7 @@
  */
 
 
-$app->get('/test[/]', function ($request, $response, $args) use ($app) {
+$app->get('/test[/]', function ($request, $response, $args) {
     $m = \Dhcp\EndHost\EndHostModel::with('type')->find(1);
     return $response->withJson($m->toJson());
     //exec('sudo -S /usr/local/sbin/test');

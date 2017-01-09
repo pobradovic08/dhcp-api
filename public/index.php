@@ -4,7 +4,7 @@ use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 use \Interop\Container\ContainerInterface as ContainerInterface;
 
-require __DIR__ . '/../vendor/autoload.php';
+require '../vendor/autoload.php';
 
 $config = [
     'settings' => [
@@ -40,16 +40,16 @@ $container['logger'] = function ($c) {
     return $logger;
 };
 
-//// Setup MySQL
-//$container['db'] = function ($c) {
-//    $dbs = $c['settings']['db'];
-//    $pdo = new PDO("mysql:host=" . $dbs['host'] . ";dbname=" . $dbs['database'],
-//                   $dbs['username'], $dbs['password']);
-//    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-//    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-//    $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-//    return $pdo;
-//};
+// Setup MySQL
+$container['db'] = function ($c) {
+    $dbs = $c['settings']['db'];
+    $pdo = new PDO("mysql:host=" . $dbs['host'] . ";dbname=" . $dbs['database'],
+                   $dbs['username'], $dbs['password']);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+    $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+    return $pdo;
+};
 
 $container['capsule'] = function ($c) {
     $capsule = new \Illuminate\Database\Capsule\Manager;
@@ -83,5 +83,5 @@ $container['ReservationController'] = function ($c) {
 require __DIR__ . '/../routes.php';
 
 // Run application
-$container->capsule;
+//$container->capsule;
 $app->run();

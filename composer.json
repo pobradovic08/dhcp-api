@@ -1,21 +1,23 @@
 {
-    "name": "pajaja/dhcp",
-    "authors": [
-        {
-            "name": "Pavle Obradovic",
-            "email": "pobradovic08@gmail.com"
-        }
-    ],
-    "require": {
-        "slim/slim": "^3.0",
-        "monolog/monolog": "^1.19",
-        "guzzlehttp/guzzle": "~6.0",
-        "illuminate/database": "^5.3"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "5.5.*"
-    },
-    "autoload": {
-        "psr-4": { "Dhcp\\": "classes/"}
+  "name": "pajaja/dhcp",
+  "authors": [
+    {
+      "name": "Pavle Obradovic",
+      "email": "pobradovic08@gmail.com"
     }
+  ],
+  "require": {
+    "slim/slim": "^3.0",
+    "monolog/monolog": "^1.19",
+    "guzzlehttp/guzzle": "~6.0",
+    "illuminate/database": "^5.3"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "5.5.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Dhcp\\": "classes/"
+    }
+  }
 }
