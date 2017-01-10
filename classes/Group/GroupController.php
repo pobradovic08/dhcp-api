@@ -48,6 +48,7 @@ class GroupController {
 
     /*
      * Get group with specific ID
+     * HTTP GET
      */
     public function get_group_by_id ($request, $response, $args) {
         if (!Validator::validateArgument($args, 'subnet_id', Validator::REGEXP_ID)) {
@@ -62,17 +63,15 @@ class GroupController {
         }
         $this->ci->logger->addInfo("Get group with ID #{$args['group_id']}");
         try {
-            $mapper = new GroupMapper($this->ci->db);
-            $groups = $mapper->getGroups(['group_id' => $args['group_id'],
-                                             'subnet_id' => $args['subnet_id']]);
-            if (sizeof($groups) == 1) {
+            $group = GroupModel::findOrFail($args['group_id']);
+            if ($group->subnet_id == $args['subnet_id']) {
                 $this->r->success();
-                $this->r->setData($groups[0]->serialize());
+                $this->r->setData($group);
             } else {
-                $this->r->fail(404, "No group with ID#{$args['group_id']}");
+                $this->r->fail(404, "Group with ID#{$args['group_id']} doesn't belong to subnet #{$args['subnet_id']}");
             }
-        } catch (\InvalidArgumentException $e) {
-            $this->r->fail(500, $e->getMessage());
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            $this->r->fail(404, 'No group with ID #' . $args['group_id']);
         }
         return $response->withJson($this->r, $this->r->getCode());
     }
