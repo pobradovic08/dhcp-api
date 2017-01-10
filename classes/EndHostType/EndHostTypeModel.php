@@ -12,11 +12,21 @@ use \Illuminate\Database\Eloquent\Model;
 
 class EndHostTypeModel extends Model {
 
-    const CREATED_AT = 'insert_time';
-    const UPDATED_AT = 'update_time';
-
     protected $table = 'end_host_types';
     protected $primaryKey = 'end_host_type_id';
+    public $timestamps = false;
+
+    /*
+     * Find object with specific ID or create a new one if it doesn't exists
+     */
+    public static function findOrCreate ($id) {
+        $type = static::find($id);
+        if (!$type) {
+            $type = new static;
+            $type->end_host_type_id = $id;
+        }
+        return $type;
+    }
 
     public function endhosts () {
         return $this->hasMany('\Dhcp\EndHost\EndHostModel', 'end_host_type_id');

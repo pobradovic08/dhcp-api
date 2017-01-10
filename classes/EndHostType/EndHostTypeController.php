@@ -50,21 +50,24 @@ class EndHostTypeController {
     }
 
     public function put_type_by_id ($request, $response, $args) {
+        $r = new \Dhcp\Response();
         $this->ci->logger->addInfo("Updating End host type entry #" . $args['end_host_type_id']);
-        if (!$request->getParam('description') || !$args['end_host_type_id']) {
-            return $response->withStatus(400)->withJson(array ('error' => "Required parameters missing"));
+        if (
+            !Validator::validateArgument($request->getParams(), 'description', Validator::DESCRIPTION) ||
+            !Validator::validateArgument($args, 'end_host_type_id', Validator::ID)
+        ) {
+            $r->fail(400, "Required parameters missing or invalid");
+            return $response->withStatus($r->getCode())->withJson($r);
         } else {
-            $mapper = new EndHostTypeMapper($this->ci->db);
-            $data = array (
-                'end_host_type_id' => $args['end_host_type_id'],
-                'description' => $request->getParam('description')
-            );
-            $result = $mapper->editType($data);
-            if ($result['success']) {
-                return $response->withStatus(200)->withJson($result['object']);
-            } else {
-                return $response->withStatus(400)->withJson($result['object']);
+            $type = \Dhcp\EndHostType\EndHostTypeModel::findOrCreate($args['end_host_type_id']);
+            $type->description = $request->getParam('description');
+            if($type->save()){
+                $r->success();
+                $r->setData($type);
+            }else{
+                $r->fail(500);
             }
+            return $response->withStatus($r->getCode())->withJson($r);
         }
     }
 

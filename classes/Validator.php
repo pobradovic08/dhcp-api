@@ -19,6 +19,7 @@ class Validator {
     const ID = 2;
     const MAC = 3;
     const HOSTNAME = 4;
+    const DESCRIPTION = 5;
 
     /*
      * ID must be integer between 1 and infinity
@@ -82,6 +83,8 @@ class Validator {
                     return self::validateMacAddress($arguments[$argument_name]);
                 } elseif ($regexp == self::ID) {
                     return self::validateId(intval($arguments[$argument_name]));
+                } elseif ($regexp == self::DESCRIPTION) {
+                    return self::validateDescription($arguments[$argument_name]);
                 } else {
                     return boolval(preg_match($regexp, $arguments[$argument_name]));
                 }

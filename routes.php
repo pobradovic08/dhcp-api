@@ -15,10 +15,19 @@ $app->get('/test[/]', function ($request, $response, $args) use ($app) {
     $r = \Dhcp\Reservation\ReservationModel::with('group', 'end_host')->get();
     $g = \Dhcp\Group\GroupModel::with('subnet')->get();
     $s = \Dhcp\Subnet\SubnetModel::with('groups')->get();
+
     return $response->withJson($s);
 
     //exec('sudo -S /usr/local/sbin/test');
     //return $response->withStatus(200)->withJson("ASD");
+});
+
+$app->put('/test[/]', function ($request, $response, $args) use ($app){
+    $app->getContainer()->capsule;
+    $t = \Dhcp\EndHostType\EndHostTypeModel::findOrCreate($request->getParam('end_host_type_id'));
+    $t->description = 'aaaaaaaaaaa';
+    $t->save();
+    return $response->withJson($t);
 });
 
 /*
