@@ -54,7 +54,7 @@ $app->group('/endhosts', function () use ($app) {
      */
 
     /* Delete end host type by ID */
-    $app->delete('/types/id/{end_host_type_id:[0-9]+}[/]', 'EndHostController:delete_host');
+    $app->delete('/types/id/{end_host_type_id:[0-9]+}[/]', 'EndHostTypeController:delete_type');
     /* Get all types */
     $app->get('/types[/all]', 'EndHostTypeController:get_type');
     /* Create new end host type */
