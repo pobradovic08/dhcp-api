@@ -19,6 +19,12 @@ class ReservationModel extends Model {
     protected $table = 'reservations';
     protected $primaryKey = 'reservation_id';
 
+    protected $casts = [
+        'active' => 'boolean',
+    ];
+
+    protected $with = [ 'group' ];
+
     public function getIpAttribute () {
         return long2ip($this->attributes['ip']);
     }
@@ -27,12 +33,15 @@ class ReservationModel extends Model {
         return boolval($this->attributes['active']);
     }
 
+    /*
+     * Return Group object for this Reservation
+     */
     public function group () {
-        return $this->hasOne('\Dhcp\Group\GroupModel', 'group_id', 'group_id')->with('subnet');
+        return $this->hasOne('\Dhcp\Group\GroupModel', 'group_id', 'group_id');
     }
 
     public function end_host () {
-        return $this->hasOne('\Dhcp\EndHost\EndHostModel', 'end_host_id', 'end_host_id')->with('type');
+        return $this->hasOne('\Dhcp\EndHost\EndHostModel', 'end_host_id', 'end_host_id');
     }
 
 }

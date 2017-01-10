@@ -34,4 +34,11 @@ class SubnetModel extends Model {
         return long2ip($this->attributes['to_address']);
     }
 
+    /*
+     * Return group objects without subnet relationships
+     */
+    public function groups () {
+        return $this->hasMany('\Dhcp\Group\GroupModel', 'subnet_id')->without('subnet');
+    }
+
 }

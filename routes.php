@@ -9,12 +9,13 @@
 
 $app->get('/test[/]', function ($request, $response, $args) use ($app) {
     $app->getContainer()->capsule;
-    $m = \Dhcp\EndHost\EndHostModel::all();
+    $m = \Dhcp\EndHost\EndHostModel::with('reservation')->findOrFail(32);
     $t = \Dhcp\EndHostType\EndHostTypeModel::with('endhosts')->get();
     $t = \Dhcp\EndHostType\EndHostTypeModel::find(1);
     $r = \Dhcp\Reservation\ReservationModel::with('group', 'end_host')->get();
     $g = \Dhcp\Group\GroupModel::with('subnet')->get();
-    return $response->withJson($m);
+    $s = \Dhcp\Subnet\SubnetModel::with('groups')->get();
+    return $response->withJson($s);
 
     //exec('sudo -S /usr/local/sbin/test');
     //return $response->withStatus(200)->withJson("ASD");

@@ -18,12 +18,16 @@ class EndHostModel extends Model {
     protected $table = 'end_hosts';
     protected $primaryKey = 'end_host_id';
 
+    protected $casts = [
+        'production' => 'boolean',
+    ];
+
+    protected $with = [
+        'type'
+    ];
+
     public function getMacAttribute () {
         return wordwrap(dechex($this->attributes['mac']), 4, '.', true);
-    }
-
-    public function getProductionAttribute () {
-        return boolval($this->attributes['production']);
     }
 
     public function type () {
@@ -31,7 +35,6 @@ class EndHostModel extends Model {
     }
 
     public function reservation () {
-        //return $this->belongsToOne('\Dhcp\Reservation\ReservationModel', 'end_host_id');
+        return $this->belongsTo('\Dhcp\Reservation\ReservationModel', 'end_host_id', 'end_host_id');
     }
-
 }
