@@ -19,8 +19,6 @@ class GroupModel extends Model {
     protected $table = 'groups';
     protected $primaryKey = 'group_id';
 
-    protected $with = [ 'subnet' ];
-
     public function subnet () {
         return $this->hasOne('\Dhcp\Subnet\SubnetModel', 'subnet_id', 'subnet_id');
     }

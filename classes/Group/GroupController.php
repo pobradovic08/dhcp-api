@@ -9,6 +9,7 @@ namespace Dhcp\Group;
  * Time: 11:20 PM
  */
 
+use Dhcp\Group\GroupModel;
 use Dhcp\Response;
 use Dhcp\Validator;
 use \Interop\Container\ContainerInterface as ContainerInterface;
@@ -19,11 +20,13 @@ class GroupController {
     //Constructor
     public function __construct (ContainerInterface $ci) {
         $this->ci = $ci;
+        $this->ci->capsule;
         $this->r = new Response();
     }
 
     /*
      * Get list of groups for specific subnet ID
+     * HTTP GET
      */
     public function get_groups ($request, $response, $args) {
         if (!Validator::validateArgument($args, 'subnet_id', Validator::REGEXP_ID)) {
@@ -33,17 +36,12 @@ class GroupController {
         }
         $subnet_id = intval($args['subnet_id']);
         $this->ci->logger->addInfo("Full group list for subnet ID #{$subnet_id}");
-        try {
-            $mapper = new GroupMapper($this->ci->db);
-            $groups = $mapper->getGroups(['subnet_id' => $subnet_id]);
-            $array = [];
-            foreach ( $groups as $group ) {
-                $array[] = $group->serialize();
-            }
+        $groups = GroupModel::where('subnet_id', '=', $subnet_id)->without('subnets')->get();
+        if (!$groups->isEmpty()) {
             $this->r->success();
-            $this->r->setData($array);
-        } catch ( \InvalidArgumentException $e ) {
-            $this->r->fail(500, $e->getMessage());
+            $this->r->setData($groups);
+        } else {
+            $this->r->fail(404, "Subnet #$subnet_id not found.");
         }
         return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
@@ -65,15 +63,15 @@ class GroupController {
         $this->ci->logger->addInfo("Get group with ID #{$args['group_id']}");
         try {
             $mapper = new GroupMapper($this->ci->db);
-            $groups = $mapper->getGroups(['group_id'  => $args['group_id'],
-                                          'subnet_id' => $args['subnet_id']]);
+            $groups = $mapper->getGroups(['group_id' => $args['group_id'],
+                                             'subnet_id' => $args['subnet_id']]);
             if (sizeof($groups) == 1) {
                 $this->r->success();
                 $this->r->setData($groups[0]->serialize());
             } else {
                 $this->r->fail(404, "No group with ID#{$args['group_id']}");
             }
-        } catch ( \InvalidArgumentException $e ) {
+        } catch (\InvalidArgumentException $e) {
             $this->r->fail(500, $e->getMessage());
         }
         return $response->withJson($this->r, $this->r->getCode());
