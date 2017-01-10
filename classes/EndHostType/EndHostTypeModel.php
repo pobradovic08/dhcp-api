@@ -18,7 +18,7 @@ class EndHostTypeModel extends Model {
     protected $table = 'end_host_types';
     protected $primaryKey = 'end_host_type_id';
 
-    public function endhosts() {
+    public function endhosts () {
         return $this->hasMany('\Dhcp\EndHost\EndHostModel', 'end_host_type_id');
     }
 

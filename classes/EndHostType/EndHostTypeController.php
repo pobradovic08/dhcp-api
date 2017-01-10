@@ -2,6 +2,7 @@
 
 namespace Dhcp\EndHostType;
 
+use Dhcp\EndHostType\EndHostTypeModel;
 use Dhcp\Validator;
 use \Interop\Container\ContainerInterface as ContainerInterface;
 
@@ -11,6 +12,7 @@ class EndHostTypeController {
     //Constructor
     public function __construct (ContainerInterface $ci) {
         $this->ci = $ci;
+        $this->ci->capsule;
     }
 
     //TODO: Validate arguments
@@ -19,21 +21,13 @@ class EndHostTypeController {
         $r = new \Dhcp\Response();
         // Log request info
         $this->ci->logger->addInfo("End host type list");
-        // Instance mapper and get all end host types (empty filter)
-        $mapper = new EndHostTypeMapper($this->ci->db);
-        $endhost_types = $mapper->getTypes(array ());
-        // Build array of end hosts
-        $array = [];
-        foreach ( $endhost_types as $type ) {
-            $array[] = $type->serialize();
-        }
+        $types = EndHostTypeModel::all();
         // Prepare API response
         $r->success();
-        $r->setData($array);
+        $r->setData($types);
         return $response->withStatus($r->getCode())->withJson($r);
     }
 
-    //TODO: Validate arguments
     public function get_type_by_id ($request, $response, $args) {
         // API Response
         $r = new \Dhcp\Response();
@@ -44,15 +38,11 @@ class EndHostTypeController {
         }
         // Log request info
         $this->ci->logger->addInfo("End host type #" . $args['end_host_type_id']);
-        // Instance mapper and get end host type with specific ID
-        $mapper = new EndHostTypeMapper($this->ci->db);
-        $filter = array ('end_host_type_id' => $args['end_host_type_id']);
-        $types = $mapper->getTypes($filter);
-        // If there's one type all is good
+        $type = EndHostTypeModel::find($args['end_host_type_id']);
         // Prepare API response
-        if (sizeof($types) == 1) {
+        if ($type) {
             $r->success();
-            $r->setData($types[0]->serialize());
+            $r->setData($type);
         } else {
             $r->fail(404);
         }
