@@ -14,6 +14,7 @@ class EndHostTypeModel extends Model {
 
     protected $table = 'end_host_types';
     protected $primaryKey = 'end_host_type_id';
+    protected $fillable = ['description'];
     public $timestamps = false;
 
     /*

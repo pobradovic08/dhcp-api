@@ -49,40 +49,47 @@ class EndHostTypeController {
         return $response->withStatus($r->getCode())->withJson($r);
     }
 
-    public function put_type_by_id ($request, $response, $args) {
+    public function update_type ($request, $response, $args) {
         $r = new \Dhcp\Response();
         $this->ci->logger->addInfo("Updating End host type entry #" . $args['end_host_type_id']);
         if (
             !Validator::validateArgument($request->getParams(), 'description', Validator::DESCRIPTION) ||
             !Validator::validateArgument($args, 'end_host_type_id', Validator::ID)
         ) {
-            $r->fail(400, "Required parameters missing or invalid");
+            $r->fail(400, "Required parameter(s) missing or invalid");
             return $response->withStatus($r->getCode())->withJson($r);
         } else {
-            $type = \Dhcp\EndHostType\EndHostTypeModel::findOrCreate($args['end_host_type_id']);
+            $type = EndHostTypeModel::firstOrCreate([
+                                                        'end_host_type_id' => $args['end_host_type_id']
+                                                    ]);
             $type->description = $request->getParam('description');
-            if($type->save()){
+            if ($type->save()) {
                 $r->success();
                 $r->setData($type);
-            }else{
+            } else {
                 $r->fail(500);
             }
             return $response->withStatus($r->getCode())->withJson($r);
         }
     }
 
-    public function post_type ($request, $response, $args) {
+    public function create_type ($request, $response, $args) {
+        $r = new \Dhcp\Response();
         $this->ci->logger->addInfo("Creating new end host type with description: \"" . $request->getParam('description') . '"');
-        $mapper = new EndHostTypeMapper($this->ci->db);
-        if (!$request->getParam('description')) {
-            return $response->withStatus(400)->withJson(array ('error' => "Required parameter 'description' missing"));
+        if (!Validator::validateArgument($request->getParams(), 'description', Validator::DESCRIPTION)) {
+            $r->fail(400, "Required parameter(s) missing or invalid");
+            return $response->withStatus($r->getCode())->withJson($r);
         } else {
-            $result = $mapper->addType(filter_var($request->getParam('description', FILTER_SANITIZE_STRING)));
-            if ($result['success']) {
-                return $response->withStatus(200)->withJson($result['object']);
+            $type = new EndHostTypeModel([
+                                             'description' => $request->getParam('description')
+                                         ]);
+            if ($type->save()) {
+                $r->success();
+                $r->setData($type);
             } else {
-                return $response->withStatus(400)->withJson($result['object']);
+                $r->fail(500);
             }
+            return $response->withStatus($r->getCode())->withJson($r);
         }
     }
 }

@@ -58,11 +58,11 @@ $app->group('/endhosts', function () use ($app) {
     /* Get all types */
     $app->get('/types[/all]', 'EndHostTypeController:get_type');
     /* Create new end host type */
-    $app->post('/types[/add]', 'EndHostTypeController:post_type');
+    $app->post('/types[/add]', 'EndHostTypeController:create_type');
     /* Get type by ID */
     $app->get('/types/id/{end_host_type_id:[0-9]+}[/]', 'EndHostTypeController:get_type_by_id');
     /* Update host type with specific ID */
-    $app->put('/types/id/{end_host_type_id:[0-9]+}[/]', 'EndHostTypeController:put_type_by_id');
+    $app->put('/types/id/{end_host_type_id:[0-9]+}[/]', 'EndHostTypeController:update_type');
 
 });
 
