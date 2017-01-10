@@ -12,11 +12,14 @@ use \Illuminate\Database\Eloquent\Model;
 
 class EndHostTypeModel extends Model {
 
+    const CREATED_AT = 'insert_time';
+    const UPDATED_AT = 'update_time';
+
     protected $table = 'end_host_types';
     protected $primaryKey = 'end_host_type_id';
 
-    public function type() {
-        return $this->belongsToMany('\Dhcp\EndHost\EndHostModel');
+    public function endhosts() {
+        return $this->hasMany('\Dhcp\EndHost\EndHostModel', 'end_host_type_id');
     }
 
 }

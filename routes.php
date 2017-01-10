@@ -10,6 +10,9 @@
 $app->get('/test[/]', function ($request, $response, $args) use ($app) {
     $app->getContainer()->capsule;
     $m = \Dhcp\EndHost\EndHostModel::with('type')->get();
+    //return $response->withJson($m);
+
+    $t = \Dhcp\EndHostType\EndHostTypeModel::with('endhosts')->get();
     return $response->withJson($m);
 
     //exec('sudo -S /usr/local/sbin/test');
