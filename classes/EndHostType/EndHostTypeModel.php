@@ -18,17 +18,8 @@ class EndHostTypeModel extends Model {
     public $timestamps = false;
 
     /*
-     * Find object with specific ID or create a new one if it doesn't exists
+     * All hosts that are  of this type
      */
-    public static function findOrCreate ($id) {
-        $type = static::find($id);
-        if (!$type) {
-            $type = new static;
-            $type->end_host_type_id = $id;
-        }
-        return $type;
-    }
-
     public function endhosts () {
         return $this->hasMany('\Dhcp\EndHost\EndHostModel', 'end_host_type_id');
     }
