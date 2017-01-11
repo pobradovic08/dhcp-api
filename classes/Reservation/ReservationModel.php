@@ -25,21 +25,23 @@ class ReservationModel extends Model {
 
     protected $with = [ 'group' ];
 
+    /*
+     * Format
+     */
     public function getIpAttribute () {
         return long2ip($this->attributes['ip']);
     }
 
-    public function getActiveAttribute () {
-        return boolval($this->attributes['active']);
-    }
-
     /*
-     * Return Group object for this Reservation
+     * Group object for this reservation
      */
     public function group () {
         return $this->hasOne('\Dhcp\Group\GroupModel', 'group_id', 'group_id');
     }
 
+    /*
+     * End host for this reservation
+     */
     public function end_host () {
         return $this->hasOne('\Dhcp\EndHost\EndHostModel', 'end_host_id', 'end_host_id');
     }

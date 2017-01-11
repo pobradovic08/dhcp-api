@@ -23,5 +23,4 @@ class EndHostTypeModel extends Model {
     public function endhosts () {
         return $this->hasMany('\Dhcp\EndHost\EndHostModel', 'end_host_type_id');
     }
-
 }
