@@ -18,18 +18,30 @@ class SubnetModel extends Model {
     protected $table = 'subnets';
     protected $primaryKey = 'subnet_id';
 
+    /*
+     * Convert IP from long to dotted-decimal
+     */
     public function getNetworkAttribute () {
         return long2ip($this->attributes['network']);
     }
 
+    /*
+     * Convert IP from long to dotted-decimal
+     */
     public function getNetworkMaskAttribute () {
         return long2ip($this->attributes['network_mask']);
     }
 
+    /*
+     * Convert IP from long to dotted-decimal
+     */
     public function getFromAddressAttribute () {
         return long2ip($this->attributes['from_address']);
     }
 
+    /*
+     * Convert IP from long to dotted-decimal
+     */
     public function getToAddressAttribute () {
         return long2ip($this->attributes['to_address']);
     }
