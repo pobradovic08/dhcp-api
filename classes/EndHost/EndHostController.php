@@ -5,6 +5,7 @@ namespace Dhcp\EndHost;
 use Dhcp\EndHost\EndHostModel;
 use Dhcp\Response;
 use Dhcp\Validator;
+use \Illuminate\Database\Query\Expression;
 use \Interop\Container\ContainerInterface as ContainerInterface;
 
 class EndHostController {
@@ -84,24 +85,25 @@ class EndHostController {
         return $response->withStatus($r->getCode())->withJson($r);
     }
 
+    /*
+     * Search end host table for end host and match:
+     * hostname, mac, description
+     * to a given search pattern
+     * HTTP GET
+     */
     public function get_search_host ($request, $response, $args) {
         // API response
         $r = new Response();
         // Log request info
         $this->ci->logger->addInfo("Searching for host with pattern: " . $args['pattern']);
-        // Instance mapper and search for end host matching specific pattern
-        $mapper = new EndHostMapper($this->ci->db);
-        $filter = ['search' => '%' . $args['pattern'] . '%'];
-        $endhosts = $mapper->getEndHosts($filter);
+        $mac = preg_replace('/[^%0-9A-Fa-f]/i', '', $args['pattern']);
+        $endhosts = EndHostModel::where('description', 'like', "%{$args['pattern']}%")
+                                ->where('hostname', 'like', "%{$args['pattern']}%", 'or')
+                                ->where(new Expression('HEX(mac)'), 'like', "%{$mac}%", 'or')->get();
         // If there's more than one, it's good
         if (sizeof($endhosts) >= 1) {
-            // Build array of end hosts
-            $array = [];
-            foreach ($endhosts as $endhost) {
-                $array[] = $endhost->serialize();
-            }
             $r->success();
-            $r->setData($array);
+            $r->setData($endhosts);
         } else {
             $r->fail(404, "No matches found");
         }
