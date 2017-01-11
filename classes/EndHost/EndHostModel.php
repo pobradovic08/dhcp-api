@@ -34,7 +34,7 @@ class EndHostModel extends Model {
         return $this->hasOne('\Dhcp\EndHostType\EndHostTypeModel', 'end_host_type_id', 'end_host_type_id');
     }
 
-    public function reservation () {
-        return $this->belongsTo('\Dhcp\Reservation\ReservationModel', 'end_host_id', 'end_host_id');
+    public function reservations () {
+        return $this->hasMany('\Dhcp\Reservation\ReservationModel', 'end_host_id');
     }
 }
