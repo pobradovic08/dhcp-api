@@ -6,17 +6,19 @@
  * Time: 5:51 PM
  */
 
-
 $app->get('/test[/]', function ($request, $response, $args) use ($app) {
-    $app->getContainer()->capsule;
+    $cap = $app->getContainer()->capsule;
     $m = \Dhcp\EndHost\EndHostModel::with('reservations')->findOrFail(32);
     $t = \Dhcp\EndHostType\EndHostTypeModel::with('endhosts')->get();
     $t = \Dhcp\EndHostType\EndHostTypeModel::find(1);
     $r = \Dhcp\Reservation\ReservationModel::with('group', 'end_host')->get();
     $g = \Dhcp\Group\GroupModel::with('subnet', 'reservations')->get();
-    $s = \Dhcp\Subnet\SubnetModel::with('groups')->get();
+    $s = \Dhcp\Subnet\SubnetModel::with('reservations')->find(3);
+    $m = \Dhcp\EndHost\EndHostModel::where($cap::raw('HEX(mac)'), 'LIKE', '%74D4359ADF%')->get();
 
-    return $response->withJson($g);
+    $test = $cap::select('SELECT HEX(mac) FROM end_hosts');
+    var_dump($cap::raw('HEX(mac)'));
+    return $response->withJson($m);
 
     //exec('sudo -S /usr/local/sbin/test');
     //return $response->withStatus(200)->withJson("ASD");

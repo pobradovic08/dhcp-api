@@ -53,4 +53,8 @@ class SubnetModel extends Model {
         return $this->hasMany('\Dhcp\Group\GroupModel', 'subnet_id')->without('subnet');
     }
 
+    public function reservations() {
+        return $this->hasMany('\Dhcp\Group\GroupModel', 'subnet_id')->with('reservations');
+    }
+
 }
