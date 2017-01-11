@@ -23,8 +23,6 @@ class ReservationModel extends Model {
         'active' => 'boolean',
     ];
 
-    protected $with = [ 'group' ];
-
     /*
      * Format
      */

@@ -2,24 +2,42 @@
 
 namespace Dhcp\Reservation;
 
+use Dhcp\Reservation\ReservationModel;
 use Dhcp\Response;
 use Dhcp\Validator;
 use \Interop\Container\ContainerInterface as ContainerInterface;
 
 class ReservationController {
+
+    const TERSE = 'terse';
     protected $ci;
 
     //Constructor
     public function __construct (ContainerInterface $ci) {
         $this->ci = $ci;
+        $this->ci->capsule;
         $this->r = new Response();
     }
 
+    /*
+     * Get all reservations
+     * HTTP GET
+     */
     public function get_reservations ($request, $response, $args) {
         $this->ci->logger->addInfo("Reservation list");
-        return $this->get_filtered_reservations($response, [], true, $args['mode'] == 'terse');
+        if ($args['mode'] == self::TERSE) {
+            $reservations = ReservationModel::all();
+        } else {
+            $reservations = ReservationModel::with('end_host', 'group.subnet')->get();
+        }
+        $this->r->success();
+        $this->r->setData($reservations);
+        return $response->withJson($this->r, $this->r->getCode());
     }
 
+    /*
+     *
+     */
     public function get_reservations_for_subnet ($request, $response, $args) {
         $this->ci->logger->addInfo("Reservation list for subnet #" . $args['subnet_id']);
         // Filter data
@@ -28,8 +46,18 @@ class ReservationController {
             $this->r->fail(400, "Invalid subnet ID");
             return $response->withJson($this->r, $this->r->getCode());
         }
-        $filter = ['subnet_id' => $args['subnet_id']];
-        return $this->get_filtered_reservations($response, $filter, true, $args['mode'] == 'terse');
+        try {
+            if ($args['mode'] == self::TERSE) {
+                $reservations = \Dhcp\Subnet\SubnetModel::with('groups.reservations')->findOrFail($args['subnet_id']);
+            } else {
+                $reservations = \Dhcp\Subnet\SubnetModel::with('groups.reservations.end_host')->findOrFail($args['subnet_id']);
+            }
+            $this->r->success();
+            $this->r->setData($reservations);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            $this->r->fail(404, "Subnet #{$args['subnet_id']} not found");
+        }
+        return $response->withJson($this->r, $this->r->getCode());
     }
 
     public function get_reservations_for_group ($request, $response, $args) {
@@ -96,7 +124,7 @@ class ReservationController {
          */
         if ($multiple_results) {
             $array = [];
-            foreach ( $reservations as $reservation ) {
+            foreach ($reservations as $reservation) {
                 $array[] = $reservation->serialize();
             }
             $this->r->success();
