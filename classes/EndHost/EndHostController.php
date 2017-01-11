@@ -2,6 +2,7 @@
 
 namespace Dhcp\EndHost;
 
+use Dhcp\EndHost\EndHostModel;
 use Dhcp\Response;
 use Dhcp\Validator;
 use \Interop\Container\ContainerInterface as ContainerInterface;
@@ -12,28 +13,30 @@ class EndHostController {
     //Constructor
     public function __construct (ContainerInterface $ci) {
         $this->ci = $ci;
+        $this->ci->capsule;
     }
 
+    /*
+     * Get all hosts
+     * HTTP GET
+     */
     public function get_host ($request, $response, $args) {
         // API response
         $r = new Response();
         // Log request info
         $this->ci->logger->addInfo("Full end host list");
-        // Instance mapper and request all end hosts (empty filter)
-        $mapper = new EndHostMapper($this->ci->db);
-        $endhosts = $mapper->getEndHosts([]);
-        // Build an array of end hosts
-        $array = [];
-        foreach ( $endhosts as $endhost ) {
-            $array[] = $endhost->serialize();
-        }
+        $hosts = EndHostModel::all();
         // Prepare API response
-        $r->setData($array);
+        $r->setData($hosts);
         $r->success();
         // Return response as JSON body
         return $response->withStatus($r->getCode())->withJson($r);
     }
 
+    /*
+     * Get host by ID
+     * HTTP GET
+     */
     public function get_host_by_id ($request, $response, $args) {
         // API response
         $r = new Response();
@@ -44,16 +47,11 @@ class EndHostController {
         }
         // Log request info
         $this->ci->logger->addInfo("Rrequested end host #" . $args['end_host_id']);
-        // Instance mapper and request end host with specific ID
-        $mapper = new EndHostMapper($this->ci->db);
-        $filter = ['end_host_id' => $args['end_host_id']];
-        $endhost = $mapper->getEndHosts($filter);
-        // Prepare API response
-        // If there's one EndHost everything is good
-        if (sizeof($endhost) == 1) {
-            $r->setData($endhost[0]->serialize());
+        try {
+            $endhost = EndHostModel::findOrFail($args['end_host_id']);
+            $r->setData($endhost);
             $r->success();
-        } else {
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             $r->fail(404, "End host with ID#{$args['end_host_id']} not found.");
         }
         return $response->withStatus($r->getCode())->withJson($r);
@@ -99,7 +97,7 @@ class EndHostController {
         if (sizeof($endhosts) >= 1) {
             // Build array of end hosts
             $array = [];
-            foreach ( $endhosts as $endhost ) {
+            foreach ($endhosts as $endhost) {
                 $array[] = $endhost->serialize();
             }
             $r->success();
@@ -136,7 +134,7 @@ class EndHostController {
          * Generates error message if the value is missing or doesn't
          * match the regular expression defined for it
          */
-        foreach ( $required_params as $param ) {
+        foreach ($required_params as $param) {
             if (Validator::validateArgument($request->getParams(), $param[0], $param[1])) {
                 $data[$param[0]] = $request->getParam($param[0]);
             } else {
@@ -151,7 +149,7 @@ class EndHostController {
          * If the value is not matching the regexp, parameter is not
          * added to data array.
          */
-        foreach ( $optional_params as $param ) {
+        foreach ($optional_params as $param) {
             if (Validator::validateArgument($request->getParams(), $param[0], $param[1])) {
                 $data[$param[0]] = $request->getParam($param[0]);
             }
