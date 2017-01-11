@@ -162,31 +162,4 @@ class ReservationController {
 
     public function delete_reservation ($request, $response, $args) {
     }
-
-    private function get_filtered_reservations ($response, $filter, $multiple_results = false, $terse = false) {
-        $mapper = new ReservationMapper($this->ci->db);
-        $reservations = $mapper->getReservations($filter, $terse);
-        /*
-         * For multiple results success is imminent :)
-         * If there's no reservations we just return empty array
-         * For single results, fail if not found with 404 http code
-         */
-        if ($multiple_results) {
-            $array = [];
-            foreach ($reservations as $reservation) {
-                $array[] = $reservation->serialize();
-            }
-            $this->r->success();
-            $this->r->setData($array);
-            return $response->withStatus($this->r->getCode())->withJson($this->r);
-        } else {
-            if (sizeof($reservations) == 1) {
-                $this->r->success();
-                $this->r->setData($reservations[0]->serialize());
-            } else {
-                $this->r->fail(404);
-            }
-            return $response->withStatus($this->r->getCode())->withJson($this->r);
-        }
-    }
 }
