@@ -19,8 +19,18 @@ class GroupModel extends Model {
     protected $table = 'groups';
     protected $primaryKey = 'group_id';
 
+    /*
+     * Subnet that this group belongs to
+     */
     public function subnet () {
         return $this->hasOne('\Dhcp\Subnet\SubnetModel', 'subnet_id', 'subnet_id');
     }
 
+    /*
+     * All reservations that are in this group
+     * Group information is excluded
+     */
+    public function reservations () {
+        return $this->hasMany('\Dhcp\Reservation\ReservationModel', 'group_id')->without('group');
+    }
 }
