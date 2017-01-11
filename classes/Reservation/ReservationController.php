@@ -122,6 +122,10 @@ class ReservationController {
         return $response->withJson($this->r, $this->r->getCode());
     }
 
+    /*
+     * Get a reservations for a MAC address
+     * HTTP GET
+     */
     public function get_reservation_by_mac ($request, $response, $args) {
         $this->ci->logger->addInfo('Request for reservation with MAC: ' . $args['mac']);
         if (!Validator::validateArgument($args, 'mac', Validator::REGEXP_MAC)) {
@@ -131,7 +135,23 @@ class ReservationController {
         }
         $clean_mac = preg_replace('/[\.:-]/', '', $args['mac']);
         $filter = ['mac' => intval($clean_mac, 16)];
-        return $this->get_filtered_reservations($response, $filter, true, $args['mode'] == 'terse');
+        if ($args['mode'] == self::TERSE) {
+            $endhost = \Dhcp\EndHost\EndHostModel::with('reservations')
+                                                 ->where('mac', '=', intval($clean_mac, 16))
+                                                 ->first();
+        } else {
+            $endhost = \Dhcp\EndHost\EndHostModel::with('reservations.end_host', 'reservations.group.subnet')
+                                                 ->where('mac', '=', intval($clean_mac, 16))
+                                                 ->first();
+        }
+        if ($endhost) {
+            $reservation = $endhost->reservations;
+            $this->r->success();
+            $this->r->setData($reservation);
+        } else {
+            $this->r->fail(404, "Reservation for MAC {$args['mac']} not found.");
+        }
+        return $response->withJson($this->r, $this->r->getCode());
     }
 
     public function post_reservation ($request, $response, $args) {
