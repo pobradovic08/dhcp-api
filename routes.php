@@ -15,9 +15,10 @@ $app->get('/test[/]', function ($request, $response, $args) use ($app) {
     $g = \Dhcp\Group\GroupModel::with('subnet', 'reservations')->get();
     $s = \Dhcp\Subnet\SubnetModel::with('reservations')->find(3);
     $m = \Dhcp\EndHost\EndHostModel::where($cap::raw('HEX(mac)'), 'LIKE', '%74D4359ADF%')->get();
+    $m = \Dhcp\EndHost\EndHostModel::mac('74D4359ADF');
 
     $test = $cap::select('SELECT HEX(mac) FROM end_hosts');
-    var_dump($cap::raw('HEX(mac)'));
+    //var_dump($cap::raw('HEX(mac)'));
     return $response->withJson($m);
 
     //exec('sudo -S /usr/local/sbin/test');

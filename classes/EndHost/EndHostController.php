@@ -57,6 +57,10 @@ class EndHostController {
         return $response->withStatus($r->getCode())->withJson($r);
     }
 
+    /*
+     * Get host by MAC address
+     * HTTP GET
+     */
     public function get_host_by_mac ($request, $response, $args) {
         // API response
         $r = new Response();
@@ -67,16 +71,12 @@ class EndHostController {
         }
         // Log request info
         $this->ci->logger->addInfo("Rrequested end with MAC: " . $args['mac']);
-        // Instance mapper, replace all funny characters in mac address
-        // and request end host with specific MAC
-        $mapper = new EndHostMapper($this->ci->db);
+        // Replace all funny characters in mac address
         $clean_mac = preg_replace('/[\.:-]/', '', $args['mac']);
-        $filter = ['mac' => intval($clean_mac, 16)];
-        $endhost = $mapper->getEndHosts($filter);
+        $endhost = EndHostModel::where('mac', '=', intval($clean_mac, 16))->first();
         // Prepare API response
-        // If there's one EndHost everything is good
-        if (sizeof($endhost) == 1) {
-            $r->setData($endhost[0]->serialize());
+        if ($endhost) {
+            $r->setData($endhost);
             $r->success();
         } else {
             $r->fail(404, "End host with MAC {$args['mac']} not found.");
