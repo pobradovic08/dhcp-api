@@ -36,7 +36,8 @@ class ReservationController {
     }
 
     /*
-     *
+     * Get reservations for a subnet
+     * HTTP GET
      */
     public function get_reservations_for_subnet ($request, $response, $args) {
         $this->ci->logger->addInfo("Reservation list for subnet #" . $args['subnet_id']);
@@ -60,6 +61,10 @@ class ReservationController {
         return $response->withJson($this->r, $this->r->getCode());
     }
 
+    /*
+     * Get reservations for a specific group and subnet
+     * HTTP GET
+     */
     public function get_reservations_for_group ($request, $response, $args) {
         $this->ci->logger->addInfo("Reservation list for group #" . $args['group_id']);
         if (!Validator::validateArgument($args, 'group_id', Validator::REGEXP_ID)) {
@@ -67,8 +72,18 @@ class ReservationController {
             $this->r->fail(400, "Invalid group ID");
             return $response->withJson($this->r, $this->r->getCode());
         }
-        $filter = ['group_id' => $args['group_id']];
-        return $this->get_filtered_reservations($response, $filter, true, $args['mode'] == 'terse');
+        try {
+            if ($args['mode'] == self::TERSE) {
+                $reservations = \Dhcp\Group\GroupModel::with('reservations')->findOrFail($args['group_id']);
+            } else {
+                $reservations = \Dhcp\Group\GroupModel::with('reservations.end_host')->findOrFail($args['group_id']);
+            }
+            $this->r->success();
+            $this->r->setData($reservations);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            $this->r->fail(404, "Group #{$args['group_id']} not found");
+        }
+        return $response->withJson($this->r, $this->r->getCode());
     }
 
     public function get_reservation_by_ip ($request, $response, $args) {
