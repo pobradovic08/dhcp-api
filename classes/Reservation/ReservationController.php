@@ -76,7 +76,7 @@ class ReservationController {
             if ($args['mode'] == self::TERSE) {
                 $reservations = \Dhcp\Group\GroupModel::with('reservations')->findOrFail($args['group_id']);
             } else {
-                $reservations = \Dhcp\Group\GroupModel::with('reservations.end_host')->findOrFail($args['group_id']);
+                $reservations = \Dhcp\Group\GroupModel::with('subnet', 'reservations.end_host')->findOrFail($args['group_id']);
             }
             $this->r->success();
             $this->r->setData($reservations);
@@ -97,6 +97,10 @@ class ReservationController {
         return $this->get_filtered_reservations($response, $filter, false, $args['mode'] == 'terse');
     }
 
+    /*
+     * Get a reservation by ID
+     * HTTP GET
+     */
     public function get_reservation_by_id ($request, $response, $args) {
         $this->ci->logger->addInfo('Request for reservation #' . $args['id']);
         if (!Validator::validateArgument($args, 'id', Validator::REGEXP_ID)) {
@@ -104,8 +108,18 @@ class ReservationController {
             $this->r->fail(400, "Invalid reservation ID");
             return $response->withJson($this->r, $this->r->getCode());
         }
-        $filter = ['id' => $args['id']];
-        return $this->get_filtered_reservations($response, $filter, false, $args['mode'] == 'terse');
+        try {
+            if ($args['mode'] == self::TERSE) {
+                $reservation = ReservationModel::findOrFail($args['id']);
+            } else {
+                $reservation = ReservationModel::with('end_host', 'group.subnet')->findOrFail($args['id']);
+            }
+            $this->r->success();
+            $this->r->setData($reservation);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            $this->r->fail(404, "Reservation #{$args['id']} not found.");
+        }
+        return $response->withJson($this->r, $this->r->getCode());
     }
 
     public function get_reservation_by_mac ($request, $response, $args) {
