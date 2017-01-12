@@ -226,8 +226,9 @@ class ReservationController {
              * Check if the reservation is unique
              */
             $reservation = ReservationModel::with('end_host')->where('ip', '=', ip2long($data['ip']))->first();
-            if($reservation){
-                $this->r->fail(400, "IP {$args['ip']} already reserved for " . $reservation->end_host->hostname);
+            if ($reservation) {
+                $this->r->fail(400, "IP {$data['ip']} already reserved (#{$reservation->reservation_id})" .
+                                    " for " . $reservation->end_host->hostname);
                 return $response->withJson($this->r, $this->r->getCode());
             }
             /*
@@ -242,7 +243,8 @@ class ReservationController {
              */
             if (!$subnet->validIp($data['ip'])) {
                 $this->r->fail(400,
-                               "IP ${data['ip']} is not a valid host address in {$subnet->network}/{$subnet->network_mask}");
+                               "IP ${data['ip']} is not a valid host address in" .
+                               "{$subnet->network}/{$subnet->network_mask}");
                 return $response->withJson($this->r, $this->r->getCode());
             }
             /*
@@ -251,26 +253,31 @@ class ReservationController {
              * one of the groups that belong to a given group's parent subnet
              */
             $count = $this->ci->capsule->table('reservations')->select('*')
-                ->join('groups', 'reservations.group_id', 'groups.group_id')
-                ->join('end_hosts', 'reservations.end_host_id', 'end_hosts.end_host_id')
-                ->where('groups.subnet_id', '=', $subnet->subnet_id)
-                ->where('reservations.end_host_id', '=', $endhost->end_host_id)
-                ->count();
-            $this->r->setData($subnet);
-            if($count){
+                                       ->join('groups', 'reservations.group_id', 'groups.group_id')
+                                       ->join('end_hosts', 'reservations.end_host_id', 'end_hosts.end_host_id')
+                                       ->where('groups.subnet_id', '=', $subnet->subnet_id)
+                                       ->where('reservations.end_host_id', '=', $endhost->end_host_id)
+                                       ->count();
+            if ($count) {
                 $this->r->fail(400,
                                "Host {$endhost->hostname} already has reservation in {$subnet->network}/{$subnet->cidr()}");
                 return $response->withJson($this->r, $this->r->getCode());
             }
+            /*
+             * We've come so far... create new reservation
+             */
             $reservation = new ReservationModel($data);
-            //$reservation->save();
-
+            if ($reservation->save()) {
+                $this->r->success("IP {$data['ip']} reserved for {$endhost->hostname}");
+                $this->r->setData($reservation);
+            } else {
+                $this->r->fail(500, 'Creating reservation unsuccessful.');
+            }
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             $this->r->fail(400, "Group #{$data['group_id']} or host #{$data['end_host_id']} doesn't exist.");
         }
         return $response->withJson($this->r, $this->r->getCode());
     }
-
     public function put_reservation ($request, $response, $args) {
     }
 
