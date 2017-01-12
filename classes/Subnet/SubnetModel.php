@@ -57,4 +57,9 @@ class SubnetModel extends Model {
         return $this->hasMany('\Dhcp\Group\GroupModel', 'subnet_id')->with('reservations');
     }
 
+    public function validIp($ip){
+        $dec = ip2long($ip);
+        return $this->attributes['from_address'] < $dec and $dec < $this->attributes['to_address'];
+    }
+
 }
