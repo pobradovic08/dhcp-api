@@ -62,4 +62,8 @@ class SubnetModel extends Model {
         return $this->attributes['from_address'] < $dec and $dec < $this->attributes['to_address'];
     }
 
+    public function cidr(){
+        return 32 - log(($this->attributes['network_mask'] ^ ip2long('255.255.255.255')) + 1, 2);
+    }
+
 }

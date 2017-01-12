@@ -168,6 +168,11 @@ class ReservationController {
         return $response->withJson($this->r, $this->r->getCode());
     }
 
+    /*
+     * Create new reservation
+     * IP must be unique and a single host can't have multiple reservations in the same subnet
+     * HTTP POST
+     */
     public function post_reservation ($request, $response, $args) {
         $required_arguments = [
             ['end_host_id', Validator::ID],
@@ -217,6 +222,9 @@ class ReservationController {
          * 3. There are no other reservations for that host in the subnet
          */
         try {
+            /*
+             * Check if the reservation is unique
+             */
             $reservation = ReservationModel::with('end_host')->where('ip', '=', ip2long($data['ip']))->first();
             if($reservation){
                 $this->r->fail(400, "IP {$args['ip']} already reserved for " . $reservation->end_host->hostname);
@@ -239,11 +247,24 @@ class ReservationController {
             }
             /*
              * Check if there are no other reservations for that host in the subnet
+             * Count reservation entries that have given end_host_id AND are bound to
+             * one of the groups that belong to a given group's parent subnet
              */
-
+            $count = $this->ci->capsule->table('reservations')->select('*')
+                ->join('groups', 'reservations.group_id', 'groups.group_id')
+                ->join('end_hosts', 'reservations.end_host_id', 'end_hosts.end_host_id')
+                ->where('groups.subnet_id', '=', $subnet->subnet_id)
+                ->where('reservations.end_host_id', '=', $endhost->end_host_id)
+                ->count();
+            $this->r->setData($subnet);
+            if($count){
+                $this->r->fail(400,
+                               "Host {$endhost->hostname} already has reservation in {$subnet->network}/{$subnet->cidr()}");
+                return $response->withJson($this->r, $this->r->getCode());
+            }
             $reservation = new ReservationModel($data);
             //$reservation->save();
-            $this->r->setData($subnet);
+
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             $this->r->fail(400, "Group #{$data['group_id']} or host #{$data['end_host_id']} doesn't exist.");
         }
@@ -253,6 +274,10 @@ class ReservationController {
     public function put_reservation ($request, $response, $args) {
     }
 
+    /*
+     * Delete reservation with specified ID
+     * HTTP DELETE
+     */
     public function delete_reservation ($request, $response, $args) {
         $this->ci->logger->addInfo('Delete reservation #' . $args['id']);
         if (!Validator::validateArgument($args, 'id', Validator::REGEXP_ID)) {
