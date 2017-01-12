@@ -15,6 +15,7 @@ class EndHostController {
     public function __construct (ContainerInterface $ci) {
         $this->ci = $ci;
         $this->ci->capsule;
+        $this->r = new Response();
     }
 
     /*
@@ -22,16 +23,14 @@ class EndHostController {
      * HTTP GET
      */
     public function get_host ($request, $response, $args) {
-        // API response
-        $r = new Response();
         // Log request info
         $this->ci->logger->addInfo("Full end host list");
         $hosts = EndHostModel::all();
         // Prepare API response
-        $r->setData($hosts);
-        $r->success();
+        $this->r->setData($hosts);
+        $this->r->success();
         // Return response as JSON body
-        return $response->withStatus($r->getCode())->withJson($r);
+        return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 
     /*
@@ -39,23 +38,21 @@ class EndHostController {
      * HTTP GET
      */
     public function get_host_by_id ($request, $response, $args) {
-        // API response
-        $r = new Response();
         if (!Validator::validateArgument($args, 'end_host_id', Validator::ID)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
-            $r->fail(400, "Invalid host ID");
-            return $response->withStatus($r->getCode())->withJson($r);
+            $this->r->fail(400, "Invalid host ID");
+            return $response->withStatus($this->r->getCode())->withJson($this->r);
         }
         // Log request info
         $this->ci->logger->addInfo("Rrequested end host #" . $args['end_host_id']);
         try {
             $endhost = EndHostModel::findOrFail($args['end_host_id']);
-            $r->setData($endhost);
-            $r->success();
+            $this->r->setData($endhost);
+            $this->r->success();
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            $r->fail(404, "End host with ID#{$args['end_host_id']} not found.");
+            $this->r->fail(404, "End host with ID#{$args['end_host_id']} not found.");
         }
-        return $response->withStatus($r->getCode())->withJson($r);
+        return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 
     /*
@@ -63,12 +60,10 @@ class EndHostController {
      * HTTP GET
      */
     public function get_host_by_mac ($request, $response, $args) {
-        // API response
-        $r = new Response();
         if (!Validator::validateArgument($args, 'mac', Validator::MAC)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid MAC");
-            $r->fail(400, "Invalid MAC address");
-            return $response->withStatus($r->getCode())->withJson($r);
+            $this->r->fail(400, "Invalid MAC address");
+            return $response->withStatus($this->r->getCode())->withJson($this->r);
         }
         // Log request info
         $this->ci->logger->addInfo("Rrequested end with MAC: " . $args['mac']);
@@ -77,12 +72,12 @@ class EndHostController {
         $endhost = EndHostModel::where('mac', '=', intval($clean_mac, 16))->first();
         // Prepare API response
         if ($endhost) {
-            $r->setData($endhost);
-            $r->success();
+            $this->r->setData($endhost);
+            $this->r->success();
         } else {
-            $r->fail(404, "End host with MAC {$args['mac']} not found.");
+            $this->r->fail(404, "End host with MAC {$args['mac']} not found.");
         }
-        return $response->withStatus($r->getCode())->withJson($r);
+        return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 
     /*
@@ -92,8 +87,6 @@ class EndHostController {
      * HTTP GET
      */
     public function get_search_host ($request, $response, $args) {
-        // API response
-        $r = new Response();
         // Log request info
         $this->ci->logger->addInfo("Searching for host with pattern: " . $args['pattern']);
         $mac = preg_replace('/[^%0-9A-Fa-f]/i', '', $args['pattern']);
@@ -102,17 +95,15 @@ class EndHostController {
                                 ->where(new Expression('HEX(mac)'), 'like', "%{$mac}%", 'or')->get();
         // If there's more than one, it's good
         if (sizeof($endhosts) >= 1) {
-            $r->success();
-            $r->setData($endhosts);
+            $this->r->success();
+            $this->r->setData($endhosts);
         } else {
-            $r->fail(404, "No matches found");
+            $this->r->fail(404, "No matches found");
         }
-        return $response->withStatus($r->getCode())->withJson($r);
+        return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 
     public function post_host ($request, $response, $args) {
-        // API response
-        $r = new Response();
         $this->ci->logger->addInfo("Adding new host with parameters: " . join(', ', $request->getParams()));
 
         $required_params = [
@@ -140,7 +131,7 @@ class EndHostController {
             if (Validator::validateArgument($request->getParams(), $param[0], $param[1])) {
                 $data[$param[0]] = $request->getParam($param[0]);
             } else {
-                $r->fail(400, "Required parameter {$param[0]} missing or invalid.");
+                $this->r->fail(400, "Required parameter {$param[0]} missing or invalid.");
             }
         }
 
@@ -161,19 +152,17 @@ class EndHostController {
          */
         $endhost = new EndHostEntry($data);
         $mapper = new EndHostMapper($this->ci->db);
-        if ($mapper->insertEndHost($endhost, $r)) {
-            $this->ci->logger->addInfo("Created new end host with ID#" . $r->getData()['end_host_id']);
+        if ($mapper->insertEndHost($endhost, $this->r)) {
+            $this->ci->logger->addInfo("Created new end host with ID#" . $this->r->getData()['end_host_id']);
         } else {
-            $this->ci->logger->addError("Failed adding new. Reason: " . join(', ', $r->getMessages()));
+            $this->ci->logger->addError("Failed adding new. Reason: " . join(', ', $this->r->getMessages()));
         }
-        return $response->withStatus($r->getCode())->withJson($r);
+        return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 
-    //TODO: \Dhcp\Response object
     public function delete_host ($request, $response, $args) {
-        $r = new Response();
         $this->ci->logger->addInfo("Delete end host #" . $args['end_host_id']);
-        $mapper = new EndHostMapper($this->ci->db, $r);
+        $mapper = new EndHostMapper($this->ci->db, $this->r);
         $result = $mapper->deleteHost($args['end_host_type_id']);
         if ($result['success']) {
             if ($result['deleted_count']) {
