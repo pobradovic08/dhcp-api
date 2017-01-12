@@ -87,6 +87,8 @@ $app->group('/reservations', function () use ($app) {
     /* Get all reservations for a MAC address */
     $app->get('/mac/{mac:(?:(?:[0-9A-Fa-f]{4}\.){2}[0-9A-Fa-f]{4}|(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2})}[/{mode:terse}]',
               'ReservationController:get_reservation_by_mac');
+    /* Create new reservation */
+    $app->post('[/new]', 'ReservationController:post_reservation');
 
 });
 

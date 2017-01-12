@@ -169,11 +169,80 @@ class ReservationController {
     }
 
     public function post_reservation ($request, $response, $args) {
+        $required_arguments = [
+            ['end_host_id', Validator::ID],
+            ['group_id', Validator::ID],
+            ['ip', Validator::IP],
+        ];
+
+        $optional_arguments = [
+            ['active', Validator::REGEXP_BOOL],
+            ['comment', Validator::DESCRIPTION],
+        ];
+        /*
+         * Data array used for building the EndHostEntry object.
+         * Parameters from Request are filtered and copied to this array.
+         */
+        $data = [];
+        /*
+         * Loop trough required parameters and check if
+         * they exist and are matching the regexp defined above.
+         * Generates error message if the value is missing or doesn't
+         * match the regular expression defined for it
+         */
+        foreach ($required_arguments as $arg) {
+            if (Validator::validateArgument($request->getParams(), $arg[0], $arg[1])) {
+                $data[$arg[0]] = $request->getParam($arg[0]);
+            } else {
+                $this->r->fail(400, "Required parameter {$arg[0]} missing or invalid.");
+            }
+        }
+        /*
+         * Loop through optional parameters and check if
+         * they exist and are matching the regexp defined above.
+         * No error message is generated if the parameter is missing.
+         * If the value is not matching the regexp, parameter is not
+         * added to data array.
+         */
+        foreach ($optional_arguments as $arg) {
+            if (Validator::validateArgument($request->getParams(), $arg[0], $arg[1])) {
+                $data[$arg[0]] = $request->getParam($arg[0]);
+            }
+        }
+        try {
+            $group = \Dhcp\Group\GroupModel::with('subnet')->findOrFail($data['group_id']);
+            $endhost = \Dhcp\EndHost\EndHostModel::findOrFail($data['end_host_id']);
+            $reservation = new ReservationModel($data);
+            //$reservation->save();
+            $this->r->setData($group);
+        }catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e){
+            $this->r->fail(400, "Group #{$data['group_id']} or host #{$data['end_host_id']} doesn't exist.");
+        }
+        return $response->withJson($this->r, $this->r->getCode());
     }
 
     public function put_reservation ($request, $response, $args) {
     }
 
     public function delete_reservation ($request, $response, $args) {
+        $this->ci->logger->addInfo('Delete reservation #' . $args['id']);
+        if (!Validator::validateArgument($args, 'id', Validator::REGEXP_ID)) {
+            $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
+            $this->r->fail(400, "Invalid reservation ID");
+            return $response->withJson($this->r, $this->r->getCode());
+        }
+        try {
+            $reservation = ReservationModel::findOrFail($args['id']);
+            if ($reservation->delete()) {
+                $this->r->success("Reservation #{$args['id']} deleted");
+                $this->ci->logger->addInfo('Reservation #' . $args['id'] . ' deleted.');
+            } else {
+                $this->r->fail(500, "Couldn't delete reservation");
+                $this->ci->logger->addError('Deleting reservation #' . $args['id'] . " failed");
+            }
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            $this->r->fail(404, "Reservation #{$args['id']} not found.");
+        }
+        return $response->withJson($this->r, $this->r->getCode());
     }
 }

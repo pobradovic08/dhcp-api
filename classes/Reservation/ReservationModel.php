@@ -18,7 +18,13 @@ class ReservationModel extends Model {
 
     protected $table = 'reservations';
     protected $primaryKey = 'reservation_id';
-
+    protected $fillable = [
+        'end_host_id',
+        'group_id',
+        'ip',
+        'active',
+        'comment'
+    ];
     protected $casts = [
         'active' => 'boolean',
     ];
@@ -28,6 +34,10 @@ class ReservationModel extends Model {
      */
     public function getIpAttribute () {
         return long2ip($this->attributes['ip']);
+    }
+
+    public function setIpAttribute ($ip) {
+        $this->attributes['ip'] = ip2long($ip);
     }
 
     /*
