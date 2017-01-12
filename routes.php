@@ -91,7 +91,8 @@ $app->group('/reservations', function () use ($app) {
     $app->post('[/new]', 'ReservationController:post_reservation');
     /* Delete reservation */
     $app->delete('/id/{id:[0-9]+}[/delete]', 'ReservationController:delete_reservation');
-
+    /* Update reservation */
+    $app->put('/id/{id:[0-9]+}[/update]', 'ReservationController:delete_reservation');
 });
 
 /*

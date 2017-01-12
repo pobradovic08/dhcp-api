@@ -185,7 +185,7 @@ class ReservationController {
             ['comment', Validator::DESCRIPTION],
         ];
         /*
-         * Data array used for building the EndHostEntry object.
+         * Data array used for building the Reservation object.
          * Parameters from Request are filtered and copied to this array.
          */
         $data = [];
@@ -279,6 +279,29 @@ class ReservationController {
         return $response->withJson($this->r, $this->r->getCode());
     }
     public function put_reservation ($request, $response, $args) {
+        $optional_arguments = [
+            ['end_host_id', Validator::ID],
+            ['group_id', Validator::ID],
+            ['ip', Validator::IP],
+            ['active', Validator::REGEXP_BOOL],
+            ['comment', Validator::DESCRIPTION],
+        ];
+        /*
+         * Filtered data from optional argumets
+         */
+        $data = [];
+        /*
+         * Loop through optional parameters and check if
+         * they exist and are matching the regexp defined above.
+         * No error message is generated if the parameter is missing.
+         * If the value is not matching the regexp, parameter is not
+         * added to data array.
+         */
+        foreach ($optional_arguments as $arg) {
+            if (Validator::validateArgument($request->getParams(), $arg[0], $arg[1])) {
+                $data[$arg[0]] = $request->getParam($arg[0]);
+            }
+        }
     }
 
     /*
