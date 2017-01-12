@@ -86,6 +86,10 @@ class ReservationController {
         return $response->withJson($this->r, $this->r->getCode());
     }
 
+    /*
+     * Get reservation for IP address
+     * HTTP GET
+     */
     public function get_reservation_by_ip ($request, $response, $args) {
         $this->ci->logger->addInfo('Request for reservation with IP: ' . $args['ip']);
         if (!Validator::validateArgument($args, 'ip', Validator::IP)) {
@@ -93,8 +97,19 @@ class ReservationController {
             $this->r->fail(400, "Invalid IP Address");
             return $response->withJson($this->r, $this->r->getCode());
         }
-        $filter = ['ip' => $args['ip']];
-        return $this->get_filtered_reservations($response, $filter, false, $args['mode'] == 'terse');
+        $decip = ip2long($args['ip']);
+        if ($args['mode'] == self::TERSE) {
+            $reservation = ReservationModel::where('ip', '=', $decip)->first();
+        } else {
+            $reservation = ReservationModel::with('end_host', 'group.subnet')->where('ip', '=', $decip)->first();
+        }
+        if ($reservation) {
+            $this->r->success();
+            $this->r->setData($reservation);
+        } else {
+            $this->r->fail(404, "Reservation for IP {$args['ip']} not found.");
+        }
+        return $response->withJson($this->r, $this->r->getCode());
     }
 
     /*
@@ -134,7 +149,6 @@ class ReservationController {
             return $response->withJson($this->r, $this->r->getCode());
         }
         $clean_mac = preg_replace('/[\.:-]/', '', $args['mac']);
-        $filter = ['mac' => intval($clean_mac, 16)];
         if ($args['mode'] == self::TERSE) {
             $endhost = \Dhcp\EndHost\EndHostModel::with('reservations')
                                                  ->where('mac', '=', intval($clean_mac, 16))
