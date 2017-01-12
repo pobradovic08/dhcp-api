@@ -209,13 +209,42 @@ class ReservationController {
                 $data[$arg[0]] = $request->getParam($arg[0]);
             }
         }
+        /*
+         * We need to check that:
+         * 0. There are no reservations for that IP
+         * 1. Group and host exist
+         * 2. IP belongs to the subnet
+         * 3. There are no other reservations for that host in the subnet
+         */
         try {
-            $group = \Dhcp\Group\GroupModel::with('subnet')->findOrFail($data['group_id']);
+            $reservation = ReservationModel::with('end_host')->where('ip', '=', ip2long($data['ip']))->first();
+            if($reservation){
+                $this->r->fail(400, "IP {$args['ip']} already reserved for " . $reservation->end_host->hostname);
+                return $response->withJson($this->r, $this->r->getCode());
+            }
+            /*
+             * Get group and subnet. This also checks if the group exists.
+             * Get host. This checks if the host exists.
+             */
+            $group = \Dhcp\Group\GroupModel::findOrFail($data['group_id']);
+            $subnet = \Dhcp\Subnet\SubnetModel::findOrFail($group->subnet_id);
             $endhost = \Dhcp\EndHost\EndHostModel::findOrFail($data['end_host_id']);
+            /*
+             * Check if IP belongs to the subnet
+             */
+            if (!$subnet->validIp($data['ip'])) {
+                $this->r->fail(400,
+                               "IP ${data['ip']} is not a valid host address in {$subnet->network}/{$subnet->network_mask}");
+                return $response->withJson($this->r, $this->r->getCode());
+            }
+            /*
+             * Check if there are no other reservations for that host in the subnet
+             */
+
             $reservation = new ReservationModel($data);
             //$reservation->save();
-            $this->r->setData($group);
-        }catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e){
+            $this->r->setData($subnet);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             $this->r->fail(400, "Group #{$data['group_id']} or host #{$data['end_host_id']} doesn't exist.");
         }
         return $response->withJson($this->r, $this->r->getCode());

@@ -89,6 +89,8 @@ $app->group('/reservations', function () use ($app) {
               'ReservationController:get_reservation_by_mac');
     /* Create new reservation */
     $app->post('[/new]', 'ReservationController:post_reservation');
+    /* Delete reservation */
+    $app->delete('/id/{id:[0-9]+}[/delete]', 'ReservationController:delete_reservation');
 
 });
 
