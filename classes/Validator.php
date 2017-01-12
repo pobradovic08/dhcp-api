@@ -13,7 +13,7 @@ class Validator {
     const REGEXP_ID = '/^[1-9][0-9]*$/';
     const REGEXP_MAC = '/^(?:(?:[0-9A-Fa-f]{4}\.){2}[0-9A-Fa-f]{4}|(?:[0-9A-Fa-f]{2}-){5}[0-9A-Fa-f]{2}|(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2})$/';
     const REGEXP_HOSTNAME = '/^[a-zA-Z0-9-]+$/';
-    const REGEXP_BOOL = '/^([01]$/';
+    const REGEXP_BOOL = '/^[01]$/';
 
     const IP = 1;
     const ID = 2;
