@@ -168,16 +168,19 @@ class EndHostController {
     }
 
     public function delete_host ($request, $response, $args) {
-        $this->ci->logger->addInfo("Delete end host #" . $args['end_host_id']);
-        $mapper = new EndHostMapper($this->ci->db, $this->r);
-        $result = $mapper->deleteHost($args['end_host_type_id']);
-        if ($result['success']) {
-            if ($result['deleted_count']) {
-                $http_code = 200;
-            } else {
-                $http_code = 404;
-            }
+        if (!Validator::validateArgument($args, 'end_host_id', Validator::ID)) {
+            $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
+            $this->r->fail(400, "Invalid host ID");
+            return $response->withStatus($this->r->getCode())->withJson($this->r);
         }
-        return $response->withStatus($http_code)->withJson($result);
+        try {
+            $endhost = EndHostModel::findOrFail($args['end_host_id']);
+            if($endhost->delete()) {
+                $this->r->success("Endhost {$endhost->hostname} deleted.");
+            }
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            $this->r->fail(404, "End host with ID#{$args['end_host_id']} not found.");
+        }
+        return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 }
