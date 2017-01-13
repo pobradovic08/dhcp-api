@@ -35,7 +35,6 @@ class GroupController {
             return $response->withStatus($this->r->getCode())->withJson($this->r);
         }
         $subnet_id = intval($args['subnet_id']);
-        $this->ci->logger->addInfo("Full group list for subnet ID #{$subnet_id}");
         $groups = GroupModel::where('subnet_id', '=', $subnet_id)->without('subnets')->get();
         if (!$groups->isEmpty()) {
             $this->r->success();
@@ -61,7 +60,6 @@ class GroupController {
             $this->r->fail(400, "Invalid group ID");
             return $response->withStatus($this->r->getCode())->withJson($this->r);
         }
-        $this->ci->logger->addInfo("Get group with ID #{$args['group_id']}");
         try {
             $group = GroupModel::findOrFail($args['group_id']);
             if ($group->subnet_id == $args['subnet_id']) {

@@ -24,7 +24,6 @@ class ReservationController {
      * HTTP GET
      */
     public function get_reservations ($request, $response, $args) {
-        $this->ci->logger->addInfo("Reservation list");
         if ($args['mode'] == self::TERSE) {
             $reservations = ReservationModel::all();
         } else {
@@ -40,7 +39,6 @@ class ReservationController {
      * HTTP GET
      */
     public function get_reservations_for_subnet ($request, $response, $args) {
-        $this->ci->logger->addInfo("Reservation list for subnet #" . $args['subnet_id']);
         // Filter data
         if (!Validator::validateArgument($args, 'subnet_id', Validator::REGEXP_ID)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
@@ -66,7 +64,6 @@ class ReservationController {
      * HTTP GET
      */
     public function get_reservations_for_group ($request, $response, $args) {
-        $this->ci->logger->addInfo("Reservation list for group #" . $args['group_id']);
         if (!Validator::validateArgument($args, 'group_id', Validator::REGEXP_ID)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
             $this->r->fail(400, "Invalid group ID");
@@ -91,7 +88,6 @@ class ReservationController {
      * HTTP GET
      */
     public function get_reservation_by_ip ($request, $response, $args) {
-        $this->ci->logger->addInfo('Request for reservation with IP: ' . $args['ip']);
         if (!Validator::validateArgument($args, 'ip', Validator::IP)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid IP");
             $this->r->fail(400, "Invalid IP Address");
@@ -117,7 +113,6 @@ class ReservationController {
      * HTTP GET
      */
     public function get_reservation_by_id ($request, $response, $args) {
-        $this->ci->logger->addInfo('Request for reservation #' . $args['id']);
         if (!Validator::validateArgument($args, 'id', Validator::REGEXP_ID)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
             $this->r->fail(400, "Invalid reservation ID");
@@ -142,7 +137,6 @@ class ReservationController {
      * HTTP GET
      */
     public function get_reservation_by_mac ($request, $response, $args) {
-        $this->ci->logger->addInfo('Request for reservation with MAC: ' . $args['mac']);
         if (!Validator::validateArgument($args, 'mac', Validator::REGEXP_MAC)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid MAC");
             $this->r->fail(400, "Invalid MAC address");
@@ -309,7 +303,6 @@ class ReservationController {
      * HTTP DELETE
      */
     public function delete_reservation ($request, $response, $args) {
-        $this->ci->logger->addInfo('Delete reservation #' . $args['id']);
         if (!Validator::validateArgument($args, 'id', Validator::REGEXP_ID)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
             $this->r->fail(400, "Invalid reservation ID");

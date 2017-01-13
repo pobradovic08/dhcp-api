@@ -23,8 +23,6 @@ class EndHostController {
      * HTTP GET
      */
     public function get_host ($request, $response, $args) {
-        // Log request info
-        $this->ci->logger->addInfo("Full end host list");
         $hosts = EndHostModel::all();
         // Prepare API response
         $this->r->setData($hosts);
@@ -43,8 +41,6 @@ class EndHostController {
             $this->r->fail(400, "Invalid host ID");
             return $response->withStatus($this->r->getCode())->withJson($this->r);
         }
-        // Log request info
-        $this->ci->logger->addInfo("Rrequested end host #" . $args['end_host_id']);
         try {
             $endhost = EndHostModel::findOrFail($args['end_host_id']);
             $this->r->setData($endhost);
@@ -65,8 +61,6 @@ class EndHostController {
             $this->r->fail(400, "Invalid MAC address");
             return $response->withStatus($this->r->getCode())->withJson($this->r);
         }
-        // Log request info
-        $this->ci->logger->addInfo("Rrequested end with MAC: " . $args['mac']);
         // Replace all funny characters in mac address
         $clean_mac = preg_replace('/[\.:-]/', '', $args['mac']);
         $endhost = EndHostModel::where('mac', '=', intval($clean_mac, 16))->first();
@@ -87,8 +81,6 @@ class EndHostController {
      * HTTP GET
      */
     public function get_search_host ($request, $response, $args) {
-        // Log request info
-        $this->ci->logger->addInfo("Searching for host with pattern: " . $args['pattern']);
         $mac = preg_replace('/[^%0-9A-Fa-f]/i', '', $args['pattern']);
         $endhosts = EndHostModel::where('description', 'like', "%{$args['pattern']}%")
                                 ->where('hostname', 'like', "%{$args['pattern']}%", 'or')
@@ -104,8 +96,6 @@ class EndHostController {
     }
 
     public function post_host ($request, $response, $args) {
-        $this->ci->logger->addInfo("Adding new host with parameters: " . join(', ', $request->getParams()));
-
         $required_params = [
             ['hostname', Validator::REGEXP_HOSTNAME],
             ['mac', Validator::REGEXP_MAC],

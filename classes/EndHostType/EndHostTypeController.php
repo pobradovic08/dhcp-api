@@ -21,8 +21,6 @@ class EndHostTypeController {
      * HTTP GET
      */
     public function get_type ($request, $response, $args) {
-        // Log request info
-        $this->ci->logger->addInfo("End host type list");
         $types = EndHostTypeModel::all();
         // Prepare API response
         $this->r->success();
@@ -41,8 +39,6 @@ class EndHostTypeController {
             $this->r->fail(400, "Invalid host type ID");
             return $response->withStatus($this->r->getCode())->withJson($this->r);
         }
-        // Log request info
-        $this->ci->logger->addInfo("End host type #" . $args['end_host_type_id']);
         $type = EndHostTypeModel::find($args['end_host_type_id']);
         // Prepare API response
         if ($type) {
@@ -59,7 +55,6 @@ class EndHostTypeController {
      * HTTP POST
      */
     public function create_type ($request, $response, $args) {
-        $this->ci->logger->addInfo("Creating new end host type with description: \"" . $request->getParam('description') . '"');
         if (!Validator::validateArgument($request->getParams(), 'description', Validator::DESCRIPTION)) {
             $this->r->fail(400, "Required parameter(s) missing or invalid");
             return $response->withStatus($this->r->getCode())->withJson($this->r);
@@ -82,7 +77,6 @@ class EndHostTypeController {
      * HTTP PUT
      */
     public function update_type ($request, $response, $args) {
-        $this->ci->logger->addInfo("Updating End host type entry #" . $args['end_host_type_id']);
         if (
             !Validator::validateArgument($request->getParams(), 'description', Validator::DESCRIPTION) ||
             !Validator::validateArgument($args, 'end_host_type_id', Validator::ID)
@@ -115,8 +109,6 @@ class EndHostTypeController {
             $this->r->fail(400, "Invalid host type ID");
             return $response->withJson($this->r, $this->r->getCode());
         }
-        // Log request info
-        $this->ci->logger->addInfo("Delete end host type #" . $args['end_host_type_id']);
         try {
             $type = EndHostTypeModel::findOrFail($args['end_host_type_id']);
             // Prepare API response
