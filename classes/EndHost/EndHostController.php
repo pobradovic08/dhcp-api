@@ -95,16 +95,20 @@ class EndHostController {
         return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 
+    /*
+     * Create new end host
+     * MAC and hostname must be unique
+     */
     public function post_host ($request, $response, $args) {
         $required_params = [
-            ['hostname', Validator::REGEXP_HOSTNAME],
-            ['mac', Validator::REGEXP_MAC],
-            ['end_host_type_id', Validator::REGEXP_ID],
+            ['hostname', Validator::HOSTNAME],
+            ['mac', Validator::MAC],
+            ['end_host_type_id', Validator::ID],
         ];
         $optional_params = [
-            ['end_host_id', Validator::REGEXP_ID],
-            ['description', null],
-            ['production', Validator::REGEXP_ID],
+            ['end_host_id', Validator::ID],
+            ['description', Validator::DESCRIPTION],
+            ['production', Validator::REGEXP_BOOL],
         ];
         /*
          * Data array used for building the EndHostEntry object.
@@ -122,6 +126,7 @@ class EndHostController {
                 $data[$param[0]] = $request->getParam($param[0]);
             } else {
                 $this->r->fail(400, "Required parameter {$param[0]} missing or invalid.");
+                return $response->withStatus($this->r->getCode())->withJson($this->r);
             }
         }
 
@@ -138,14 +143,26 @@ class EndHostController {
             }
         }
         /*
-         * Build EndHostEntry from data array and create new host
+         * Create new Endhost
+         * Requirements:
+         * 1. Unique MAC address
+         * 2. Unique hostname
          */
-        $endhost = new EndHostEntry($data);
-        $mapper = new EndHostMapper($this->ci->db);
-        if ($mapper->insertEndHost($endhost, $this->r)) {
-            $this->ci->logger->addInfo("Created new end host with ID#" . $this->r->getData()['end_host_id']);
-        } else {
-            $this->ci->logger->addError("Failed adding new. Reason: " . join(', ', $this->r->getMessages()));
+        $endhost = new EndHostModel($data);
+        $existing = EndHostModel::where('mac', '=', $endhost->mac_decimal)
+                                ->where('hostname', '=', $endhost->hostname, 'or')
+                                ->first();
+        if ($existing) {
+            $this->r->fail(400, "Hostname or MAC belong to: {$existing->hostname} [{$existing->mac}]");
+            return $response->withStatus($this->r->getCode())->withJson($this->r);
+        }
+        if ($endhost->save()) {
+            $this->r->success();
+            $this->r->setData($endhost);
+            $this->ci->logger->addInfo("Created new end host with ID#" . $endhost->end_host_id);
+        }else{
+            $this->r->fail();
+            $this->ci->logger->addError("Failed adding new endhost.");
         }
         return $response->withStatus($this->r->getCode())->withJson($this->r);
     }

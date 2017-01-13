@@ -17,7 +17,13 @@ class EndHostModel extends Model {
 
     protected $table = 'end_hosts';
     protected $primaryKey = 'end_host_id';
-
+    protected $fillable = [
+        'hostname',
+        'mac',
+        'end_host_type_id',
+        'description',
+        'production',
+    ];
     protected $casts = [
         'production' => 'boolean',
     ];
@@ -32,6 +38,18 @@ class EndHostModel extends Model {
      */
     public function getMacAttribute () {
         return wordwrap(dechex($this->attributes['mac']), 4, '.', true);
+    }
+
+    /*
+     * Convert MAC address to decimal
+     */
+    public function setMacAttribute ($mac) {
+        $clean_mac = preg_replace('/[^%0-9A-Fa-f]/i', '', $mac);
+        $this->attributes['mac'] = hexdec($clean_mac);
+    }
+
+    public function getMacDecimalAttribute () {
+        return $this->attributes['mac'];
     }
 
     //TODO: setMacAttribute()
