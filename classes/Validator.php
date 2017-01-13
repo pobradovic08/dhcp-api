@@ -37,6 +37,10 @@ class Validator {
         return is_int($vlan_id) and $vlan_id > 0 and $vlan_id < 4095;
     }
 
+    static function validateHostname ($hostname) {
+        return boolval(preg_match(self::REGEXP_HOSTNAME, $hostname));
+    }
+
     static function validateMacAddress ($mac) {
         return boolval(preg_match(self::REGEXP_MAC, $mac));
     }
@@ -89,9 +93,13 @@ class Validator {
                         return self::validateDescription($arguments[$argument_name]);
                     case self::VLAN:
                         return self::validateVlanId(intval($arguments[$argument_name]));
+                    case self::HOSTNAME:
+                        return self::validateHostname($arguments[$argument_name]);
                     default:
                         return boolval(preg_match($regexp, $arguments[$argument_name]));
                 }
+            }else{
+                return true;
             }
         }
         return false;
