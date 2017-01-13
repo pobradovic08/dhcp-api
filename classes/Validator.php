@@ -20,6 +20,7 @@ class Validator {
     const MAC = 3;
     const HOSTNAME = 4;
     const DESCRIPTION = 5;
+    const VLAN = 6;
 
     /*
      * ID must be integer between 1 and infinity
@@ -77,16 +78,19 @@ class Validator {
         if (isset($arguments[$argument_name])) {
             // Match the regexp if defined or return true if filter succeeded
             if ($regexp) {
-                if ($regexp == self::IP) {
-                    return self::validateIpAddress($arguments[$argument_name]);
-                } elseif ($regexp == self::MAC) {
-                    return self::validateMacAddress($arguments[$argument_name]);
-                } elseif ($regexp == self::ID) {
-                    return self::validateId(intval($arguments[$argument_name]));
-                } elseif ($regexp == self::DESCRIPTION) {
-                    return self::validateDescription($arguments[$argument_name]);
-                } else {
-                    return boolval(preg_match($regexp, $arguments[$argument_name]));
+                switch($regexp){
+                    case self::IP:
+                        return self::validateIpAddress($arguments[$argument_name]);
+                    case self::MAC:
+                        return self::validateMacAddress($arguments[$argument_name]);
+                    case self::ID:
+                        return self::validateId(intval($arguments[$argument_name]));
+                    case self::DESCRIPTION:
+                        return self::validateDescription($arguments[$argument_name]);
+                    case self::VLAN:
+                        return self::validateVlanId($arguments[$argument_name]);
+                    default:
+                        return boolval(preg_match($regexp, $arguments[$argument_name]));
                 }
             }
         }
