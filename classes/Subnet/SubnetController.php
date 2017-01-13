@@ -9,11 +9,13 @@ namespace Dhcp\Subnet;
  * Time: 7:15 PM
  */
 
+use Dhcp\Subnet\SubnetModel;
 use Dhcp\Validator;
 use \Interop\Container\ContainerInterface as ContainerInterface;
 
 
 class SubnetController {
+
     /*
      * Container interface
      */
@@ -27,25 +29,17 @@ class SubnetController {
     public function __construct (ContainerInterface $ci) {
         $this->ci = $ci;
         $this->r = new \Dhcp\Response();
+        $this->ci->capsule;
     }
 
+    /*
+     * Get all subnets
+     * HTTP GET
+     */
     public function get_subnets ($request, $response, $args) {
-        try {
-            $mapper = new SubnetMapper($this->ci->db);
-            $results = $mapper->getSubnets([]);
-            // Build an array of end hosts
-            $array = [];
-            foreach ($results as $result) {
-                $array[] = $result->serialize();
-            }
-            // Prepare API response
-            $this->r->setData($array);
-            $this->r->success();
-            // Return response as JSON body
-        } catch (\InvalidArgumentException $e) {
-            $this->r->fail();
-            $this->r->addMessage($e->getMessage());
-        }
+        $subnets = SubnetModel::all();
+        $this->r->setData($subnets);
+        $this->r->success();
         return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 

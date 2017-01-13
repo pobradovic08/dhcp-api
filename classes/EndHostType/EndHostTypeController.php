@@ -22,7 +22,6 @@ class EndHostTypeController {
      */
     public function get_type ($request, $response, $args) {
         $types = EndHostTypeModel::all();
-        // Prepare API response
         $this->r->success();
         $this->r->setData($types);
         return $response->withStatus($this->r->getCode())->withJson($this->r);
