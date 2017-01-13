@@ -98,6 +98,7 @@ class EndHostController {
     /*
      * Create new end host
      * MAC and hostname must be unique
+     * HTTP POST
      */
     public function post_host ($request, $response, $args) {
         $required_params = [
@@ -167,6 +168,10 @@ class EndHostController {
         return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 
+    /*
+     * Delete endhost
+     * HTTP DELETE
+     */
     public function delete_host ($request, $response, $args) {
         if (!Validator::validateArgument($args, 'end_host_id', Validator::ID)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");

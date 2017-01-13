@@ -29,6 +29,7 @@ class EndHostModel extends Model {
     ];
 
     // By default fetch type data
+    //TODO: remove default type fetch
     protected $with = [
         'type'
     ];
@@ -51,8 +52,6 @@ class EndHostModel extends Model {
     public function getMacDecimalAttribute () {
         return $this->attributes['mac'];
     }
-
-    //TODO: setMacAttribute()
 
     /*
      * Get type of this host
