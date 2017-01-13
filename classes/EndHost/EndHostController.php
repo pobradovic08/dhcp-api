@@ -107,7 +107,6 @@ class EndHostController {
             ['end_host_type_id', Validator::ID],
         ];
         $optional_params = [
-            ['end_host_id', Validator::ID],
             ['description', Validator::DESCRIPTION],
             ['production', Validator::REGEXP_BOOL],
         ];
@@ -161,9 +160,53 @@ class EndHostController {
             $this->r->success();
             $this->r->setData($endhost);
             $this->ci->logger->addInfo("Created new end host with ID#" . $endhost->end_host_id);
-        }else{
+        } else {
             $this->r->fail();
             $this->ci->logger->addError("Failed adding new endhost.");
+        }
+        return $response->withStatus($this->r->getCode())->withJson($this->r);
+    }
+
+    /*
+     * Update endhost with specified ID
+     * HTTP PUT
+     */
+    public function update_host ($request, $response, $args) {
+        if (!Validator::validateArgument($args, 'end_host_id', Validator::ID)) {
+            $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
+            $this->r->fail(400, "Invalid host ID");
+            return $response->withStatus($this->r->getCode())->withJson($this->r);
+        }
+
+        try {
+            $endhost = EndHostModel::findOrFail($args['end_host_id']);
+
+            $optional_params = [
+                ['hostname', Validator::HOSTNAME],
+                ['end_host_type_id', Validator::ID],
+                ['description', Validator::DESCRIPTION],
+                ['production', Validator::REGEXP_BOOL],
+            ];
+            /*
+             * Loop through optional parameters and check if
+             * they exist and are matching the rule defined above.
+             * No error message is generated if the parameter is missing.
+             * If the value is matching the rule that field is updated
+             */
+            foreach ($optional_params as $param) {
+                if (Validator::validateArgument($request->getParams(), $param[0], $param[1])) {
+                    $endhost->{$param[0]} = $request->getParam($param[0]);
+                }
+            }
+            if ($endhost->save()) {
+                $this->r->setData($endhost);
+                $this->r->success("Host {$endhost->hostname} updated.");
+            } else {
+                $this->r->fail("Couldn't update host {$endhost->hostname}.");
+            }
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            $this->r->fail(404, "End host with ID#{$args['end_host_id']} not found.");
         }
         return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
@@ -180,7 +223,7 @@ class EndHostController {
         }
         try {
             $endhost = EndHostModel::findOrFail($args['end_host_id']);
-            if($endhost->delete()) {
+            if ($endhost->delete()) {
                 $this->r->success("Endhost {$endhost->hostname} deleted.");
             }
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {

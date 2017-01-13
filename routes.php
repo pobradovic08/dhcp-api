@@ -50,7 +50,7 @@ $app->group('/endhosts', function () use ($app) {
     /* Create or update new end host */
     $app->post('[/new]', 'EndHostController:post_host');
     /* TODO: Updates host with specific ID */
-    $app->put('/id/{end_host_id:[0-9]+}[/]', 'EndHostController:put_host_by_id');
+    $app->put('/id/{end_host_id:[0-9]+}[/]', 'EndHostController:update_host');
     /* Delete endhost */
     $app->delete('/id/{end_host_id:[0-9]+}[/]', 'EndHostController:delete_host');
 
