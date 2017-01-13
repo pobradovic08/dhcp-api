@@ -116,7 +116,9 @@ $app->group('/subnets', function () use ($app) {
      * Subnet groups
      */
     $app->group('/id/{subnet_id:[0-9]+}/groups', function () use ($app) {
-        $app->get('[/]', 'GroupController:get_groups');
+        $app->get('[/all]', 'GroupController:get_groups');
         $app->get('/id/{group_id:[0-9]+}', 'GroupController:get_group_by_id');
+        $app->put('/id/{group_id:[0-9]+}', 'GroupController:update_group');
+        $app->delete('/id/{group_id:[0-9]+}', 'GroupController:delete_group');
     });
 });
