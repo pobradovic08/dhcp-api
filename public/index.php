@@ -9,6 +9,7 @@ require '../vendor/autoload.php';
 $config = [
     'settings' => [
         'displayErrorDetails' => true,
+        'determineRouteBeforeAppMiddleware' => true,
         'db' => [
             'driver' => 'mysql',
             'host' => 'localhost',
@@ -20,7 +21,7 @@ $config = [
             'prefix' => ''
         ],
         'logger' => [
-            'name' => 'slim-app',
+            'name' => 'dhcp-api',
             'level' => Monolog\Logger::DEBUG,
             'path' => __DIR__ . '/../logs/app.log',
         ],
@@ -78,6 +79,11 @@ $container['EndHostTypeController'] = function ($c) {
 $container['ReservationController'] = function ($c) {
     return new \Dhcp\Reservation\ReservationController($c);
 };
+
+
+$app->add(new \Dhcp\Middleware\LogMiddleware($container));
+// Add IP middleware last. Execution goes backwards
+$app->add(new RKA\Middleware\IpAddress());
 
 
 require __DIR__ . '/../routes.php';
