@@ -40,8 +40,10 @@ $app->put('/test[/]', function ($request, $response, $args) use ($app){
 $app->group('/endhosts', function () use ($app) {
     /* Get all End Hosts */
     $app->get('[/all]', 'EndHostController:get_host');
-    /* Get end host by ID */
+    /* Get, update or delete end host by ID */
     $app->get('/id/{end_host_id:[0-9]+}[/]', 'EndHostController:get_host_by_id');
+    $app->put('/id/{end_host_id:[0-9]+}[/]', 'EndHostController:update_host');
+    $app->delete('/id/{end_host_id:[0-9]+}[/]', 'EndHostController:delete_host');
     /* Get end host by MAC address */
     $app->get('/mac/{mac:(?:(?:[0-9A-Fa-f]{4}\.){2}[0-9A-Fa-f]{4}|(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2})}[/]',
               'EndHostController:get_host_by_mac');
@@ -49,10 +51,7 @@ $app->group('/endhosts', function () use ($app) {
     $app->get('/search/{pattern}[/]', 'EndHostController:get_search_host');
     /* Create or update new end host */
     $app->post('[/new]', 'EndHostController:post_host');
-    /* TODO: Updates host with specific ID */
-    $app->put('/id/{end_host_id:[0-9]+}[/]', 'EndHostController:update_host');
-    /* Delete endhost */
-    $app->delete('/id/{end_host_id:[0-9]+}[/]', 'EndHostController:delete_host');
+
 
     /*
      * End Host Types
