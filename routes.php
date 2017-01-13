@@ -56,17 +56,15 @@ $app->group('/endhosts', function () use ($app) {
     /*
      * End Host Types
      */
-
-    /* Delete end host type by ID */
-    $app->delete('/types/id/{end_host_type_id:[0-9]+}[/]', 'EndHostTypeController:delete_type');
     /* Get all types */
     $app->get('/types[/all]', 'EndHostTypeController:get_type');
-    /* Create new end host type */
-    $app->post('/types[/add]', 'EndHostTypeController:create_type');
-    /* Get type by ID */
+    /* Get, update or elete end host type by ID */
     $app->get('/types/id/{end_host_type_id:[0-9]+}[/]', 'EndHostTypeController:get_type_by_id');
-    /* Update host type with specific ID */
     $app->put('/types/id/{end_host_type_id:[0-9]+}[/]', 'EndHostTypeController:update_type');
+    $app->delete('/types/id/{end_host_type_id:[0-9]+}[/]', 'EndHostTypeController:delete_type');
+    /* Create new end host type */
+    $app->post('/types[/new]', 'EndHostTypeController:create_type');
+
 
 });
 
