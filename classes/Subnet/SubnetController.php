@@ -72,7 +72,7 @@ class SubnetController {
             $this->r->fail(400, 'Invalid VLAN ID.');
             return $response->withStatus($this->r->getCode())->withJson($this->r);
         }
-        $result = SubnetModel::where('vlan', '=', $args['vlan_id'])->get();
+        $result = SubnetModel::where('vlan', '=', $args['vlan_id'])->first();
         if ($result) {
             $this->r->success();
             $this->r->setData($result);
@@ -82,29 +82,24 @@ class SubnetController {
         return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 
+    /*
+     * Get subnet for specific IP address
+     * HTTP GET
+     */
     public function get_subnet_by_address ($request, $response, $args) {
         $ip = $args['ip'];
         if (!Validator::validateIpAddress($ip)) {
             $this->r->fail();
             return $response->withStatus($this->r->getCode())->withJson($this->r);
         }
-        try {
-            $mapper = new SubnetMapper($this->ci->db);
-            $results = $mapper->getSubnets(['ip' => $ip]);
-            // Build an array of end hosts
-            if (sizeof($results) == 1 and $results[0]->isValidAddress($ip)) {
-                $this->r->success();
-                $this->r->setData($results[0]->serialize());
-            } else {
-                $this->r->fail();
-                $this->r->setCode(404);
-                $this->r->addMessage("Subnet for address {$ip} not found.");
-            }
-        } catch (\InvalidArgumentException $e) {
-            $this->r->fail();
-            $this->r->addMessage($e->getMessage());
+        $result = SubnetModel::where('from_address', '<=', ip2long($args['ip']))
+                             ->where('to_address', '>=', ip2long($args['ip']))->first();
+        if ($result) {
+            $this->r->success();
+            $this->r->setData($result);
+        } else {
+            $this->r->fail(404, "Subnet for address {$ip} not found.");
         }
-        // Return response as JSON body
         return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 
