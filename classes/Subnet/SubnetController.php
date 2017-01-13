@@ -87,9 +87,8 @@ class SubnetController {
      * HTTP GET
      */
     public function get_subnet_by_address ($request, $response, $args) {
-        $ip = $args['ip'];
-        if (!Validator::validateIpAddress($ip)) {
-            $this->r->fail();
+        if (!Validator::validateArgument($args, 'ip', Validator::IP)) {
+            $this->r->fail(400, 'Invalid IP address');
             return $response->withStatus($this->r->getCode())->withJson($this->r);
         }
         $result = SubnetModel::where('from_address', '<=', ip2long($args['ip']))
@@ -98,32 +97,43 @@ class SubnetController {
             $this->r->success();
             $this->r->setData($result);
         } else {
-            $this->r->fail(404, "Subnet for address {$ip} not found.");
+            $this->r->fail(404, "Subnet for address {$args['ip']} not found.");
         }
         return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 
+    /*
+     * Get free addresses for a subnet with specified ID
+     * HTTP GET
+     */
     public function get_subnet_free_addresses ($request, $response, $args) {
-        $r = new \Dhcp\Response();
-        $id = intval($args['subnet_id']);
-        if (!Validator::validateId($id)) {
-            $this->r->fail();
+        $addresses = [];
+        $reserved_addresses = [];
+        if (!Validator::validateArgument($args, 'subnet_id', Validator::ID)) {
+            $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
+            $this->r->fail(400, "Invalid subnet ID");
             return $response->withStatus($this->r->getCode())->withJson($this->r);
         }
         try {
-            $mapper = new SubnetMapper($this->ci->db);
-            try {
-                $results = $mapper->getFreeAddresses($id);
-                $this->r->success();
-                $this->r->setData($results);
-            } catch (\InvalidArgumentException $e) {
-                $this->r->fail();
-                $this->r->addMessage($e->getMessage());
-                $this->r->setCode(404);
+            $result = SubnetModel::findOrFail($args['subnet_id']);
+            $reservations = $this->ci->capsule->table('groups')
+                                        ->select('ip')
+                                        ->join('reservations', 'groups.group_id', 'reservations.group_id')
+                                        ->join('subnets', 'subnets.subnet_id', 'groups.subnet_id')
+                                        ->where('subnets.subnet_id', '=', $args['subnet_id'])
+                                        ->get();
+            foreach($reservations as $reservation){
+                $reserved_addresses[] = $reservation->ip;
             }
-        } catch (\InvalidArgumentException $e) {
-            $this->r->fail();
-            $this->r->addMessage($e->getMessage());
+            for ($i = ip2long($result->from_address); $i <= ip2long($result->to_address); $i++) {
+                if (!in_array($i, $reserved_addresses)) {
+                    $addresses[] = long2ip($i);
+                }
+            }
+            $this->r->success();
+            $this->r->setData($addresses);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            $this->r->fail(404, "Subnet with ID #{$args['subnet_id']} not found.");
         }
         return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
