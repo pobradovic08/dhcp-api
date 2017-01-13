@@ -25,7 +25,7 @@ $app->get('/test[/]', function ($request, $response, $args) use ($app) {
     //return $response->withStatus(200)->withJson("ASD");
 });
 
-$app->put('/test[/]', function ($request, $response, $args) use ($app){
+$app->put('/test[/]', function ($request, $response, $args) use ($app) {
     $app->getContainer()->capsule;
     $t = \Dhcp\EndHostType\EndHostTypeModel::findOrCreate($request->getParam('end_host_type_id'));
     $t->description = 'aaaaaaaaaaa';
@@ -98,18 +98,19 @@ $app->group('/reservations', function () use ($app) {
  */
 $app->group('/subnets', function () use ($app) {
     /* Get all subnets */
-    $app->get('[/]', 'SubnetController:get_subnets');
-    /* Get subnet by ID */
+    $app->get('[/all]', 'SubnetController:get_subnets');
+    /* Get, update or delete subnet by ID */
     $app->get('/id/{subnet_id:[0-9]+}', 'SubnetController:get_subnet_by_id');
+    $app->put('/id/{subnet_id:[0-9]+}', 'SubnetController:update_subnet');
+    $app->delete('/id/{subnet_id:[0-9]+}', 'SubnetController:delete_subnet');
     /* Get free addresses from subnet */
     $app->get('/id/{subnet_id:[0-9]+}/free', 'SubnetController:get_subnet_free_addresses');
     /* Get subnet for specific IP */
     $app->get('/ip/{ip:[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}}', 'SubnetController:get_subnet_by_address');
     /* Get subnet by VLAN ID */
     $app->get('/vlan/{vlan_id:[0-9]+}', 'SubnetController:get_subnet_by_vlan');
-    /* Add new subnet */
-    /* Edit existing subnet */
-    /* Delete subnet */
+    /* Create new subnet */
+    $app->post('[/new]', 'SubnetController:create_subnet');
 
     /*
      * Subnet groups
