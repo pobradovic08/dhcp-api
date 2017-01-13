@@ -88,7 +88,7 @@ class Validator {
                     case self::DESCRIPTION:
                         return self::validateDescription($arguments[$argument_name]);
                     case self::VLAN:
-                        return self::validateVlanId($arguments[$argument_name]);
+                        return self::validateVlanId(intval($arguments[$argument_name]));
                     default:
                         return boolval(preg_match($regexp, $arguments[$argument_name]));
                 }

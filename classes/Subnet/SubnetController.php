@@ -63,29 +63,22 @@ class SubnetController {
         return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 
+    /*
+     * Get subnet with VLAN ID
+     * HTTP GET
+     */
     public function get_subnet_by_vlan ($request, $response, $args) {
-        $id = intval($args['vlan_id']);
-        if (!Validator::validateVlanId($id)) {
-            $this->r->fail();
+        if (!Validator::validateArgument($args, 'vlan_id', Validator::VLAN)) {
+            $this->r->fail(400, 'Invalid VLAN ID.');
             return $response->withStatus($this->r->getCode())->withJson($this->r);
         }
-        try {
-            $mapper = new SubnetMapper($this->ci->db);
-            $results = $mapper->getSubnets(['vlan_id' => $id]);
-            // Build an array of end hosts
-            if (sizeof($results) == 1) {
-                $this->r->success();
-                $this->r->setData($results[0]->serialize());
-            } else {
-                $this->r->fail();
-                $this->r->setCode(404);
-                $this->r->addMessage("Subnet with VLAN ID #{$id} not found.");
-            }
-        } catch (\InvalidArgumentException $e) {
-            $this->r->fail();
-            $this->r->addMessage($e->getMessage());
+        $result = SubnetModel::where('vlan', '=', $args['vlan_id'])->get();
+        if ($result) {
+            $this->r->success();
+            $this->r->setData($result);
+        } else {
+            $this->r->fail(404, "Subnet with VLAN ID #{$args['vlan_id']} not found.");
         }
-        // Return response as JSON body
         return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 
