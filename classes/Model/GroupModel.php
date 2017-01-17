@@ -23,7 +23,7 @@ class GroupModel extends Model {
      * Subnet that this group belongs to
      */
     public function subnet () {
-        return $this->hasOne('\Dhcp\Subnet\SubnetModel', 'subnet_id', 'subnet_id');
+        return $this->hasOne('\Dhcp\Model\SubnetModel', 'subnet_id', 'subnet_id');
     }
 
     /*

@@ -9,7 +9,7 @@ namespace Dhcp\Controller;
  * Time: 7:15 PM
  */
 
-use Dhcp\Subnet\SubnetModel;
+use Dhcp\Model\SubnetModel;
 use Dhcp\Validator;
 use \Interop\Container\ContainerInterface as ContainerInterface;
 

@@ -4,7 +4,7 @@ namespace Dhcp\Controller;
 
 use Dhcp\Model\ReservationModel;
 use Dhcp\Response;
-use Dhcp\Subnet\SubnetModel;
+use Dhcp\Model\SubnetModel;
 use Dhcp\Validator;
 use \Interop\Container\ContainerInterface as ContainerInterface;
 

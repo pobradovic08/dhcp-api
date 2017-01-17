@@ -6,7 +6,7 @@
  * Time: 2:15 PM
  */
 
-namespace Dhcp\Subnet;
+namespace Dhcp\Model;
 
 use \Illuminate\Database\Eloquent\Model;
 
