@@ -11,6 +11,7 @@ namespace Dhcp\Controller;
 
 use Dhcp\Model\SubnetModel;
 use Dhcp\Validator;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use \Interop\Container\ContainerInterface as ContainerInterface;
 
 
@@ -57,7 +58,7 @@ class SubnetController {
             $result = SubnetModel::findOrFail($args['subnet_id']);
             $this->r->success();
             $this->r->setData($result);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             $this->r->fail(404, "Subnet with ID #{$args['subnet_id']} not found.");
         }
         return $response->withStatus($this->r->getCode())->withJson($this->r);
@@ -132,7 +133,7 @@ class SubnetController {
             }
             $this->r->success();
             $this->r->setData($addresses);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             $this->r->fail(404, "Subnet with ID #{$args['subnet_id']} not found.");
         }
         return $response->withStatus($this->r->getCode())->withJson($this->r);
@@ -162,7 +163,7 @@ class SubnetController {
             }else{
                 $this->r->fail(500, "Couldn't delete subnet");
             }
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             $this->r->fail(404, "Subnet with ID #{$args['subnet_id']} not found.");
         }
         return $response->withStatus($this->r->getCode())->withJson($this->r);
