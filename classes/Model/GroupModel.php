@@ -31,6 +31,6 @@ class GroupModel extends Model {
      * Group information is excluded
      */
     public function reservations () {
-        return $this->hasMany('\Dhcp\Reservation\ReservationModel', 'group_id')->without('group');
+        return $this->hasMany('\Dhcp\Model\ReservationModel', 'group_id')->without('group');
     }
 }

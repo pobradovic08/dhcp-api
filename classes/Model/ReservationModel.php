@@ -6,7 +6,7 @@
  * Time: 2:02 PM
  */
 
-namespace Dhcp\Reservation;
+namespace Dhcp\Model;
 
 
 use \Illuminate\Database\Eloquent\Model;

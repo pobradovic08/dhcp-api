@@ -64,6 +64,6 @@ class EndHostModel extends Model {
      * Get all reservations for this host
      */
     public function reservations () {
-        return $this->hasMany('\Dhcp\Reservation\ReservationModel', 'end_host_id');
+        return $this->hasMany('\Dhcp\Model\ReservationModel', 'end_host_id');
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Dhcp\Controller;
 
-use Dhcp\Reservation\ReservationModel;
+use Dhcp\Model\ReservationModel;
 use Dhcp\Response;
 use Dhcp\Subnet\SubnetModel;
 use Dhcp\Validator;
