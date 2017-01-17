@@ -148,8 +148,23 @@ class SubnetController {
 
     }
 
-    //TODO: delete subnet
+    //TODO: delete subnet - check constraints
     public function delete_subnet ($request, $response, $args) {
-
+        if (!Validator::validateArgument($args, 'subnet_id', Validator::ID)) {
+            $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
+            $this->r->fail(400, "Invalid subnet ID");
+            return $response->withStatus($this->r->getCode())->withJson($this->r);
+        }
+        try {
+            $result = SubnetModel::findOrFail($args['subnet_id']);
+            if($result->delete()){
+                $this->r->success("Subnet {$result->subnet_id} deleted.");
+            }else{
+                $this->r->fail(500, "Couldn't delete subnet");
+            }
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            $this->r->fail(404, "Subnet with ID #{$args['subnet_id']} not found.");
+        }
+        return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 }
