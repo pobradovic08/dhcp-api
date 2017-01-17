@@ -4,6 +4,7 @@ namespace Dhcp\Reservation;
 
 use Dhcp\Reservation\ReservationModel;
 use Dhcp\Response;
+use Dhcp\Subnet\SubnetModel;
 use Dhcp\Validator;
 use \Interop\Container\ContainerInterface as ContainerInterface;
 
@@ -47,9 +48,9 @@ class ReservationController {
         }
         try {
             if ($args['mode'] == self::TERSE) {
-                $reservations = \Dhcp\Subnet\SubnetModel::with('groups.reservations')->findOrFail($args['subnet_id']);
+                $reservations = SubnetModel::with('groups.reservations')->findOrFail($args['subnet_id']);
             } else {
-                $reservations = \Dhcp\Subnet\SubnetModel::with('groups.reservations.end_host')->findOrFail($args['subnet_id']);
+                $reservations = SubnetModel::with('groups.reservations.end_host')->findOrFail($args['subnet_id']);
             }
             $this->r->success();
             $this->r->setData($reservations);
@@ -230,7 +231,7 @@ class ReservationController {
              * Get host. This checks if the host exists.
              */
             $group = \Dhcp\Group\GroupModel::findOrFail($data['group_id']);
-            $subnet = \Dhcp\Subnet\SubnetModel::findOrFail($group->subnet_id);
+            $subnet = SubnetModel::findOrFail($group->subnet_id);
             $endhost = \Dhcp\EndHost\EndHostModel::findOrFail($data['end_host_id']);
             /*
              * Check if IP belongs to the subnet
