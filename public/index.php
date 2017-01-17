@@ -65,7 +65,7 @@ $container['SubnetController'] = function ($c) {
 };
 
 $container['GroupController'] = function ($c) {
-    return new \Dhcp\Group\GroupController($c);
+    return new \Dhcp\Controller\GroupController($c);
 };
 
 $container['EndHostController'] = function ($c) {
