@@ -2,10 +2,16 @@
 
 namespace Dhcp\Controller;
 
+/* Custom */
+use Dhcp\Model\EndHostModel;
+use Dhcp\Model\GroupModel;
 use Dhcp\Model\ReservationModel;
 use Dhcp\Response;
 use Dhcp\Model\SubnetModel;
 use Dhcp\Validator;
+
+/* Framework */
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use \Interop\Container\ContainerInterface as ContainerInterface;
 
 class ReservationController {
@@ -25,6 +31,10 @@ class ReservationController {
      * HTTP GET
      */
     public function get_reservations ($request, $response, $args) {
+        /*
+         * If mode is not terse, get reservations with
+         * host and subnet information
+         */
         if ($args['mode'] == self::TERSE) {
             $reservations = ReservationModel::all();
         } else {
@@ -47,6 +57,11 @@ class ReservationController {
             return $response->withJson($this->r, $this->r->getCode());
         }
         try {
+            /*
+             * Default: Subnet + Groups + Reservations + EndHost
+             * Terse: Subnet + Groups + Reservations
+             */
+            //TODO: Check if terse is really terse (endhost has no type attribute)
             if ($args['mode'] == self::TERSE) {
                 $reservations = SubnetModel::with('groups.reservations')->findOrFail($args['subnet_id']);
             } else {
@@ -54,7 +69,7 @@ class ReservationController {
             }
             $this->r->success();
             $this->r->setData($reservations);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             $this->r->fail(404, "Subnet #{$args['subnet_id']} not found");
         }
         return $response->withJson($this->r, $this->r->getCode());
@@ -71,14 +86,18 @@ class ReservationController {
             return $response->withJson($this->r, $this->r->getCode());
         }
         try {
+            /*
+             * Default: Group + Subnet + Reservation + EndHost
+             * Terse: Group + Reservation
+             */
             if ($args['mode'] == self::TERSE) {
-                $reservations = \Dhcp\Model\GroupModel::with('reservations')->findOrFail($args['group_id']);
+                $reservations = GroupModel::with('reservations')->findOrFail($args['group_id']);
             } else {
-                $reservations = \Dhcp\Model\GroupModel::with('subnet', 'reservations.end_host')->findOrFail($args['group_id']);
+                $reservations = GroupModel::with('subnet', 'reservations.end_host')->findOrFail($args['group_id']);
             }
             $this->r->success();
             $this->r->setData($reservations);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             $this->r->fail(404, "Group #{$args['group_id']} not found");
         }
         return $response->withJson($this->r, $this->r->getCode());
@@ -95,6 +114,11 @@ class ReservationController {
             return $response->withJson($this->r, $this->r->getCode());
         }
         $decip = ip2long($args['ip']);
+        /*
+         * Default: Reservation + EndHost + Subnet
+         * Terse: Reservation
+         */
+        //TODO: Check if terse is really terse (has no endhost type data)
         if ($args['mode'] == self::TERSE) {
             $reservation = ReservationModel::where('ip', '=', $decip)->first();
         } else {
@@ -120,6 +144,10 @@ class ReservationController {
             return $response->withJson($this->r, $this->r->getCode());
         }
         try {
+            /*
+             * Default: Reservation + EndHost + Group + Subnet
+             * Terse: Reservation
+             */
             if ($args['mode'] == self::TERSE) {
                 $reservation = ReservationModel::findOrFail($args['id']);
             } else {
@@ -127,7 +155,7 @@ class ReservationController {
             }
             $this->r->success();
             $this->r->setData($reservation);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             $this->r->fail(404, "Reservation #{$args['id']} not found.");
         }
         return $response->withJson($this->r, $this->r->getCode());
@@ -145,11 +173,11 @@ class ReservationController {
         }
         $clean_mac = preg_replace('/[\.:-]/', '', $args['mac']);
         if ($args['mode'] == self::TERSE) {
-            $endhost = \Dhcp\Model\EndHostModel::with('reservations')
+            $endhost = EndHostModel::with('reservations')
                                                  ->where('mac', '=', intval($clean_mac, 16))
                                                  ->first();
         } else {
-            $endhost = \Dhcp\Model\EndHostModel::with('reservations.end_host', 'reservations.group.subnet')
+            $endhost = EndHostModel::with('reservations.end_host', 'reservations.group.subnet')
                                                  ->where('mac', '=', intval($clean_mac, 16))
                                                  ->first();
         }
@@ -230,9 +258,9 @@ class ReservationController {
              * Get group and subnet. This also checks if the group exists.
              * Get host. This checks if the host exists.
              */
-            $group = \Dhcp\Model\GroupModel::findOrFail($data['group_id']);
+            $group = GroupModel::findOrFail($data['group_id']);
             $subnet = SubnetModel::findOrFail($group->subnet_id);
-            $endhost = \Dhcp\Model\EndHostModel::findOrFail($data['end_host_id']);
+            $endhost = EndHostModel::findOrFail($data['end_host_id']);
             /*
              * Check if IP belongs to the subnet
              */
@@ -268,7 +296,7 @@ class ReservationController {
             } else {
                 $this->r->fail(500, 'Creating reservation unsuccessful.');
             }
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             $this->r->fail(400, "Group #{$data['group_id']} or host #{$data['end_host_id']} doesn't exist.");
         }
         return $response->withJson($this->r, $this->r->getCode());
@@ -323,7 +351,7 @@ class ReservationController {
                 $this->r->fail(500, "Couldn't delete reservation");
                 $this->ci->logger->addError('Deleting reservation #' . $args['id'] . " failed");
             }
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             $this->r->fail(404, "Reservation #{$args['id']} not found.");
         }
         return $response->withJson($this->r, $this->r->getCode());
