@@ -6,7 +6,7 @@
  * Time: 4:57 PM
  */
 
-namespace Dhcp\EndHost;
+namespace Dhcp\Model;
 
 use \Illuminate\Database\Eloquent\Model;
 
@@ -57,7 +57,7 @@ class EndHostModel extends Model {
      * Get type of this host
      */
     public function type () {
-        return $this->hasOne('\Dhcp\EndHostType\EndHostTypeModel', 'end_host_type_id', 'end_host_type_id');
+        return $this->hasOne('\Dhcp\Model\EndHostTypeModel', 'end_host_type_id', 'end_host_type_id');
     }
 
     /*

@@ -2,7 +2,7 @@
 
 namespace Dhcp\Controller;
 
-use Dhcp\EndHostType\EndHostTypeModel;
+use Dhcp\Model\EndHostTypeModel;
 use Dhcp\Validator;
 use \Interop\Container\ContainerInterface as ContainerInterface;
 

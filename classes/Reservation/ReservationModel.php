@@ -51,7 +51,7 @@ class ReservationModel extends Model {
      * End host for this reservation
      */
     public function end_host () {
-        return $this->hasOne('\Dhcp\EndHost\EndHostModel', 'end_host_id', 'end_host_id');
+        return $this->hasOne('\Dhcp\Model\EndHostModel', 'end_host_id', 'end_host_id');
     }
 
 }

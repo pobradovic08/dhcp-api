@@ -145,11 +145,11 @@ class ReservationController {
         }
         $clean_mac = preg_replace('/[\.:-]/', '', $args['mac']);
         if ($args['mode'] == self::TERSE) {
-            $endhost = \Dhcp\EndHost\EndHostModel::with('reservations')
+            $endhost = \Dhcp\Model\EndHostModel::with('reservations')
                                                  ->where('mac', '=', intval($clean_mac, 16))
                                                  ->first();
         } else {
-            $endhost = \Dhcp\EndHost\EndHostModel::with('reservations.end_host', 'reservations.group.subnet')
+            $endhost = \Dhcp\Model\EndHostModel::with('reservations.end_host', 'reservations.group.subnet')
                                                  ->where('mac', '=', intval($clean_mac, 16))
                                                  ->first();
         }
@@ -232,7 +232,7 @@ class ReservationController {
              */
             $group = \Dhcp\Group\GroupModel::findOrFail($data['group_id']);
             $subnet = SubnetModel::findOrFail($group->subnet_id);
-            $endhost = \Dhcp\EndHost\EndHostModel::findOrFail($data['end_host_id']);
+            $endhost = \Dhcp\Model\EndHostModel::findOrFail($data['end_host_id']);
             /*
              * Check if IP belongs to the subnet
              */

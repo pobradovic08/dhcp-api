@@ -2,7 +2,7 @@
 
 namespace Dhcp\Controller;
 
-use Dhcp\EndHost\EndHostModel;
+use Dhcp\Model\EndHostModel;
 use Dhcp\Response;
 use Dhcp\Validator;
 use \Illuminate\Database\Query\Expression;
