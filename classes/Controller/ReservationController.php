@@ -273,6 +273,8 @@ class ReservationController {
         }
         return $response->withJson($this->r, $this->r->getCode());
     }
+
+    //TODO: Update reservation
     public function put_reservation ($request, $response, $args) {
         $optional_arguments = [
             ['end_host_id', Validator::ID],
@@ -297,6 +299,9 @@ class ReservationController {
                 $data[$arg[0]] = $request->getParam($arg[0]);
             }
         }
+
+        $this->r->setData($data);
+        return $response->withJson($this->r, $this->r->getCode());
     }
 
     /*

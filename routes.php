@@ -76,7 +76,7 @@ $app->group('/reservations', function () use ($app) {
     $app->get('[/{mode:terse}]', 'ReservationController:get_reservations');
     /* Get, update or delete reservation by ID */
     $app->get('/id/{id:[0-9]+}[/{mode:terse}]', 'ReservationController:get_reservation_by_id');
-    $app->put('/id/{id:[0-9]+}[/update]', 'ReservationController:delete_reservation');
+    $app->put('/id/{id:[0-9]+}[/update]', 'ReservationController:put_reservation');
     $app->delete('/id/{id:[0-9]+}[/delete]', 'ReservationController:delete_reservation');
     /* Get specific reservation by IP address */
     $app->get('/ip/{ip:[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}}[/{mode:terse}]',
