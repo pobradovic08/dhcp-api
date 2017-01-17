@@ -69,11 +69,11 @@ $container['GroupController'] = function ($c) {
 };
 
 $container['EndHostController'] = function ($c) {
-    return new \Dhcp\EndHost\EndHostController($c);
+    return new \Dhcp\Controller\EndHostController($c);
 };
 
 $container['EndHostTypeController'] = function ($c) {
-    return new \Dhcp\EndHostType\EndHostTypeController($c);
+    return new \Dhcp\Controller\EndHostTypeController($c);
 };
 
 $container['ReservationController'] = function ($c) {
