@@ -44,7 +44,7 @@ class ReservationModel extends Model {
      * Group object for this reservation
      */
     public function group () {
-        return $this->hasOne('\Dhcp\Group\GroupModel', 'group_id', 'group_id');
+        return $this->hasOne('\Dhcp\Model\GroupModel', 'group_id', 'group_id');
     }
 
     /*

@@ -9,7 +9,7 @@ namespace Dhcp\Controller;
  * Time: 11:20 PM
  */
 
-use Dhcp\Group\GroupModel;
+use Dhcp\Model\GroupModel;
 use Dhcp\Response;
 use Dhcp\Validator;
 use \Interop\Container\ContainerInterface as ContainerInterface;

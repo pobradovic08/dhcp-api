@@ -72,9 +72,9 @@ class ReservationController {
         }
         try {
             if ($args['mode'] == self::TERSE) {
-                $reservations = \Dhcp\Group\GroupModel::with('reservations')->findOrFail($args['group_id']);
+                $reservations = \Dhcp\Model\GroupModel::with('reservations')->findOrFail($args['group_id']);
             } else {
-                $reservations = \Dhcp\Group\GroupModel::with('subnet', 'reservations.end_host')->findOrFail($args['group_id']);
+                $reservations = \Dhcp\Model\GroupModel::with('subnet', 'reservations.end_host')->findOrFail($args['group_id']);
             }
             $this->r->success();
             $this->r->setData($reservations);
@@ -230,7 +230,7 @@ class ReservationController {
              * Get group and subnet. This also checks if the group exists.
              * Get host. This checks if the host exists.
              */
-            $group = \Dhcp\Group\GroupModel::findOrFail($data['group_id']);
+            $group = \Dhcp\Model\GroupModel::findOrFail($data['group_id']);
             $subnet = SubnetModel::findOrFail($group->subnet_id);
             $endhost = \Dhcp\Model\EndHostModel::findOrFail($data['end_host_id']);
             /*

@@ -50,11 +50,11 @@ class SubnetModel extends Model {
      * Return group objects without subnet relationships
      */
     public function groups () {
-        return $this->hasMany('\Dhcp\Group\GroupModel', 'subnet_id')->without('subnet');
+        return $this->hasMany('\Dhcp\Model\GroupModel', 'subnet_id')->without('subnet');
     }
 
     public function reservations() {
-        return $this->hasMany('\Dhcp\Group\GroupModel', 'subnet_id')->with('reservations');
+        return $this->hasMany('\Dhcp\Model\GroupModel', 'subnet_id')->with('reservations');
     }
 
     public function validIp($ip){
