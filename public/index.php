@@ -61,7 +61,7 @@ $container['capsule'] = function ($c) {
 };
 
 $container['SubnetController'] = function ($c) {
-    return new \Dhcp\Subnet\SubnetController($c);
+    return new \Dhcp\Controller\SubnetController($c);
 };
 
 $container['GroupController'] = function ($c) {
@@ -77,7 +77,7 @@ $container['EndHostTypeController'] = function ($c) {
 };
 
 $container['ReservationController'] = function ($c) {
-    return new \Dhcp\Reservation\ReservationController($c);
+    return new \Dhcp\Controller\ReservationController($c);
 };
 
 
