@@ -76,7 +76,54 @@ class GroupController {
 
     //TODO: POST group
     public function post_group ($request, $response, $args) {
+        $required_params = [
+            ['subnet_id', Validator::ID],
+            ['name', Validator::FILENAME],
+        ];
+        $optional_params = [
+            ['description', Validator::DESCRIPTION],
+        ];
+        /*
+         * Data array used for building the Group object.
+         * Parameters from Request are filtered and copied to this array.
+         */
+        $data = [];
+        /*
+         * Loop trough required parameters and check if
+         * they exist and are matching the regexp defined above.
+         * Generates error message if the value is missing or doesn't
+         * match the regular expression defined for it
+         */
+        foreach ($required_params as $param) {
+            if (Validator::validateArgument($request->getParams(), $param[0], $param[1])) {
+                $data[$param[0]] = $request->getParam($param[0]);
+            } else {
+                $this->r->fail(400, "Required parameter {$param[0]} missing or invalid.");
+                return $response->withStatus($this->r->getCode())->withJson($this->r);
+            }
+        }
 
+        /*
+         * Loop through optional parameters and check if
+         * they exist and are matching the regexp defined above.
+         * No error message is generated if the parameter is missing.
+         * If the value is not matching the regexp, parameter is not
+         * added to data array.
+         */
+        foreach ($optional_params as $param) {
+            if (Validator::validateArgument($request->getParams(), $param[0], $param[1])) {
+                $data[$param[0]] = $request->getParam($param[0]);
+            }
+        }
+
+        $group = new GroupModel($data);
+        if($group->save()){
+            $this->r->success("Created group #{$group->group_id}");
+            $this->r->setData($group);
+        }else{
+            $this->r->fail(500, "Failed creating new group");
+        }
+        return $response->withJson($this->r, $this->r->getCode());
     }
 
     //TODO: PUT group
