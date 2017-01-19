@@ -16,6 +16,7 @@ class GroupModel extends Model {
 //    const CREATED_AT = 'insert_time';
 //    const UPDATED_AT = 'update_time';
 
+    public $timestamps = false;
     protected $table = 'groups';
     protected $primaryKey = 'group_id';
 
