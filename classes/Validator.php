@@ -14,6 +14,7 @@ class Validator {
     const REGEXP_MAC = '/^(?:(?:[0-9A-Fa-f]{4}\.){2}[0-9A-Fa-f]{4}|(?:[0-9A-Fa-f]{2}-){5}[0-9A-Fa-f]{2}|(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2})$/';
     const REGEXP_HOSTNAME = '/^[a-zA-Z0-9-]+$/';
     const REGEXP_BOOL = '/^[01]$/';
+    const REGEXP_FILENAME = '/^[\w\-. ]+$/';
 
     const IP = 1;
     const ID = 2;
@@ -21,6 +22,7 @@ class Validator {
     const HOSTNAME = 4;
     const DESCRIPTION = 5;
     const VLAN = 6;
+    const FILENAME = 7;
 
     /*
      * ID must be integer between 1 and infinity
@@ -39,6 +41,10 @@ class Validator {
 
     static function validateHostname ($hostname) {
         return boolval(preg_match(self::REGEXP_HOSTNAME, $hostname));
+    }
+
+    static function validateFilename ($file){
+        return boolval(preg_match(self::REGEXP_FILENAME, $file));
     }
 
     static function validateMacAddress ($mac) {
@@ -95,6 +101,8 @@ class Validator {
                         return self::validateVlanId(intval($arguments[$argument_name]));
                     case self::HOSTNAME:
                         return self::validateHostname($arguments[$argument_name]);
+                    case self::FILENAME:
+                        return self::validateFilename($arguments[$argument_name]);
                     default:
                         return boolval(preg_match($regexp, $arguments[$argument_name]));
                 }
