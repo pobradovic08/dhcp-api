@@ -74,7 +74,10 @@ class GroupController {
         return $response->withJson($this->r, $this->r->getCode());
     }
 
-    //TODO: POST group
+    /*
+     * Create new Group entry
+     * HTTP POST
+     */
     public function post_group ($request, $response, $args) {
         $required_params = [
             ['subnet_id', Validator::ID],
@@ -132,7 +135,10 @@ class GroupController {
         return $response->withJson($this->r, $this->r->getCode());
     }
 
-    //TODO: PUT group
+    /*
+     * Update existing Group entry
+     * HTTP PUT
+     */
     public function put_group ($request, $response, $args) {
         /*
          * Check if subnet ID or group ID are valid
