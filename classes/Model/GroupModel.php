@@ -13,11 +13,17 @@ use \Illuminate\Database\Eloquent\Model;
 
 class GroupModel extends Model {
 
-    const CREATED_AT = 'insert_time';
-    const UPDATED_AT = 'update_time';
+//    const CREATED_AT = 'insert_time';
+//    const UPDATED_AT = 'update_time';
 
     protected $table = 'groups';
     protected $primaryKey = 'group_id';
+
+    protected $fillable = [
+        'subnet_id',
+        'name',
+        'description'
+    ];
 
     /*
      * Subnet that this group belongs to
