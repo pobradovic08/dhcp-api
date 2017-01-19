@@ -116,12 +116,18 @@ class GroupController {
             }
         }
 
-        $group = new GroupModel($data);
-        if($group->save()){
-            $this->r->success("Created group #{$group->group_id}");
-            $this->r->setData($group);
-        }else{
-            $this->r->fail(500, "Failed creating new group");
+        $existing = GroupModel::where('name', '=', $data['name'])->first();
+        if($existing) {
+            $this->r->fail(400, "Group already exists");
+            $this->r->setData($existing);
+        }else {
+            $group = new GroupModel($data);
+            if ($group->save()) {
+                $this->r->success("Created group #{$group->group_id}");
+                $this->r->setData($group);
+            } else {
+                $this->r->fail(500, "Failed creating new group");
+            }
         }
         return $response->withJson($this->r, $this->r->getCode());
     }
