@@ -5,6 +5,7 @@ namespace Dhcp\Controller;
 use Dhcp\Model\EndHostModel;
 use Dhcp\Response;
 use Dhcp\Validator;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use \Illuminate\Database\Query\Expression;
 use \Interop\Container\ContainerInterface as ContainerInterface;
 
@@ -45,7 +46,7 @@ class EndHostController {
             $endhost = EndHostModel::findOrFail($args['end_host_id']);
             $this->r->setData($endhost);
             $this->r->success();
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             $this->r->fail(404, "End host with ID#{$args['end_host_id']} not found.");
         }
         return $response->withStatus($this->r->getCode())->withJson($this->r);
@@ -205,7 +206,7 @@ class EndHostController {
                 $this->r->fail("Couldn't update host {$endhost->hostname}.");
             }
 
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             $this->r->fail(404, "End host with ID#{$args['end_host_id']} not found.");
         }
         return $response->withStatus($this->r->getCode())->withJson($this->r);
@@ -226,7 +227,7 @@ class EndHostController {
             if ($endhost->delete()) {
                 $this->r->success("Endhost {$endhost->hostname} deleted.");
             }
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             $this->r->fail(404, "End host with ID#{$args['end_host_id']} not found.");
         }
         return $response->withStatus($this->r->getCode())->withJson($this->r);

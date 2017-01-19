@@ -4,6 +4,7 @@ namespace Dhcp\Controller;
 
 use Dhcp\Model\EndHostTypeModel;
 use Dhcp\Validator;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use \Interop\Container\ContainerInterface as ContainerInterface;
 
 class EndHostTypeController {
@@ -117,7 +118,7 @@ class EndHostTypeController {
             } else {
                 $this->r->fail(404);
             }
-        }catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e){
+        }catch (ModelNotFoundException $e){
             $this->r->fail(404, "Host type #{$args['end_host_type_id']} not found");
             $this->ci->logger->addInfo("Couldn't find end host type #" . $args['end_host_type_id']);
         }
