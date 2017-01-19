@@ -9,9 +9,14 @@ namespace Dhcp\Controller;
  * Time: 11:20 PM
  */
 
+//Custom
 use Dhcp\Model\GroupModel;
 use Dhcp\Response;
 use Dhcp\Validator;
+//Eloquent
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
+//Slim
 use \Interop\Container\ContainerInterface as ContainerInterface;
 
 class GroupController {
@@ -68,7 +73,7 @@ class GroupController {
             } else {
                 $this->r->fail(404, "Group with ID#{$args['group_id']} doesn't belong to subnet #{$args['subnet_id']}");
             }
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             $this->r->fail(404, 'No group with ID #' . $args['group_id']);
         }
         return $response->withJson($this->r, $this->r->getCode());
@@ -193,9 +198,9 @@ class GroupController {
                     $this->r->fail(500, "Failed to update group entry.");
                 }
 
-            } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            } catch (ModelNotFoundException $e) {
                 $this->r->fail(404, "Group with ID {$args['group_id']} not found.");
-            } catch (\Illuminate\Database\QueryException $e) {
+            } catch (QueryException $e) {
                 $this->r->fail(500, "Error updating group.");
                 $this->ci->logger->addError("Failed updating group: " . $e->getMessage());
             }
@@ -230,7 +235,7 @@ class GroupController {
             } else {
                 $this->r->fail(404, "Group with ID#{$args['group_id']} doesn't belong to subnet #{$args['subnet_id']}");
             }
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             $this->r->fail(404, 'No group with ID #' . $args['group_id']);
         }
         return $response->withJson($this->r, $this->r->getCode());
