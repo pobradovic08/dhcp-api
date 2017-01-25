@@ -3,21 +3,12 @@
 namespace Dhcp\Controller;
 
 use Dhcp\Model\EndHostModel;
-use Dhcp\Response;
 use Dhcp\Validator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use \Illuminate\Database\Query\Expression;
-use \Interop\Container\ContainerInterface as ContainerInterface;
 
-class EndHostController {
-    protected $ci;
 
-    //Constructor
-    public function __construct (ContainerInterface $ci) {
-        $this->ci = $ci;
-        $this->ci->capsule;
-        $this->r = new Response();
-    }
+class EndHostController extends BaseController {
 
     /*
      * Get all hosts
