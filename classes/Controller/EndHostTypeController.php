@@ -5,17 +5,8 @@ namespace Dhcp\Controller;
 use Dhcp\Model\EndHostTypeModel;
 use Dhcp\Validator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use \Interop\Container\ContainerInterface as ContainerInterface;
 
-class EndHostTypeController {
-    protected $ci;
-
-    //Constructor
-    public function __construct (ContainerInterface $ci) {
-        $this->ci = $ci;
-        $this->ci->capsule;
-        $this->r = new \Dhcp\Response();
-    }
+class EndHostTypeController extends BaseController {
 
     /*
      * Get all types
