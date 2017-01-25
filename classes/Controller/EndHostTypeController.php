@@ -5,25 +5,37 @@ namespace Dhcp\Controller;
 use Dhcp\Model\EndHostTypeModel;
 use Dhcp\Validator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
+/**
+ * Class EndHostTypeController
+ *
+ * @author  Pavle Obradovic <pobradovic08@gmail.com>
+ */
 class EndHostTypeController extends BaseController {
 
-    /*
-     * Get all types
-     * HTTP GET
+
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function get_type ($request, $response, $args) {
+    public function get_type (ServerRequestInterface $request, ResponseInterface $response, $args) {
         $types = EndHostTypeModel::all();
         $this->r->success();
         $this->r->setData($types);
         return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 
-    /*
-     * Get type with specific ID
-     * HTTP GET
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function get_type_by_id ($request, $response, $args) {
+    public function get_type_by_id (ServerRequestInterface $request, ResponseInterface $response, $args) {
         // API Response
         if (!Validator::validateArgument($args, 'end_host_type_id', Validator::REGEXP_ID)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
@@ -41,11 +53,13 @@ class EndHostTypeController extends BaseController {
         return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 
-    /*
-     * Create new type
-     * HTTP POST
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function create_type ($request, $response, $args) {
+    public function create_type (ServerRequestInterface $request, ResponseInterface $response, $args) {
         if (!Validator::validateArgument($request->getParams(), 'description', Validator::DESCRIPTION)) {
             $this->r->fail(400, "Required parameter(s) missing or invalid");
             return $response->withStatus($this->r->getCode())->withJson($this->r);
@@ -63,11 +77,13 @@ class EndHostTypeController extends BaseController {
         }
     }
 
-    /*
-     * Update existing type or create a new one
-     * HTTP PUT
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function update_type ($request, $response, $args) {
+    public function update_type (ServerRequestInterface $request, ResponseInterface $response, $args) {
         if (
             !Validator::validateArgument($request->getParams(), 'description', Validator::DESCRIPTION) ||
             !Validator::validateArgument($args, 'end_host_type_id', Validator::ID)
@@ -89,11 +105,13 @@ class EndHostTypeController extends BaseController {
         }
     }
 
-    /*
-     * Delete type with specific ID
-     * HTTP DELETE
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function delete_type ($request, $response, $args){
+    public function delete_type (ServerRequestInterface $request, ResponseInterface $response, $args) {
         // API Response
         if (!Validator::validateArgument($args, 'end_host_type_id', Validator::REGEXP_ID)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
