@@ -12,26 +12,9 @@ namespace Dhcp\Controller;
 use Dhcp\Model\SubnetModel;
 use Dhcp\Validator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use \Interop\Container\ContainerInterface as ContainerInterface;
 
 
-class SubnetController {
-
-    /*
-     * Container interface
-     */
-    protected $ci;
-
-    /*
-     * Dhcp\Request object;
-     */
-    protected $r;
-
-    public function __construct (ContainerInterface $ci) {
-        $this->ci = $ci;
-        $this->r = new \Dhcp\Response();
-        $this->ci->capsule;
-    }
+class SubnetController extends BaseController {
 
     /*
      * Get all subnets
