@@ -15,15 +15,19 @@ use Dhcp\Validator;
 //Eloquent
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 class GroupController extends BaseController {
 
 
-    /*
-     * Get list of groups for specific subnet ID
-     * HTTP GET
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function get_groups ($request, $response, $args) {
+    public function get_groups (ServerRequestInterface $request, ResponseInterface $response, $args) {
         if (!Validator::validateArgument($args, 'subnet_id', Validator::REGEXP_ID)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
             $this->r->fail(400, "Invalid subnet ID");
@@ -40,11 +44,13 @@ class GroupController extends BaseController {
         return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 
-    /*
-     * Get group with specific ID
-     * HTTP GET
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function get_group_by_id ($request, $response, $args) {
+    public function get_group_by_id (ServerRequestInterface $request, ResponseInterface $response, $args) {
         if (!Validator::validateArgument($args, 'subnet_id', Validator::REGEXP_ID)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
             $this->r->fail(400, "Invalid subnet ID");
@@ -69,11 +75,13 @@ class GroupController extends BaseController {
         return $response->withJson($this->r, $this->r->getCode());
     }
 
-    /*
-     * Create new Group entry
-     * HTTP POST
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function post_group ($request, $response, $args) {
+    public function post_group (ServerRequestInterface $request, ResponseInterface $response, $args) {
         $required_params = [
             ['subnet_id', Validator::ID],
             ['name', Validator::FILENAME],
@@ -130,11 +138,13 @@ class GroupController extends BaseController {
         return $response->withJson($this->r, $this->r->getCode());
     }
 
-    /*
-     * Update existing Group entry
-     * HTTP PUT
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function put_group ($request, $response, $args) {
+    public function put_group (ServerRequestInterface $request, ResponseInterface $response, $args) {
         /*
          * Check if subnet ID or group ID are valid
          */
@@ -198,11 +208,13 @@ class GroupController extends BaseController {
         return $response->withJson($this->r, $this->r->getCode());
     }
 
-    /*
-     * Delete group by id
-     * HTTP DELETE
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function delete_group ($request, $response, $args) {
+    public function delete_group (ServerRequestInterface $request, ResponseInterface $response, $args) {
         if (!Validator::validateArgument($args, 'subnet_id', Validator::REGEXP_ID)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
             $this->r->fail(400, "Invalid subnet ID");
