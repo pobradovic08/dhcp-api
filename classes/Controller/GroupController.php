@@ -11,23 +11,13 @@ namespace Dhcp\Controller;
 
 //Custom
 use Dhcp\Model\GroupModel;
-use Dhcp\Response;
 use Dhcp\Validator;
 //Eloquent
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
-//Slim
-use \Interop\Container\ContainerInterface as ContainerInterface;
 
-class GroupController {
-    protected $ci;
+class GroupController extends BaseController {
 
-    //Constructor
-    public function __construct (ContainerInterface $ci) {
-        $this->ci = $ci;
-        $this->ci->capsule;
-        $this->r = new Response();
-    }
 
     /*
      * Get list of groups for specific subnet ID
