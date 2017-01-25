@@ -5,16 +5,20 @@ namespace Dhcp\Controller;
 use Dhcp\Model\EndHostModel;
 use Dhcp\Validator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use \Illuminate\Database\Query\Expression;
+use Illuminate\Database\Query\Expression;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 
 class EndHostController extends BaseController {
 
-    /*
-     * Get all hosts
-     * HTTP GET
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function get_host ($request, $response, $args) {
+    public function get_host (ServerRequestInterface $request, ResponseInterface $response, $args) {
         $hosts = EndHostModel::all();
         // Prepare API response
         $this->r->setData($hosts);
@@ -23,11 +27,13 @@ class EndHostController extends BaseController {
         return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 
-    /*
-     * Get host by ID
-     * HTTP GET
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function get_host_by_id ($request, $response, $args) {
+    public function get_host_by_id (ServerRequestInterface $request, ResponseInterface $response, $args) {
         if (!Validator::validateArgument($args, 'end_host_id', Validator::ID)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
             $this->r->fail(400, "Invalid host ID");
@@ -43,11 +49,13 @@ class EndHostController extends BaseController {
         return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 
-    /*
-     * Get host by MAC address
-     * HTTP GET
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function get_host_by_mac ($request, $response, $args) {
+    public function get_host_by_mac (ServerRequestInterface $request, ResponseInterface $response, $args) {
         if (!Validator::validateArgument($args, 'mac', Validator::MAC)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid MAC");
             $this->r->fail(400, "Invalid MAC address");
@@ -66,13 +74,13 @@ class EndHostController extends BaseController {
         return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 
-    /*
-     * Search end host table for end host and match:
-     * hostname, mac, description
-     * to a given search pattern
-     * HTTP GET
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function get_search_host ($request, $response, $args) {
+    public function get_search_host (ServerRequestInterface $request, ResponseInterface $response, $args) {
         $mac = preg_replace('/[^%0-9A-Fa-f]/i', '', $args['pattern']);
         $endhosts = EndHostModel::where('description', 'like', "%{$args['pattern']}%")
                                 ->where('hostname', 'like', "%{$args['pattern']}%", 'or')
@@ -87,12 +95,13 @@ class EndHostController extends BaseController {
         return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 
-    /*
-     * Create new end host
-     * MAC and hostname must be unique
-     * HTTP POST
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function post_host ($request, $response, $args) {
+    public function post_host (ServerRequestInterface $request, ResponseInterface $response, $args) {
         $required_params = [
             ['hostname', Validator::HOSTNAME],
             ['mac', Validator::MAC],
@@ -159,11 +168,13 @@ class EndHostController extends BaseController {
         return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 
-    /*
-     * Update endhost with specified ID
-     * HTTP PUT
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function update_host ($request, $response, $args) {
+    public function update_host (ServerRequestInterface $request, ResponseInterface $response, $args) {
         if (!Validator::validateArgument($args, 'end_host_id', Validator::ID)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
             $this->r->fail(400, "Invalid host ID");
@@ -203,11 +214,13 @@ class EndHostController extends BaseController {
         return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 
-    /*
-     * Delete endhost
-     * HTTP DELETE
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function delete_host ($request, $response, $args) {
+    public function delete_host (ServerRequestInterface $request, ResponseInterface $response, $args) {
         if (!Validator::validateArgument($args, 'end_host_id', Validator::ID)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
             $this->r->fail(400, "Invalid host ID");
