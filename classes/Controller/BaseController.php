@@ -1,15 +1,15 @@
 <?php
-/**
- * Base controller class that others extend
- *
- * @author  Pavle Obradovic <pobradovic08@gmail.com>
- */
 
 namespace Dhcp\Controller;
 
 use \Interop\Container\ContainerInterface as ContainerInterface;
 use Dhcp\Response;
 
+/**
+ * Base controller class that others extend
+ *
+ * @author  Pavle Obradovic <pobradovic08@gmail.com>
+ */
 class BaseController {
 
     /**
