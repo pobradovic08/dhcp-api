@@ -6,25 +6,15 @@ namespace Dhcp\Controller;
 use Dhcp\Model\EndHostModel;
 use Dhcp\Model\GroupModel;
 use Dhcp\Model\ReservationModel;
-use Dhcp\Response;
 use Dhcp\Model\SubnetModel;
 use Dhcp\Validator;
 
 /* Framework */
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use \Interop\Container\ContainerInterface as ContainerInterface;
 
-class ReservationController {
+class ReservationController extends BaseController {
 
     const TERSE = 'terse';
-    protected $ci;
-
-    //Constructor
-    public function __construct (ContainerInterface $ci) {
-        $this->ci = $ci;
-        $this->ci->capsule;
-        $this->r = new Response();
-    }
 
     /*
      * Get all reservations
