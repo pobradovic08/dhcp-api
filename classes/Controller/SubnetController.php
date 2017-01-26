@@ -2,36 +2,40 @@
 
 namespace Dhcp\Controller;
 
-/**
- * Created by PhpStorm.
- * User: pajaja
- * Date: 1/3/2017
- * Time: 7:15 PM
- */
-
 use Dhcp\Model\SubnetModel;
 use Dhcp\Validator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 
+/**
+ * Class SubnetController
+ *
+ * @author  Pavle Obradovic <pobradovic08@gmail.com>
+ */
 class SubnetController extends BaseController {
 
-    /*
-     * Get all subnets
-     * HTTP GET
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function get_subnets ($request, $response, $args) {
+    public function get_subnets (ServerRequestInterface $request, ResponseInterface $response, $args) {
         $subnets = SubnetModel::all();
         $this->r->setData($subnets);
         $this->r->success();
         return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 
-    /*
-     * Get subnet with specified ID
-     * HTTP GET
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function get_subnet_by_id ($request, $response, $args) {
+    public function get_subnet_by_id (ServerRequestInterface $request, ResponseInterface $response, $args) {
         if (!Validator::validateArgument($args, 'subnet_id', Validator::ID)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
             $this->r->fail(400, "Invalid subnet ID");
@@ -47,11 +51,13 @@ class SubnetController extends BaseController {
         return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 
-    /*
-     * Get subnet with VLAN ID
-     * HTTP GET
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function get_subnet_by_vlan ($request, $response, $args) {
+    public function get_subnet_by_vlan (ServerRequestInterface $request, ResponseInterface $response, $args) {
         if (!Validator::validateArgument($args, 'vlan_id', Validator::VLAN)) {
             $this->r->fail(400, 'Invalid VLAN ID.');
             return $response->withStatus($this->r->getCode())->withJson($this->r);
@@ -66,11 +72,13 @@ class SubnetController extends BaseController {
         return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 
-    /*
-     * Get subnet for specific IP address
-     * HTTP GET
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function get_subnet_by_address ($request, $response, $args) {
+    public function get_subnet_by_address (ServerRequestInterface $request, ResponseInterface $response, $args) {
         if (!Validator::validateArgument($args, 'ip', Validator::IP)) {
             $this->r->fail(400, 'Invalid IP address');
             return $response->withStatus($this->r->getCode())->withJson($this->r);
@@ -86,11 +94,13 @@ class SubnetController extends BaseController {
         return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 
-    /*
-     * Get free addresses for a subnet with specified ID
-     * HTTP GET
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function get_subnet_free_addresses ($request, $response, $args) {
+    public function get_subnet_free_addresses (ServerRequestInterface $request, ResponseInterface $response, $args) {
         $addresses = [];
         $reserved_addresses = [];
         if (!Validator::validateArgument($args, 'subnet_id', Validator::ID)) {
@@ -123,17 +133,17 @@ class SubnetController extends BaseController {
     }
 
     //TODO: new subnet
-    public function post_subnet ($request, $response, $args) {
+    public function post_subnet (ServerRequestInterface $request, ResponseInterface $response, $args) {
 
     }
 
     //TODO: update subnet
-    public function put_subnet ($request, $response, $args) {
+    public function put_subnet (ServerRequestInterface $request, ResponseInterface $response, $args) {
 
     }
 
     //TODO: delete subnet - check constraints
-    public function delete_subnet ($request, $response, $args) {
+    public function delete_subnet (ServerRequestInterface $request, ResponseInterface $response, $args) {
         if (!Validator::validateArgument($args, 'subnet_id', Validator::ID)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
             $this->r->fail(400, "Invalid subnet ID");
