@@ -8,6 +8,8 @@ use Dhcp\Model\ReservationModel;
 use Dhcp\Model\SubnetModel;
 use Dhcp\Validator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Class ReservationController
@@ -18,11 +20,13 @@ class ReservationController extends BaseController {
 
     const TERSE = 'terse';
 
-    /*
-     * Get all reservations
-     * HTTP GET
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function get_reservations ($request, $response, $args) {
+    public function get_reservations (ServerRequestInterface $request, ResponseInterface $response, $args) {
         /*
          * If mode is not terse, get reservations with
          * host and subnet information
@@ -37,11 +41,13 @@ class ReservationController extends BaseController {
         return $response->withJson($this->r, $this->r->getCode());
     }
 
-    /*
-     * Get reservations for a subnet
-     * HTTP GET
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function get_reservations_for_subnet ($request, $response, $args) {
+    public function get_reservations_for_subnet (ServerRequestInterface $request, ResponseInterface $response, $args) {
         // Filter data
         if (!Validator::validateArgument($args, 'subnet_id', Validator::REGEXP_ID)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
@@ -67,11 +73,13 @@ class ReservationController extends BaseController {
         return $response->withJson($this->r, $this->r->getCode());
     }
 
-    /*
-     * Get reservations for a specific group and subnet
-     * HTTP GET
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function get_reservations_for_group ($request, $response, $args) {
+    public function get_reservations_for_group (ServerRequestInterface $request, ResponseInterface $response, $args) {
         if (!Validator::validateArgument($args, 'group_id', Validator::REGEXP_ID)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
             $this->r->fail(400, "Invalid group ID");
@@ -95,11 +103,13 @@ class ReservationController extends BaseController {
         return $response->withJson($this->r, $this->r->getCode());
     }
 
-    /*
-     * Get reservation for IP address
-     * HTTP GET
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function get_reservation_by_ip ($request, $response, $args) {
+    public function get_reservation_by_ip (ServerRequestInterface $request, ResponseInterface $response, $args) {
         if (!Validator::validateArgument($args, 'ip', Validator::IP)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid IP");
             $this->r->fail(400, "Invalid IP Address");
@@ -125,11 +135,13 @@ class ReservationController extends BaseController {
         return $response->withJson($this->r, $this->r->getCode());
     }
 
-    /*
-     * Get a reservation by ID
-     * HTTP GET
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function get_reservation_by_id ($request, $response, $args) {
+    public function get_reservation_by_id (ServerRequestInterface $request, ResponseInterface $response, $args) {
         if (!Validator::validateArgument($args, 'id', Validator::REGEXP_ID)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
             $this->r->fail(400, "Invalid reservation ID");
@@ -153,11 +165,13 @@ class ReservationController extends BaseController {
         return $response->withJson($this->r, $this->r->getCode());
     }
 
-    /*
-     * Get a reservations for a MAC address
-     * HTTP GET
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function get_reservation_by_mac ($request, $response, $args) {
+    public function get_reservation_by_mac (ServerRequestInterface $request, ResponseInterface $response, $args) {
         if (!Validator::validateArgument($args, 'mac', Validator::REGEXP_MAC)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid MAC");
             $this->r->fail(400, "Invalid MAC address");
@@ -183,12 +197,13 @@ class ReservationController extends BaseController {
         return $response->withJson($this->r, $this->r->getCode());
     }
 
-    /*
-     * Create new reservation
-     * IP must be unique and a single host can't have multiple reservations in the same subnet
-     * HTTP POST
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function post_reservation ($request, $response, $args) {
+    public function post_reservation (ServerRequestInterface $request, ResponseInterface $response, $args) {
         $required_arguments = [
             ['end_host_id', Validator::ID],
             ['group_id', Validator::ID],
@@ -295,7 +310,7 @@ class ReservationController extends BaseController {
     }
 
     //TODO: Update reservation
-    public function put_reservation ($request, $response, $args) {
+    public function put_reservation (ServerRequestInterface $request, ResponseInterface $response, $args) {
         $optional_arguments = [
             ['end_host_id', Validator::ID],
             ['group_id', Validator::ID],
@@ -324,11 +339,13 @@ class ReservationController extends BaseController {
         return $response->withJson($this->r, $this->r->getCode());
     }
 
-    /*
-     * Delete reservation with specified ID
-     * HTTP DELETE
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param array $args
+     * @return ResponseInterface
      */
-    public function delete_reservation ($request, $response, $args) {
+    public function delete_reservation (ServerRequestInterface $request, ResponseInterface $response, $args) {
         if (!Validator::validateArgument($args, 'id', Validator::REGEXP_ID)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
             $this->r->fail(400, "Invalid reservation ID");
