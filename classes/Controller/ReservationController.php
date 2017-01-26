@@ -18,19 +18,22 @@ use Psr\Http\Message\ResponseInterface;
  */
 class ReservationController extends BaseController {
 
+    /*
+     * If request mode is set to TERSE, don't fetch
+     * linked Models, just their IDs
+     */
     const TERSE = 'terse';
 
     /**
-     * @param ServerRequestInterface $request
+     * Get all reservations
+     * In terse mode linked EndHost, Group and Subnet objects are not fetched.
+     *
+     * @param ServerRequestInterface $request Not used
      * @param ResponseInterface $response
-     * @param array $args
+     * @param array $args Optional 'mode' argument
      * @return ResponseInterface
      */
     public function get_reservations (ServerRequestInterface $request, ResponseInterface $response, $args) {
-        /*
-         * If mode is not terse, get reservations with
-         * host and subnet information
-         */
         if ($args['mode'] == self::TERSE) {
             $reservations = ReservationModel::all();
         } else {
@@ -42,24 +45,25 @@ class ReservationController extends BaseController {
     }
 
     /**
-     * @param ServerRequestInterface $request
+     * Get multiple reservations that belong to specific subnet
+     * In terse mode linked EndHost object is not fetched, just Subnet and Group
+     *
+     * @param ServerRequestInterface $request Not used
      * @param ResponseInterface $response
-     * @param array $args
+     * @param array $args Should contain 'subnet_id'. Optional 'mode' argument
      * @return ResponseInterface
      */
     public function get_reservations_for_subnet (ServerRequestInterface $request, ResponseInterface $response, $args) {
-        // Filter data
+        /*
+         * Validate 'subnet_id' route argument
+         */
         if (!Validator::validateArgument($args, 'subnet_id', Validator::REGEXP_ID)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
             $this->r->fail(400, "Invalid subnet ID");
             return $response->withJson($this->r, $this->r->getCode());
         }
         try {
-            /*
-             * Default: Subnet + Groups + Reservations + EndHost
-             * Terse: Subnet + Groups + Reservations
-             */
-            //TODO: Check if terse is really terse (endhost has no type attribute)
+            //TODO: Check if terse is really terse and endhost has no type attribute
             if ($args['mode'] == self::TERSE) {
                 $reservations = SubnetModel::with('groups.reservations')->findOrFail($args['subnet_id']);
             } else {
@@ -74,7 +78,10 @@ class ReservationController extends BaseController {
     }
 
     /**
-     * @param ServerRequestInterface $request
+     * Get multiple reservations that belong to a specific Group
+     * In terse mode linked EndHost object is not fetched, just Subnet and Group
+     *
+     * @param ServerRequestInterface $request Not used
      * @param ResponseInterface $response
      * @param array $args
      * @return ResponseInterface
@@ -86,10 +93,6 @@ class ReservationController extends BaseController {
             return $response->withJson($this->r, $this->r->getCode());
         }
         try {
-            /*
-             * Default: Group + Subnet + Reservation + EndHost
-             * Terse: Group + Reservation
-             */
             if ($args['mode'] == self::TERSE) {
                 $reservations = GroupModel::with('reservations')->findOrFail($args['group_id']);
             } else {
@@ -104,22 +107,24 @@ class ReservationController extends BaseController {
     }
 
     /**
+     * Get reservation for IP address
+     * In terse mode linked EndHost, Subnet and Group objects are not fetched
+     *
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response
      * @param array $args
      * @return ResponseInterface
      */
     public function get_reservation_by_ip (ServerRequestInterface $request, ResponseInterface $response, $args) {
+        /*
+         * Validate 'ip' route argument
+         */
         if (!Validator::validateArgument($args, 'ip', Validator::IP)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid IP");
             $this->r->fail(400, "Invalid IP Address");
             return $response->withJson($this->r, $this->r->getCode());
         }
         $decip = ip2long($args['ip']);
-        /*
-         * Default: Reservation + EndHost + Subnet
-         * Terse: Reservation
-         */
         //TODO: Check if terse is really terse (has no endhost type data)
         if ($args['mode'] == self::TERSE) {
             $reservation = ReservationModel::where('ip', '=', $decip)->first();
@@ -136,22 +141,24 @@ class ReservationController extends BaseController {
     }
 
     /**
+     * Get reservation with ID
+     * In terse mode linked EndHost, Subnet and Group objects are not fetched
+     *
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response
      * @param array $args
      * @return ResponseInterface
      */
     public function get_reservation_by_id (ServerRequestInterface $request, ResponseInterface $response, $args) {
+        /*
+         * Validate 'id' route argument
+         */
         if (!Validator::validateArgument($args, 'id', Validator::REGEXP_ID)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
             $this->r->fail(400, "Invalid reservation ID");
             return $response->withJson($this->r, $this->r->getCode());
         }
         try {
-            /*
-             * Default: Reservation + EndHost + Group + Subnet
-             * Terse: Reservation
-             */
             if ($args['mode'] == self::TERSE) {
                 $reservation = ReservationModel::findOrFail($args['id']);
             } else {
@@ -166,6 +173,9 @@ class ReservationController extends BaseController {
     }
 
     /**
+     * Get multiple reservations for a MAC address
+     * In terse mode linked EndHost, Subnet and Group objects are not fetched
+     *
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response
      * @param array $args
@@ -183,6 +193,10 @@ class ReservationController extends BaseController {
                                                  ->where('mac', '=', intval($clean_mac, 16))
                                                  ->first();
         } else {
+            /*
+             * We need 'reservations.end_host' even if we do this on EndHostModel
+             * because we later just get the 'reservations' attribute
+             */
             $endhost = EndHostModel::with('reservations.end_host', 'reservations.group.subnet')
                                                  ->where('mac', '=', intval($clean_mac, 16))
                                                  ->first();
@@ -198,10 +212,24 @@ class ReservationController extends BaseController {
     }
 
     /**
+     * Create new reservation with unique IP
+     * Required parameters:
+     *  - Endhost ID
+     *  - Group ID
+     *  - IP address
+     * Optional parameters:
+     *  - Active status
+     *  - Comment
+     *
+     * Additional checks:
+     *  - Group and host exist
+     *  - IP belongs to the subnet
+     *  - There are no other reservations for that host in the subnet
+     *
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response
      * @param array $args
-     * @return ResponseInterface
+     * @return ResponseInterface Returns new Reservation
      */
     public function post_reservation (ServerRequestInterface $request, ResponseInterface $response, $args) {
         $required_arguments = [
@@ -215,13 +243,10 @@ class ReservationController extends BaseController {
             ['comment', Validator::DESCRIPTION],
         ];
         /*
-         * Data array used for building the Reservation object.
          * Parameters from Request are filtered and copied to this array.
          */
         $data = [];
         /*
-         * Loop trough required parameters and check if
-         * they exist and are matching the regexp defined above.
          * Generates error message if the value is missing or doesn't
          * match the regular expression defined for it
          */
@@ -233,8 +258,6 @@ class ReservationController extends BaseController {
             }
         }
         /*
-         * Loop through optional parameters and check if
-         * they exist and are matching the regexp defined above.
          * No error message is generated if the parameter is missing.
          * If the value is not matching the regexp, parameter is not
          * added to data array.
@@ -340,17 +363,25 @@ class ReservationController extends BaseController {
     }
 
     /**
-     * @param ServerRequestInterface $request
+     * Delete reservations by ID
+     *
+     * @param ServerRequestInterface $request Not used
      * @param ResponseInterface $response
-     * @param array $args
+     * @param array $args Should have 'id' key
      * @return ResponseInterface
      */
     public function delete_reservation (ServerRequestInterface $request, ResponseInterface $response, $args) {
+        /*
+         * Validate 'id' route argument
+         */
         if (!Validator::validateArgument($args, 'id', Validator::REGEXP_ID)) {
             $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
             $this->r->fail(400, "Invalid reservation ID");
             return $response->withJson($this->r, $this->r->getCode());
         }
+        /*
+         * Fetch and delete reservation
+         */
         try {
             $reservation = ReservationModel::findOrFail($args['id']);
             if ($reservation->delete()) {
