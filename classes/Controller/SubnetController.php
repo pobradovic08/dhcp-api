@@ -17,9 +17,11 @@ use Psr\Http\Message\ResponseInterface;
 class SubnetController extends BaseController {
 
     /**
-     * @param ServerRequestInterface $request
+     * Get all subnets
+     *
+     * @param ServerRequestInterface $request Not used
      * @param ResponseInterface $response
-     * @param array $args
+     * @param array $args Not used
      * @return ResponseInterface
      */
     public function get_subnets (ServerRequestInterface $request, ResponseInterface $response, $args) {
@@ -30,9 +32,11 @@ class SubnetController extends BaseController {
     }
 
     /**
-     * @param ServerRequestInterface $request
+     * Get single subnet by ID
+     *
+     * @param ServerRequestInterface $request Not used
      * @param ResponseInterface $response
-     * @param array $args
+     * @param array $args Should contain 'subnet_id' key
      * @return ResponseInterface
      */
     public function get_subnet_by_id (ServerRequestInterface $request, ResponseInterface $response, $args) {
@@ -52,9 +56,11 @@ class SubnetController extends BaseController {
     }
 
     /**
-     * @param ServerRequestInterface $request
+     * Get subnet for VLAN ID
+     *
+     * @param ServerRequestInterface $request Not used
      * @param ResponseInterface $response
-     * @param array $args
+     * @param array $args Should contain 'vlan_id' key
      * @return ResponseInterface
      */
     public function get_subnet_by_vlan (ServerRequestInterface $request, ResponseInterface $response, $args) {
@@ -73,9 +79,11 @@ class SubnetController extends BaseController {
     }
 
     /**
-     * @param ServerRequestInterface $request
+     * Get subnet for IP address
+     *
+     * @param ServerRequestInterface $request Not used
      * @param ResponseInterface $response
-     * @param array $args
+     * @param array $args Should contain 'ip' key
      * @return ResponseInterface
      */
     public function get_subnet_by_address (ServerRequestInterface $request, ResponseInterface $response, $args) {
@@ -95,10 +103,12 @@ class SubnetController extends BaseController {
     }
 
     /**
-     * @param ServerRequestInterface $request
+     * Get list of free IP addresses in a subnet
+     *
+     * @param ServerRequestInterface $request Not used
      * @param ResponseInterface $response
-     * @param array $args
-     * @return ResponseInterface
+     * @param array $args Should contain 'subnet_id' key
+     * @return ResponseInterface Returns array of free IP addresses (as strings)
      */
     public function get_subnet_free_addresses (ServerRequestInterface $request, ResponseInterface $response, $args) {
         $addresses = [];
