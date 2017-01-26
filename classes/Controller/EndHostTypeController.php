@@ -15,7 +15,6 @@ use Psr\Http\Message\ResponseInterface;
  */
 class EndHostTypeController extends BaseController {
 
-
     /**
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response

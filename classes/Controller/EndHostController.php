@@ -9,7 +9,11 @@ use Illuminate\Database\Query\Expression;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-
+/**
+ * Class EndHostController
+ *
+ * @author  Pavle Obradovic <pobradovic08@gmail.com>
+ */
 class EndHostController extends BaseController {
 
     /**

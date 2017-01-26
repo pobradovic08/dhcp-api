@@ -2,24 +2,19 @@
 
 namespace Dhcp\Controller;
 
-/**
- * Created by PhpStorm.
- * User: pajaja
- * Date: 1/3/2017
- * Time: 11:20 PM
- */
-
-//Custom
 use Dhcp\Model\GroupModel;
 use Dhcp\Validator;
-//Eloquent
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
+/**
+ * Class GroupController
+ *
+ * @author  Pavle Obradovic <pobradovic08@gmail.com>
+ */
 class GroupController extends BaseController {
-
 
     /**
      * @param ServerRequestInterface $request

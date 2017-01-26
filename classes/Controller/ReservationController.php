@@ -2,16 +2,18 @@
 
 namespace Dhcp\Controller;
 
-/* Custom */
 use Dhcp\Model\EndHostModel;
 use Dhcp\Model\GroupModel;
 use Dhcp\Model\ReservationModel;
 use Dhcp\Model\SubnetModel;
 use Dhcp\Validator;
-
-/* Framework */
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
+/**
+ * Class ReservationController
+ *
+ * @author  Pavle Obradovic <pobradovic08@gmail.com>
+ */
 class ReservationController extends BaseController {
 
     const TERSE = 'terse';
