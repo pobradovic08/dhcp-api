@@ -21,6 +21,7 @@ class LogMiddleware {
 
     /**
      * Log the IP address, HTTP method, URL and parameters that client called.
+     *
      * @param $request
      * @param $response
      * @param $next

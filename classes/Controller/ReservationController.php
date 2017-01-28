@@ -334,6 +334,17 @@ class ReservationController extends BaseController {
 
     //TODO: Update reservation
     public function put_reservation (ServerRequestInterface $request, ResponseInterface $response, $args) {
+        /*
+         * Validate 'id' route argument
+         */
+        if (!Validator::validateArgument($args, 'id', Validator::REGEXP_ID)) {
+            $this->ci->logger->addError("Called " . __FUNCTION__ . "with invalid ID");
+            $this->r->fail(400, "Invalid reservation ID");
+            return $response->withJson($this->r, $this->r->getCode());
+        }
+        /*
+         * Editable fields
+         */
         $optional_arguments = [
             ['end_host_id', Validator::ID],
             ['group_id', Validator::ID],
@@ -341,10 +352,7 @@ class ReservationController extends BaseController {
             ['active', Validator::REGEXP_BOOL],
             ['comment', Validator::DESCRIPTION],
         ];
-        /*
-         * Filtered data from optional argumets
-         */
-        $data = [];
+
         /*
          * Loop through optional parameters and check if
          * they exist and are matching the regexp defined above.
@@ -352,13 +360,23 @@ class ReservationController extends BaseController {
          * If the value is not matching the regexp, parameter is not
          * added to data array.
          */
+        $data = [];
         foreach ($optional_arguments as $arg) {
             if (Validator::validateArgument($request->getParams(), $arg[0], $arg[1])) {
                 $data[$arg[0]] = $request->getParam($arg[0]);
             }
         }
-
         $this->r->setData($data);
+
+        try {
+            $reservation = ReservationModel::findOrFail($args['id']);
+            $reservation->setActive($data['active']);
+            $reservation->setComment($data['comment']);
+
+        } catch ( Illuminate\Database\Exception\ModelNotFoundException $e ) {
+            $this->r->fail(404, "Reservation #{$args['id']} not found.");
+        }
+
         return $response->withJson($this->r, $this->r->getCode());
     }
 
