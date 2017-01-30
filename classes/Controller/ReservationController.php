@@ -353,25 +353,38 @@ class ReservationController extends BaseController {
             ['comment', Validator::DESCRIPTION],
         ];
 
-        /*
-         * Loop through optional parameters and check if
-         * they exist and are matching the regexp defined above.
-         * No error message is generated if the parameter is missing.
-         * If the value is not matching the regexp, parameter is not
-         * added to data array.
-         */
-        $data = [];
-        foreach ($optional_arguments as $arg) {
-            if (Validator::validateArgument($request->getParams(), $arg[0], $arg[1])) {
-                $data[$arg[0]] = $request->getParam($arg[0]);
-            }
-        }
-        $this->r->setData($data);
-
         try {
+
+            /*
+             * Get existing reservation
+             */
             $reservation = ReservationModel::findOrFail($args['id']);
-            $reservation->setActive($data['active']);
-            $reservation->setComment($data['comment']);
+
+            /*
+             * Loop through optional parameters and check if
+             * they exist and are matching the regexp defined above.
+             * No error message is generated if the parameter is missing.
+             * If the value is not matching the regexp, parameter is not
+             * added to data array.
+             */
+            $data = [];
+            foreach ($optional_arguments as $arg) {
+                if (Validator::validateArgument($request->getParams(), $arg[0], $arg[1])) {
+                    $data[$arg[0]] = $request->getParam($arg[0]);
+                }
+            }
+            /*
+             * Make changes to reservation
+             */
+            $reservation->fill($data);
+            /*
+             * Check if reservation is valid
+             */
+            //TODO: maybe this should be a ReservationModel method
+            /*
+             * Save reservation to database
+             */
+            $this->r->setData($reservation);
 
         } catch ( Illuminate\Database\Exception\ModelNotFoundException $e ) {
             $this->r->fail(404, "Reservation #{$args['id']} not found.");
