@@ -54,4 +54,9 @@ class ReservationModel extends Model {
         return $this->hasOne('\Dhcp\Model\EndHostModel', 'end_host_id', 'end_host_id');
     }
 
+    //TODO: Validate method
+    public function validate () {
+        return false;
+    }
+
 }
