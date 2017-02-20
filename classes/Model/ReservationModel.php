@@ -67,7 +67,7 @@ class ReservationModel extends Model {
             return false;
         }
         /*
-         * Check if group and endhost exist
+         * Check if group and endhost entries exist
          */
         try{
             $group = GroupModel::findOrFail($this->attributes['group_id']);
