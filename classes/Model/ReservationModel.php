@@ -63,19 +63,26 @@ class ReservationModel extends Model {
         /*
          * Check for required parameters
          */
-        if(!$this->attributes['end_host_id'] or !$this->attributes['ip'] || !$this->attributes['group_id']){
+        if (!$this->attributes['end_host_id'] or !$this->attributes['ip'] || !$this->attributes['group_id']) {
             return false;
         }
         /*
          * Check if group and endhost entries exist
          */
-        try{
+        try {
             $group = GroupModel::findOrFail($this->attributes['group_id']);
+            $subnet = SubnetModel::findOrFail($group->subnet_id);
             $endhost = EndHostModel::findOrFail($this->attributes['end_host_id']);
-        }catch (ModelNotFoundException $e){
+            /*
+             * Check if reservation with that IP exists
+             */
+            $reservation = ReservationModel::where('ip', '=', ip2long($this->attributes['ip']))->first();
+            if ($reservation) {
+                return false;
+            }
+        } catch (ModelNotFoundException $e) {
             return false;
         }
         return GroupModel::all();
     }
-
 }
