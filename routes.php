@@ -8,21 +8,16 @@
 
 $app->get('/test[/]', function ($request, $response, $args) use ($app) {
     $cap = $app->getContainer()->capsule;
-    $m = \Dhcp\EndHost\EndHostModel::with('reservations')->findOrFail(32);
-    $t = \Dhcp\EndHostType\EndHostTypeModel::with('endhosts')->get();
-    $t = \Dhcp\EndHostType\EndHostTypeModel::find(1);
-    $r = \Dhcp\Reservation\ReservationModel::with('group', 'end_host')->get();
-    $g = \Dhcp\Group\GroupModel::with('subnet', 'reservations')->get();
-    $s = \Dhcp\Subnet\SubnetModel::with('reservations')->find(3);
-    $m = \Dhcp\EndHost\EndHostModel::where($cap::raw('HEX(mac)'), 'LIKE', '%74D4359ADF%')->get();
-    $m = \Dhcp\EndHost\EndHostModel::mac('74D4359ADF');
+    $m = \Dhcp\Model\EndHostModel::with('reservations')->findOrFail(32);
+    $t = \Dhcp\Model\EndHostTypeModel::with('endhosts')->get();
+    $t = \Dhcp\Model\EndHostTypeModel::find(1);
+    $r = \Dhcp\Model\ReservationModel::with('group', 'end_host')->get();
+    $r = \Dhcp\Model\ReservationModel::findOrFail(8);
+    $g = \Dhcp\Model\GroupModel::with('subnet', 'reservations')->get();
+    $s = \Dhcp\Model\SubnetModel::with('reservations')->find(3);
+    $m = \Dhcp\Model\EndHostModel::where($cap::raw('HEX(mac)'), 'LIKE', '%74D4359ADF%')->get();
 
-    $test = $cap::select('SELECT HEX(mac) FROM end_hosts');
-    //var_dump($cap::raw('HEX(mac)'));
-    return $response->withJson($m);
-
-    //exec('sudo -S /usr/local/sbin/test');
-    //return $response->withStatus(200)->withJson("ASD");
+    return $response->withJson($r->validate());
 });
 
 $app->put('/test[/]', function ($request, $response, $args) use ($app) {

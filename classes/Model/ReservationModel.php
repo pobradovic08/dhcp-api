@@ -10,6 +10,8 @@ namespace Dhcp\Model;
 
 
 use \Illuminate\Database\Eloquent\Model;
+use \Illuminate\Database\Eloquent\ModelNotFoundException;
+
 
 class ReservationModel extends Model {
 
@@ -52,6 +54,28 @@ class ReservationModel extends Model {
      */
     public function end_host () {
         return $this->hasOne('\Dhcp\Model\EndHostModel', 'end_host_id', 'end_host_id');
+    }
+
+    /*
+     * Check constraints
+     */
+    public function validate () {
+        /*
+         * Check for required parameters
+         */
+        if(!$this->attributes['end_host_id'] or !$this->attributes['ip'] || !$this->attributes['group_id']){
+            return false;
+        }
+        /*
+         * Check if group and endhost exist
+         */
+        try{
+            $group = GroupModel::findOrFail($this->attributes['group_id']);
+            $endhost = EndHostModel::findOrFail($this->attributes['end_host_id']);
+        }catch (ModelNotFoundException $e){
+            return false;
+        }
+        return GroupModel::all();
     }
 
 }
