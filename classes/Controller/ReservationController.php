@@ -190,16 +190,16 @@ class ReservationController extends BaseController {
         $clean_mac = preg_replace('/[\.:-]/', '', $args['mac']);
         if ($args['mode'] == self::TERSE) {
             $endhost = EndHostModel::with('reservations')
-                                                 ->where('mac', '=', intval($clean_mac, 16))
-                                                 ->first();
+                                   ->where('mac', '=', intval($clean_mac, 16))
+                                   ->first();
         } else {
             /*
              * We need 'reservations.end_host' even if we do this on EndHostModel
              * because we later just get the 'reservations' attribute
              */
             $endhost = EndHostModel::with('reservations.end_host', 'reservations.group.subnet')
-                                                 ->where('mac', '=', intval($clean_mac, 16))
-                                                 ->first();
+                                   ->where('mac', '=', intval($clean_mac, 16))
+                                   ->first();
         }
         if ($endhost) {
             $reservation = $endhost->reservations;
@@ -381,12 +381,17 @@ class ReservationController extends BaseController {
              * Check if reservation is valid
              */
             //TODO: maybe this should be a ReservationModel method
-            /*
-             * Save reservation to database
-             */
-            $this->r->setData($reservation);
+            if ($reservation->valid()) {
+                /*
+                * Save reservation to database
+                */
+                if($reservation->save()) {
+                    $this->r->success("Reservation updated.");
+                    $this->r->setData($reservation);
+                }
+            }
 
-        } catch ( Illuminate\Database\Exception\ModelNotFoundException $e ) {
+        } catch (Illuminate\Database\Exception\ModelNotFoundException $e) {
             $this->r->fail(404, "Reservation #{$args['id']} not found.");
         }
 

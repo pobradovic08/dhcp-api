@@ -59,7 +59,7 @@ class ReservationModel extends Model {
     /*
      * Check constraints
      */
-    public function valida () {
+    public function valid () {
         /*
          * Check for required parameters
          */
@@ -88,9 +88,12 @@ class ReservationModel extends Model {
     /*
     * Check if reservation with that IP exists
     */
-    public function ipExists() {
+    public function ipConflict () {
         $reservation = ReservationModel::where('ip', '=', $this->attributes['ip'])->first();
-        return $reservation ? true : false;
+        if ($reservation && $this->attributes['reservation_id'] == $reservation->reservation_id) {
+            return false;
+        }
+        return true;
     }
 
     /*
@@ -98,19 +101,22 @@ class ReservationModel extends Model {
      * Count reservation entries that have given end_host_id AND are bound to
      * one of the groups that belong to a given group's parent subnet
      */
-    public function endHostExists() {
+    public function endHostConflict () {
         /*
          * Check if group and endhost entries exist
          */
         try {
             $group = GroupModel::findOrFail($this->attributes['group_id']);
-            $count = $this->ci->capsule->table('reservations')->select('*')
-                                       ->join('groups', 'reservations.group_id', 'groups.group_id')
-                                       ->join('end_hosts', 'reservations.end_host_id', 'end_hosts.end_host_id')
-                                       ->where('groups.subnet_id', '=', $group->subnet_id)
-                                       ->where('reservations.end_host_id', '=', $this->attributes['end_host_id'])
-                                       ->count();
-            return $count ? true : false;
+            $reservation_id = ReservationModel::select('reservations.reservation_id')
+                                              ->join('groups', 'reservations.group_id', 'groups.group_id')
+                                              ->join('end_hosts', 'reservations.end_host_id', 'end_hosts.end_host_id')
+                                              ->where('groups.subnet_id', '=', $group->subnet_id)
+                                              ->where('reservations.end_host_id', '=', $this->attributes['end_host_id'])
+                                              ->first();
+            if ($reservation_id && $reservation_id['reservation_id'] == $this->attributes['reservation_id']) {
+                return false;
+            }
+            return true;
         } catch (ModelNotFoundException $e) {
             return false;
         }
@@ -119,7 +125,7 @@ class ReservationModel extends Model {
     /*
      * Check if the reservation is valid and is safe to be inserted in the database
      */
-    public function safeToInsert() {
-        return $this->valid() && !$this->ipExists() && !$this->endHostExists();
+    public function safeToInsert () {
+        return $this->valid() && !$this->ipConflict() && !$this->endHostConflict();
     }
 }

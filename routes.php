@@ -17,7 +17,7 @@ $app->get('/test[/]', function ($request, $response, $args) use ($app) {
     $s = \Dhcp\Model\SubnetModel::with('reservations')->find(3);
     $m = \Dhcp\Model\EndHostModel::where($cap::raw('HEX(mac)'), 'LIKE', '%74D4359ADF%')->get();
 
-    return $response->withJson($r->validate());
+    return $response->withJson($r->safeToInsert());
 });
 
 $app->put('/test[/]', function ($request, $response, $args) use ($app) {
