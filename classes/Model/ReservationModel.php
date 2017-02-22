@@ -74,15 +74,52 @@ class ReservationModel extends Model {
             $subnet = SubnetModel::findOrFail($group->subnet_id);
             $endhost = EndHostModel::findOrFail($this->attributes['end_host_id']);
             /*
-             * Check if reservation with that IP exists
+             * Check if IP belongs to the subnet
              */
-            $reservation = ReservationModel::where('ip', '=', ip2long($this->attributes['ip']))->first();
-            if ($reservation) {
+            if (!$subnet->validIp(long2ip($this->attributes['ip']))) {
                 return false;
             }
         } catch (ModelNotFoundException $e) {
             return false;
         }
-        return GroupModel::all();
+        return true;
+    }
+
+    /*
+    * Check if reservation with that IP exists
+    */
+    public function ipExists() {
+        $reservation = ReservationModel::where('ip', '=', $this->attributes['ip'])->first();
+        return $reservation ? true : false;
+    }
+
+    /*
+     * Check if there are no other reservations for that host in the subnet
+     * Count reservation entries that have given end_host_id AND are bound to
+     * one of the groups that belong to a given group's parent subnet
+     */
+    public function endHostExists() {
+        /*
+         * Check if group and endhost entries exist
+         */
+        try {
+            $group = GroupModel::findOrFail($this->attributes['group_id']);
+            $count = $this->ci->capsule->table('reservations')->select('*')
+                                       ->join('groups', 'reservations.group_id', 'groups.group_id')
+                                       ->join('end_hosts', 'reservations.end_host_id', 'end_hosts.end_host_id')
+                                       ->where('groups.subnet_id', '=', $group->subnet_id)
+                                       ->where('reservations.end_host_id', '=', $this->attributes['end_host_id'])
+                                       ->count();
+            return $count ? true : false;
+        } catch (ModelNotFoundException $e) {
+            return false;
+        }
+    }
+
+    /*
+     * Check if the reservation is valid and is safe to be inserted in the database
+     */
+    public function safeToInsert() {
+        return $this->validate() && !$this->$this->ipExists() && !$this->endHostExists();
     }
 }
