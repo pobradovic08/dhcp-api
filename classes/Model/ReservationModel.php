@@ -59,7 +59,7 @@ class ReservationModel extends Model {
     /*
      * Check constraints
      */
-    public function validate () {
+    public function valida () {
         /*
          * Check for required parameters
          */
@@ -120,6 +120,6 @@ class ReservationModel extends Model {
      * Check if the reservation is valid and is safe to be inserted in the database
      */
     public function safeToInsert() {
-        return $this->validate() && !$this->$this->ipExists() && !$this->endHostExists();
+        return $this->valid() && !$this->ipExists() && !$this->endHostExists();
     }
 }
