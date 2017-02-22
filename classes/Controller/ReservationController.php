@@ -332,7 +332,6 @@ class ReservationController extends BaseController {
         return $response->withJson($this->r, $this->r->getCode());
     }
 
-    //TODO: Update reservation
     public function put_reservation (ServerRequestInterface $request, ResponseInterface $response, $args) {
         /*
          * Validate 'id' route argument
@@ -380,15 +379,20 @@ class ReservationController extends BaseController {
             /*
              * Check if reservation is valid
              */
-            //TODO: maybe this should be a ReservationModel method
-            if ($reservation->valid()) {
-                /*
-                * Save reservation to database
-                */
-                if($reservation->save()) {
-                    $this->r->success("Reservation updated.");
-                    $this->r->setData($reservation);
+            try {
+                if ($reservation->safeToInsert()) {
+                    /*
+                    * Save reservation to database
+                    */
+                    if ($reservation->save()) {
+                        $this->r->success("Reservation updated.");
+                        $this->r->setData($reservation);
+                    }
+                } else {
+                    $this->r->fail(400, "Reservation didn't pass validation.");
                 }
+            }catch (\InvalidArgumentException $e){
+                $this->r->fail(400, $e->getMessage());
             }
 
         } catch (Illuminate\Database\Exception\ModelNotFoundException $e) {

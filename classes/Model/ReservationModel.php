@@ -72,6 +72,10 @@ class ReservationModel extends Model {
         try {
             $group = GroupModel::findOrFail($this->attributes['group_id']);
             $subnet = SubnetModel::findOrFail($group->subnet_id);
+            /*
+             * Just for validation
+             * Endhost is not used but it will raise an exception if it doesn't exist
+             */
             $endhost = EndHostModel::findOrFail($this->attributes['end_host_id']);
             /*
              * Check if IP belongs to the subnet
@@ -89,11 +93,14 @@ class ReservationModel extends Model {
     * Check if reservation with that IP exists
     */
     public function ipConflict () {
-        $reservation = ReservationModel::where('ip', '=', $this->attributes['ip'])->first();
-        if ($reservation && $this->attributes['reservation_id'] == $reservation->reservation_id) {
-            return false;
+        $reservation = ReservationModel::with('end_host')
+                                       ->where('ip', '=', $this->attributes['ip'])
+                                       ->where('reservation_id', '!=', $this->attributes['reservation_id'])
+                                       ->first();
+        if ($reservation) {
+            throw new \InvalidArgumentException("IP already reserved for '{$reservation['end_host']['hostname']}'.");
         }
-        return true;
+        return false;
     }
 
     /*
@@ -107,16 +114,17 @@ class ReservationModel extends Model {
          */
         try {
             $group = GroupModel::findOrFail($this->attributes['group_id']);
-            $reservation_id = ReservationModel::select('reservations.reservation_id')
-                                              ->join('groups', 'reservations.group_id', 'groups.group_id')
-                                              ->join('end_hosts', 'reservations.end_host_id', 'end_hosts.end_host_id')
-                                              ->where('groups.subnet_id', '=', $group->subnet_id)
-                                              ->where('reservations.end_host_id', '=', $this->attributes['end_host_id'])
-                                              ->first();
-            if ($reservation_id && $reservation_id['reservation_id'] == $this->attributes['reservation_id']) {
-                return false;
+            $res = ReservationModel::select('reservations.reservation_id', 'end_hosts.hostname')
+                                   ->join('groups', 'reservations.group_id', 'groups.group_id')
+                                   ->join('end_hosts', 'reservations.end_host_id', 'end_hosts.end_host_id')
+                                   ->where('groups.subnet_id', '=', $group->subnet_id)
+                                   ->where('reservations.end_host_id', '=', $this->attributes['end_host_id'])
+                                   ->where('reservations.reservation_id', '!=', $this->attributes['reservation_id'])
+                                   ->first();
+            if ($res) {
+                throw new \InvalidArgumentException("Reservation for end host '{$res['hostname']}' already exists.");
             }
-            return true;
+            return false;
         } catch (ModelNotFoundException $e) {
             return false;
         }
@@ -125,7 +133,8 @@ class ReservationModel extends Model {
     /*
      * Check if the reservation is valid and is safe to be inserted in the database
      */
-    public function safeToInsert () {
+    public
+    function safeToInsert () {
         return $this->valid() && !$this->ipConflict() && !$this->endHostConflict();
     }
 }
