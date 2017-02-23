@@ -64,7 +64,7 @@ class ReservationModel extends Model {
          * Check for required parameters
          */
         if (!$this->attributes['end_host_id'] or !$this->attributes['ip'] || !$this->attributes['group_id']) {
-            return false;
+            throw new \InvalidArgumentException("Missing end host, IP or group");
         }
         /*
          * Check if group and endhost entries exist
@@ -81,10 +81,10 @@ class ReservationModel extends Model {
              * Check if IP belongs to the subnet
              */
             if (!$subnet->validIp(long2ip($this->attributes['ip']))) {
-                return false;
+                throw new \InvalidArgumentException("IP doesn't belong to the subnet");
             }
         } catch (ModelNotFoundException $e) {
-            return false;
+            throw new \InvalidArgumentException("Group or endhost don't exist");
         }
         return true;
     }

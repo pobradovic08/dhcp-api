@@ -268,66 +268,22 @@ class ReservationController extends BaseController {
             }
         }
         /*
-         * We need to check that:
-         * 0. There are no reservations for that IP
-         * 1. Group and host exist
-         * 2. IP belongs to the subnet
-         * 3. There are no other reservations for that host in the subnet
+         * Create new reservation object with data from user
+         * Check if the reservation is valid
+         * Save to database
          */
         try {
-            /*
-             * Check if the reservation is unique
-             */
-            $reservation = ReservationModel::with('end_host')->where('ip', '=', ip2long($data['ip']))->first();
-            if ($reservation) {
-                $this->r->fail(400, "IP {$data['ip']} already reserved (#{$reservation->reservation_id})" .
-                                    " for " . $reservation->end_host->hostname);
-                return $response->withJson($this->r, $this->r->getCode());
-            }
-            /*
-             * Get group and subnet. This also checks if the group exists.
-             * Get host. This checks if the host exists.
-             */
-            $group = GroupModel::findOrFail($data['group_id']);
-            $subnet = SubnetModel::findOrFail($group->subnet_id);
-            $endhost = EndHostModel::findOrFail($data['end_host_id']);
-            /*
-             * Check if IP belongs to the subnet
-             */
-            if (!$subnet->validIp($data['ip'])) {
-                $this->r->fail(400,
-                               "IP ${data['ip']} is not a valid host address in" .
-                               "{$subnet->network}/{$subnet->network_mask}");
-                return $response->withJson($this->r, $this->r->getCode());
-            }
-            /*
-             * Check if there are no other reservations for that host in the subnet
-             * Count reservation entries that have given end_host_id AND are bound to
-             * one of the groups that belong to a given group's parent subnet
-             */
-            $count = $this->ci->capsule->table('reservations')->select('*')
-                                       ->join('groups', 'reservations.group_id', 'groups.group_id')
-                                       ->join('end_hosts', 'reservations.end_host_id', 'end_hosts.end_host_id')
-                                       ->where('groups.subnet_id', '=', $subnet->subnet_id)
-                                       ->where('reservations.end_host_id', '=', $endhost->end_host_id)
-                                       ->count();
-            if ($count) {
-                $this->r->fail(400,
-                               "Host {$endhost->hostname} already has reservation in {$subnet->network}/{$subnet->cidr()}");
-                return $response->withJson($this->r, $this->r->getCode());
-            }
-            /*
-             * We've come so far... create new reservation
-             */
             $reservation = new ReservationModel($data);
-            if ($reservation->save()) {
-                $this->r->success("IP {$data['ip']} reserved for {$endhost->hostname}");
-                $this->r->setData($reservation);
-            } else {
-                $this->r->fail(500, 'Creating reservation unsuccessful.');
+            if($reservation->safeToInsert()) {
+                if ($reservation->save()) {
+                    $this->r->success("IP {$data['ip']} reserved.");
+                    $this->r->setData($reservation);
+                } else {
+                    $this->r->fail(500, 'Creating reservation unsuccessful.');
+                }
             }
-        } catch (ModelNotFoundException $e) {
-            $this->r->fail(400, "Group #{$data['group_id']} or host #{$data['end_host_id']} doesn't exist.");
+        } catch (\InvalidArgumentException $e){
+            $this->r->fail(400, $e->getMessage());
         }
         return $response->withJson($this->r, $this->r->getCode());
     }
