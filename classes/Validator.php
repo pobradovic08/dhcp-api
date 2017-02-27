@@ -23,6 +23,7 @@ class Validator {
     const DESCRIPTION = 5;
     const VLAN = 6;
     const FILENAME = 7;
+    const MASK = 8;
 
     /*
      * ID must be integer between 1 and infinity
@@ -43,7 +44,7 @@ class Validator {
         return boolval(preg_match(self::REGEXP_HOSTNAME, $hostname));
     }
 
-    static function validateFilename ($file){
+    static function validateFilename ($file) {
         return boolval(preg_match(self::REGEXP_FILENAME, $file));
     }
 
@@ -88,9 +89,11 @@ class Validator {
         if (isset($arguments[$argument_name])) {
             // Match the regexp if defined or return true if filter succeeded
             if ($regexp) {
-                switch($regexp){
+                switch ($regexp) {
                     case self::IP:
                         return self::validateIpAddress($arguments[$argument_name]);
+                    case self::MASK:
+                        return self::validateIpMask($arguments[$argument_name]);
                     case self::MAC:
                         return self::validateMacAddress($arguments[$argument_name]);
                     case self::ID:
@@ -106,7 +109,7 @@ class Validator {
                     default:
                         return boolval(preg_match($regexp, $arguments[$argument_name]));
                 }
-            }else{
+            } else {
                 return true;
             }
         }

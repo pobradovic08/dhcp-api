@@ -105,7 +105,7 @@ $app->group('/subnets', function () use ($app) {
     /* Get subnet by VLAN ID */
     $app->get('/vlan/{vlan_id:[0-9]+}', 'SubnetController:get_subnet_by_vlan');
     /* Create new subnet */
-    $app->post('[/new]', 'SubnetController:create_subnet');
+    $app->post('[/new]', 'SubnetController:post_subnet');
 
     /*
      * Subnet groups

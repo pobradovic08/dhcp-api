@@ -121,12 +121,12 @@ class SubnetController extends BaseController {
         try {
             $result = SubnetModel::findOrFail($args['subnet_id']);
             $reservations = $this->ci->capsule->table('groups')
-                                        ->select('ip')
-                                        ->join('reservations', 'groups.group_id', 'reservations.group_id')
-                                        ->join('subnets', 'subnets.subnet_id', 'groups.subnet_id')
-                                        ->where('subnets.subnet_id', '=', $args['subnet_id'])
-                                        ->get();
-            foreach($reservations as $reservation){
+                                              ->select('ip')
+                                              ->join('reservations', 'groups.group_id', 'reservations.group_id')
+                                              ->join('subnets', 'subnets.subnet_id', 'groups.subnet_id')
+                                              ->where('subnets.subnet_id', '=', $args['subnet_id'])
+                                              ->get();
+            foreach ($reservations as $reservation) {
                 $reserved_addresses[] = $reservation->ip;
             }
             for ($i = ip2long($result->from_address); $i <= ip2long($result->to_address); $i++) {
@@ -144,7 +144,55 @@ class SubnetController extends BaseController {
 
     //TODO: new subnet
     public function post_subnet (ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $required_arguments = [
+            ['vlan_id', Validator::VLAN],
+            ['network', Validator::IP],
+            ['network_mask', Validator::MASK]
+        ];
 
+        $optional_arguments = [
+            ['description', Validator::REGEXP_BOOL],
+            ['from_address', Validator::IP],
+            ['to_address', Validator::IP],
+        ];
+        /*
+         * Parameters from Request are filtered and copied to this array.
+         */
+        $data = [];
+        /*
+         * Generates error message if the value is missing or doesn't
+         * match the regular expression defined for it
+         */
+        foreach ($required_arguments as $arg) {
+            if (Validator::validateArgument($request->getParams(), $arg[0], $arg[1])) {
+                $data[$arg[0]] = $request->getParam($arg[0]);
+            } else {
+                $this->r->fail(400, "Required parameter {$arg[0]} missing or invalid.");
+            }
+        }
+        /*
+         * No error message is generated if the parameter is missing.
+         * If the value is not matching the regexp, parameter is not
+         * added to data array.
+         */
+        foreach ($optional_arguments as $arg) {
+            if (Validator::validateArgument($request->getParams(), $arg[0], $arg[1])) {
+                $data[$arg[0]] = $request->getParam($arg[0]);
+            }
+        }
+        /*
+         * Create subnet object with data from user
+         */
+        $reservation = new SubnetModel($data);
+        /*
+         * If [from, to] addresses not set
+         * Calculate them automatically
+         */
+        $reservation->getFromAddressAttribute();
+        $reservation->getToAddressAttribute();
+        $this->r->setData($reservation);
+
+        return $response->withStatus($this->r->getCode())->withJson($this->r);
     }
 
     //TODO: update subnet
@@ -161,9 +209,9 @@ class SubnetController extends BaseController {
         }
         try {
             $result = SubnetModel::findOrFail($args['subnet_id']);
-            if($result->delete()){
+            if ($result->delete()) {
                 $this->r->success("Subnet {$result->subnet_id} deleted.");
-            }else{
+            } else {
                 $this->r->fail(500, "Couldn't delete subnet");
             }
         } catch (ModelNotFoundException $e) {
