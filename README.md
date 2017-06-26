@@ -15,6 +15,11 @@ GNU General Public License for more details.
 >You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+This programm is written for easier handling of static reservations in ISC DHCP server and
+***DOES NOT*** use `dhcpd.leases` (DHCP client lease database).
+It stores data in MySQL database and is used to generate textual configuration files to be used
+for extending `dhcpd.conf`. 
+
 ## API end points
 ### Hosts
 
