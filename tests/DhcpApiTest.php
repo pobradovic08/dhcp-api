@@ -32,12 +32,12 @@ class DhcpApiTest extends PHPUnit_Framework_TestCase {
             ['reservations/id/9999', true],
             ['reservations/ip/1.1.1.1', true],
             ['reservations/ip/10.20.30.1', true],
-            ['reservations/subnet/1', false],
-            ['reservations/subnet/9999', false],
-            ['reservations/group/1', false],
-            ['reservations/group/9999', false],
-            ['reservations/mac/1234.5678.abcd', false],
-            ['reservations/mac/2D-06-CA-C8-65-2C', false],
+            ['reservations/subnet/1', true],
+            ['reservations/subnet/9999', true],
+            ['reservations/group/1', true],
+            ['reservations/group/9999', true],
+            ['reservations/mac/1234.5678.abcd', true],
+            ['reservations/mac/2D-06-CA-C8-65-2C', true],
             ['subnets', false],
             ['subnets/id/2', true],
             ['subnets/id/9999', true],
@@ -67,7 +67,7 @@ class DhcpApiTest extends PHPUnit_Framework_TestCase {
             $json = json_decode($body);
             $this->assertObjectHasAttribute('success', $json);
             $this->assertTrue($json->success);
-        } catch ( \GuzzleHttp\Exception\ClientException $e ) {
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
             // Exception because we didn't get 2XX
             $response = $e->getResponse();
             $body = $response->getBody()->getContents();
@@ -77,7 +77,7 @@ class DhcpApiTest extends PHPUnit_Framework_TestCase {
             $json = json_decode($body);
             $this->assertObjectHasAttribute('success', $json);
             $this->assertFalse($json->success);
-        } catch ( \GuzzleHttp\Exception\ServerException $e ) {
+        } catch (\GuzzleHttp\Exception\ServerException $e) {
             $this->fail("Got 5XX HTTP code");
         }
     }
@@ -107,7 +107,7 @@ class DhcpApiTest extends PHPUnit_Framework_TestCase {
     public function testApiEndpointsWithInvalidArguments ($url) {
         try {
             $this->c->request('GET', self::$base . $url);
-        } catch ( \GuzzleHttp\Exception\ClientException $e ) {
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
             $response = $e->getResponse();
             $body = $response->getBody()->getContents();
             $this->assertEquals(400, $response->getStatusCode());
@@ -115,8 +115,49 @@ class DhcpApiTest extends PHPUnit_Framework_TestCase {
             $json = json_decode($body);
             $this->assertObjectHasAttribute('success', $json);
             $this->assertFalse($json->success);
-        } catch ( \GuzzleHttp\Exception\ServerException $e ) {
+        } catch (\GuzzleHttp\Exception\ServerException $e) {
             $this->fail("Got 5XX HTTP code");
         }
     }
+
+    //TODO: Subnet - Create, Update, Delete
+    public $subnet_id;
+    public function testInsertSubnet () {
+        try {
+            $response = $this->c->post(self::$base . 'subnets',
+                                       ['json' => [
+                                           'vlan' => 666
+                                       ]]);
+            $this->fail($response->getBody()->getContents());
+        }catch (\GuzzleHttp\Exception\ServerException $e){
+            $this->fail("aaa");
+        }
+    }
+
+    public function testUpdateSubnet () {
+        $this->fail();
+    }
+
+    public function testDeleteSubnet () {
+        $this->fail();
+    }
+
+    //TODO: Else
+    public function testInsertGroup () {
+        $this->fail();
+    }
+
+    public function testInsertEndHostType () {
+        $this->fail();
+    }
+
+    public function testInsertEndHost () {
+        $this->fail();
+    }
+
+    public function testInsetReservation () {
+        $this->fail();
+    }
+    //TODO Update
+    //TODO Delete
 }

@@ -4,19 +4,24 @@ use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 use \Interop\Container\ContainerInterface as ContainerInterface;
 
-require __DIR__ . '/../vendor/autoload.php';
+require '../vendor/autoload.php';
 
 $config = [
     'settings' => [
         'displayErrorDetails' => true,
+        'determineRouteBeforeAppMiddleware' => true,
         'db' => [
+            'driver' => 'mysql',
             'host' => 'localhost',
-            'user' => 'dhcp',
+            'database' => 'dhcp',
+            'username' => 'dhcp',
             'password' => 'dhcp',
-            'dbname' => 'dhcp',
+            'charset' => 'utf8',
+            'collation' => 'utf8_unicode_ci',
+            'prefix' => ''
         ],
         'logger' => [
-            'name' => 'slim-app',
+            'name' => 'dhcp-api',
             'level' => Monolog\Logger::DEBUG,
             'path' => __DIR__ . '/../logs/app.log',
         ],
@@ -39,36 +44,50 @@ $container['logger'] = function ($c) {
 // Setup MySQL
 $container['db'] = function ($c) {
     $dbs = $c['settings']['db'];
-    $pdo = new PDO("mysql:host=" . $dbs['host'] . ";dbname=" . $dbs['dbname'],
-                   $dbs['user'], $dbs['password']);
+    $pdo = new PDO("mysql:host=" . $dbs['host'] . ";dbname=" . $dbs['database'],
+                   $dbs['username'], $dbs['password']);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
     return $pdo;
 };
 
+$container['capsule'] = function ($c) {
+    $capsule = new \Illuminate\Database\Capsule\Manager;
+    $capsule->addConnection($c['settings']['db']);
+    $capsule->setAsGlobal();
+    $capsule->bootEloquent();
+    return $capsule;
+};
+
 $container['SubnetController'] = function ($c) {
-    return new \Dhcp\Subnet\SubnetController($c);
+    return new \Dhcp\Controller\SubnetController($c);
 };
 
 $container['GroupController'] = function ($c) {
-    return new \Dhcp\Group\GroupController($c);
+    return new \Dhcp\Controller\GroupController($c);
 };
 
 $container['EndHostController'] = function ($c) {
-    return new \Dhcp\EndHost\EndHostController($c);
+    return new \Dhcp\Controller\EndHostController($c);
 };
 
 $container['EndHostTypeController'] = function ($c) {
-    return new \Dhcp\EndHostType\EndHostTypeController($c);
+    return new \Dhcp\Controller\EndHostTypeController($c);
 };
 
 $container['ReservationController'] = function ($c) {
-    return new \Dhcp\Reservation\ReservationController($c);
+    return new \Dhcp\Controller\ReservationController($c);
 };
+
+
+$app->add(new \Dhcp\Middleware\LogMiddleware($container));
+// Add IP middleware last. Execution goes backwards
+$app->add(new RKA\Middleware\IpAddress());
 
 
 require __DIR__ . '/../routes.php';
 
 // Run application
+//$container->capsule;
 $app->run();
